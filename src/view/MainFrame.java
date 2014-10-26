@@ -9,11 +9,12 @@ package view;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 /**
  *
  * @author RuN
  */
-public class MainFrame extends javax.swing.JFrame
+public class MainFrame extends JFrame
 {
     private static final long serialVersionUID = 1L;
     private final StartPanel startPanel;
@@ -31,7 +32,6 @@ public class MainFrame extends javax.swing.JFrame
         // Create StartPanel
         startPanel = new StartPanel(this);
         getContentPane().add(startPanel);
-        startPanel.setVisible(true);
         
         setWindowLocation(); 
     }

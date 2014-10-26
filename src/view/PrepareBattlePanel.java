@@ -29,7 +29,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
     private int gate;
     private City city;
     private City attackedCity;
-    private Character general, northGeneral, southGeneral, westGeneral, eastGeneral;
+    private Character selectedGeneral, northGeneral, southGeneral, westGeneral, eastGeneral;
     private Legion northGateLegion, southGateLegion, westGateLegion, eastGateLegion;
     private String gateName;
     private String charName;
@@ -68,7 +68,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
         
         // initDropDownLists();
         
-        dispatchTroopsPanel.setVisible(false);
+        selectFormation.setVisible(false);
         selectCharacterPanel.setVisible(false);
         jLayeredPane1.setVisible(false);
     }
@@ -194,7 +194,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
         attackedCity = gc.getCity(attackedCityNumber);
         selectCityPanel.setVisible(false);
         castleLabel.setText(attackedCity.getCityName() + "城");
-        dispatchTroopsPanel.setVisible(true);
+        selectFormation.setVisible(true);
     }
 
     private boolean isDispatched()
@@ -256,7 +256,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
         nameLabel = new javax.swing.JLabel();
         attackLabel = new javax.swing.JLabel();
         defenceLabel = new javax.swing.JLabel();
-        dispatchTroopsPanel = new javax.swing.JLayeredPane();
+        selectFormation = new javax.swing.JLayeredPane();
         startButton = new javax.swing.JButton();
         backButton = new javax.swing.JButton();
         northGateButton = new javax.swing.JButton();
@@ -298,7 +298,6 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
 
         jLayeredPane1.setMaximumSize(new java.awt.Dimension(800, 600));
         jLayeredPane1.setMinimumSize(new java.awt.Dimension(800, 600));
-        jLayeredPane1.setPreferredSize(new java.awt.Dimension(800, 600));
 
         javax.swing.GroupLayout jLayeredPane1Layout = new javax.swing.GroupLayout(jLayeredPane1);
         jLayeredPane1.setLayout(jLayeredPane1Layout);
@@ -700,9 +699,8 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(selectCharacterPanel, gridBagConstraints);
 
-        dispatchTroopsPanel.setMaximumSize(new java.awt.Dimension(800, 600));
-        dispatchTroopsPanel.setMinimumSize(new java.awt.Dimension(800, 600));
-        dispatchTroopsPanel.setPreferredSize(new java.awt.Dimension(800, 600));
+        selectFormation.setMaximumSize(new java.awt.Dimension(800, 600));
+        selectFormation.setMinimumSize(new java.awt.Dimension(800, 600));
 
         startButton.setText("Start");
         startButton.setFocusable(false);
@@ -858,216 +856,216 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
 
         remainingLabel.setText("0");
 
-        javax.swing.GroupLayout dispatchTroopsPanelLayout = new javax.swing.GroupLayout(dispatchTroopsPanel);
-        dispatchTroopsPanel.setLayout(dispatchTroopsPanelLayout);
-        dispatchTroopsPanelLayout.setHorizontalGroup(
-            dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dispatchTroopsPanelLayout.createSequentialGroup()
-                .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+        javax.swing.GroupLayout selectFormationLayout = new javax.swing.GroupLayout(selectFormation);
+        selectFormation.setLayout(selectFormationLayout);
+        selectFormationLayout.setHorizontalGroup(
+            selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectFormationLayout.createSequentialGroup()
+                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(selectFormationLayout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(startButton)
                         .addGap(18, 18, 18)
                         .addComponent(backButton))
-                    .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+                    .addGroup(selectFormationLayout.createSequentialGroup()
                         .addGap(60, 60, 60)
-                        .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
-                                .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(selectFormationLayout.createSequentialGroup()
+                                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(selectFormationLayout.createSequentialGroup()
                                         .addComponent(bingli2)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                         .addComponent(westSoldiersLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addComponent(westSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+                                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(selectFormationLayout.createSequentialGroup()
                                         .addComponent(bingli4)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                         .addComponent(eastSoldiersLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addComponent(eastSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+                                    .addGroup(selectFormationLayout.createSequentialGroup()
                                         .addComponent(jLabel3)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                         .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, dispatchTroopsPanelLayout.createSequentialGroup()
-                                .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, selectFormationLayout.createSequentialGroup()
+                                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(westGateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+                                    .addGroup(selectFormationLayout.createSequentialGroup()
                                         .addGap(16, 16, 16)
-                                        .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(jLabel7)
                                             .addComponent(jLabel9)
                                             .addComponent(remainingLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))))
                                 .addGap(89, 89, 89)
-                                .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addComponent(southGateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(northGateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+                                        .addGroup(selectFormationLayout.createSequentialGroup()
                                             .addGap(18, 18, 18)
-                                            .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                 .addComponent(jLabel5)
                                                 .addComponent(jLabel6))))
                                     .addComponent(castleLabel))
-                                .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+                                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(selectFormationLayout.createSequentialGroup()
                                         .addGap(45, 45, 45)
-                                        .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(northSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+                                            .addGroup(selectFormationLayout.createSequentialGroup()
                                                 .addComponent(bingli1)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                                 .addComponent(northSoldiersLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+                                            .addGroup(selectFormationLayout.createSequentialGroup()
                                                 .addComponent(jLabel1)
                                                 .addGap(12, 12, 12)
                                                 .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                             .addComponent(southSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+                                            .addGroup(selectFormationLayout.createSequentialGroup()
                                                 .addComponent(bingli3)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addComponent(southSoldiersLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+                                            .addGroup(selectFormationLayout.createSequentialGroup()
                                                 .addComponent(jLabel2)
                                                 .addGap(12, 12, 12)
                                                 .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                    .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+                                    .addGroup(selectFormationLayout.createSequentialGroup()
                                         .addGap(237, 237, 237)
-                                        .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+                                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(selectFormationLayout.createSequentialGroup()
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addComponent(jLabel8)
                                                 .addGap(28, 28, 28))
                                             .addComponent(eastGateButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                                 .addGap(0, 0, Short.MAX_VALUE)))))
                 .addGap(18, 18, 18))
-            .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+            .addGroup(selectFormationLayout.createSequentialGroup()
                 .addGap(58, 58, 58)
                 .addComponent(jLabel4)
                 .addGap(12, 12, 12)
                 .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        dispatchTroopsPanelLayout.setVerticalGroup(
-            dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+        selectFormationLayout.setVerticalGroup(
+            selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(selectFormationLayout.createSequentialGroup()
                 .addGap(33, 33, 33)
-                .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(selectFormationLayout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addGap(20, 20, 20)
-                        .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(northGateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+                            .addGroup(selectFormationLayout.createSequentialGroup()
                                 .addComponent(jLabel9)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(remainingLabel))))
-                    .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
-                        .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(selectFormationLayout.createSequentialGroup()
+                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(northSoldiersLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(bingli1, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(northSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel1))))
                 .addGap(75, 75, 75)
-                .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(selectFormationLayout.createSequentialGroup()
                         .addComponent(jLabel7)
                         .addGap(18, 18, 18)
-                        .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(westGateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dispatchTroopsPanelLayout.createSequentialGroup()
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectFormationLayout.createSequentialGroup()
                                 .addComponent(castleLabel)
                                 .addGap(20, 20, 20))))
-                    .addGroup(dispatchTroopsPanelLayout.createSequentialGroup()
+                    .addGroup(selectFormationLayout.createSequentialGroup()
                         .addComponent(jLabel8)
                         .addGap(18, 18, 18)
                         .addComponent(eastGateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(29, 29, 29)
-                .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dispatchTroopsPanelLayout.createSequentialGroup()
-                        .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectFormationLayout.createSequentialGroup()
+                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(westSoldiersLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(bingli2, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(westSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dispatchTroopsPanelLayout.createSequentialGroup()
-                        .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectFormationLayout.createSequentialGroup()
+                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(bingli4, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(eastSoldiersLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(eastSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3)
                     .addComponent(jLabel4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dispatchTroopsPanelLayout.createSequentialGroup()
+                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectFormationLayout.createSequentialGroup()
                         .addComponent(jLabel6)
                         .addGap(20, 20, 20)
                         .addComponent(southGateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dispatchTroopsPanelLayout.createSequentialGroup()
-                        .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectFormationLayout.createSequentialGroup()
+                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(southSoldiersLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(bingli3, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(southSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel2))))
                 .addGap(39, 39, 39)
-                .addGroup(dispatchTroopsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(backButton)
                     .addComponent(startButton))
                 .addContainerGap())
         );
-        dispatchTroopsPanel.setLayer(startButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(backButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(northGateButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(southGateButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(westGateButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(eastGateButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(castleLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(jLabel5, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(jLabel6, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(jLabel7, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(jLabel8, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(northSlider, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(northSoldiersLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(bingli1, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(southSlider, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(bingli3, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(southSoldiersLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(westSlider, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(bingli2, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(westSoldiersLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(eastSlider, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(bingli4, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(eastSoldiersLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(jComboBox1, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(jComboBox2, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(jComboBox3, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(jComboBox4, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(jLabel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(jLabel2, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(jLabel3, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(jLabel4, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(jLabel9, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        dispatchTroopsPanel.setLayer(remainingLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(startButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(backButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(northGateButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(southGateButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(westGateButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(eastGateButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(castleLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(jLabel5, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(jLabel6, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(jLabel7, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(jLabel8, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(northSlider, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(northSoldiersLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(bingli1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(southSlider, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(bingli3, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(southSoldiersLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(westSlider, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(bingli2, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(westSoldiersLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(eastSlider, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(bingli4, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(eastSoldiersLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(jComboBox1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(jComboBox2, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(jComboBox3, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(jComboBox4, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(jLabel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(jLabel2, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(jLabel3, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(jLabel4, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(jLabel9, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormation.setLayer(remainingLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        add(dispatchTroopsPanel, gridBagConstraints);
+        add(selectFormation, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     private void middleActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_middleActionPerformed
@@ -1084,41 +1082,41 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
     private void backButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_backButtonActionPerformed
     {//GEN-HEADEREND:event_backButtonActionPerformed
         gate = NONE;
-        dispatchTroopsPanel.setVisible(false);
+        selectFormation.setVisible(false);
         selectCityPanel.setVisible(true);
     }//GEN-LAST:event_backButtonActionPerformed
 
     private void northGateButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_northGateButtonActionPerformed
     {//GEN-HEADEREND:event_northGateButtonActionPerformed
         gate = NORTH;
-        dispatchTroopsPanel.setVisible(false);
+        selectFormation.setVisible(false);
         selectCharacterPanel.setVisible(true);
     }//GEN-LAST:event_northGateButtonActionPerformed
 
     private void southGateButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_southGateButtonActionPerformed
     {//GEN-HEADEREND:event_southGateButtonActionPerformed
         gate = SOUTH;
-        dispatchTroopsPanel.setVisible(false);
+        selectFormation.setVisible(false);
         selectCharacterPanel.setVisible(true);
     }//GEN-LAST:event_southGateButtonActionPerformed
 
     private void westGateButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_westGateButtonActionPerformed
     {//GEN-HEADEREND:event_westGateButtonActionPerformed
         gate = WEST;
-        dispatchTroopsPanel.setVisible(false);
+        selectFormation.setVisible(false);
         selectCharacterPanel.setVisible(true);
     }//GEN-LAST:event_westGateButtonActionPerformed
 
     private void eastGateButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_eastGateButtonActionPerformed
     {//GEN-HEADEREND:event_eastGateButtonActionPerformed
         gate = EAST;
-        dispatchTroopsPanel.setVisible(false);
+        selectFormation.setVisible(false);
         selectCharacterPanel.setVisible(true);
     }//GEN-LAST:event_eastGateButtonActionPerformed
 
     private void confirmButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_confirmButtonActionPerformed
     {//GEN-HEADEREND:event_confirmButtonActionPerformed
-        charName = general.getName();
+        charName = selectedGeneral.getName();
         
         if (charName.equals("无") || charName == null || charName.equals("")) {
             JOptionPane.showMessageDialog(frame, "请选择有效武将！", "选择错误", JOptionPane.PLAIN_MESSAGE);
@@ -1126,14 +1124,14 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
         {
             dispatchTroops();
             selectCharacterPanel.setVisible(false);
-            dispatchTroopsPanel.setVisible(true);
+            selectFormation.setVisible(true);
         }
     }//GEN-LAST:event_confirmButtonActionPerformed
 
     private void tableBackButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_tableBackButtonActionPerformed
     {//GEN-HEADEREND:event_tableBackButtonActionPerformed
         selectCharacterPanel.setVisible(false);
-        dispatchTroopsPanel.setVisible(true);
+        selectFormation.setVisible(true);
     }//GEN-LAST:event_tableBackButtonActionPerformed
 
     private void southActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_southActionPerformed
@@ -1223,11 +1221,11 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
     private void charTableMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_charTableMouseClicked
     {//GEN-HEADEREND:event_charTableMouseClicked
         if ((!city.getCharacterList().isEmpty()) && (charTable.getSelectedRow() < city.getCharacterList().size())) {
-            general = city.getCharacterList().get(charTable.getSelectedRow());      // set general to the according selected row.
-            nameLabel.setText(general.getName());
-            general.calcCommanderStats();
-            attackLabel.setText("攻击：" + general.getDmg());
-            defenceLabel.setText("防御：" + general.getDef());
+            selectedGeneral = city.getCharacterList().get(charTable.getSelectedRow());      // set general to the according selected row.
+            nameLabel.setText(selectedGeneral.getName());
+            selectedGeneral.calcCommanderStats();
+            attackLabel.setText("攻击：" + selectedGeneral.getDmg());
+            defenceLabel.setText("防御：" + selectedGeneral.getDef());
         }
     }//GEN-LAST:event_charTableMouseClicked
 
@@ -1242,7 +1240,6 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
     private javax.swing.JTable charTable;
     private javax.swing.JButton confirmButton;
     private javax.swing.JLabel defenceLabel;
-    private javax.swing.JLayeredPane dispatchTroopsPanel;
     private javax.swing.JButton east;
     private javax.swing.JButton eastGateButton;
     private javax.swing.JSlider eastSlider;
@@ -1274,6 +1271,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
     private javax.swing.JLabel remainingLabel;
     private javax.swing.JLayeredPane selectCharacterPanel;
     private javax.swing.JLayeredPane selectCityPanel;
+    private javax.swing.JLayeredPane selectFormation;
     private javax.swing.JButton south;
     private javax.swing.JButton southEast;
     private javax.swing.JButton southGateButton;

@@ -20,6 +20,7 @@ import model.Legion;
  */
 public class BattlePanel extends javax.swing.JPanel
 {
+    private final BattleScreen bs;
     private final GamePanel gp;
     private Battle battle1, battle2, battle3, battle4;
     private final Legion northLegion;
@@ -46,12 +47,13 @@ public class BattlePanel extends javax.swing.JPanel
         this.southLegion = southLegion;
         this.eastLegion = eastLegion;
         this.westLegion = westLegion;
+        this.bs = new BattleScreen();
         
         initComponents();
                
         initBattles();
         initLabels();
-        initTimers();  
+        initTimers();
     }
     
     public void wtf()

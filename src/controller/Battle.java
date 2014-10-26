@@ -31,6 +31,9 @@ public class Battle
     private int playerUnitNumber, enemyUnitNumber;
     private int playerUnitCasualty, enemyUnitCasualty;
     private int playerUnitHp, enemyUnitHp;
+    
+    private int[] player = new int[3], enemy = new int[3];
+    private int playerIndex = 0, enemyIndex = 0;
 
     public Battle(Legion player, Legion enemy) {  
         roundCounter = 0;
@@ -102,6 +105,46 @@ public class Battle
         else
         {
             playerHp = playerHp - damageToPlayer;
+        }
+    }
+    
+    private void newDiceLogics(int mode) { 
+        rollDice();
+        if (mode == 1) {
+            playerAttacksCastle();
+        } else if (mode == 2) {
+            enemyAttacksCastle();
+        }
+    }
+    
+    private void rollDice() {
+        for (int i = 0; i < 3; i++) {
+            playerDice.rollDice();
+            enemyDice.rollDice();
+            player[i] = playerDice.getDice();
+            enemy[i] = enemyDice.getDice();
+        }
+    }
+    
+    private void playerAttacksCastle() {
+        // attack
+        while (playerIndex < 2 || enemyIndex < 2) {
+            if (player[playerIndex] > enemy[enemyIndex]) {
+                enemyIndex++;
+            } else {
+                playerIndex++;
+            }
+        }
+    }
+    
+    private void enemyAttacksCastle() {
+        // defend
+        while (playerIndex < 2 || enemyIndex < 2) {
+            if (enemy[enemyIndex] > player[playerIndex]) {
+                playerIndex++;
+            } else {
+                enemyIndex++;
+            }
         }
     }
     
