@@ -12,15 +12,15 @@ package model;
  */
 public class Character
 {
-    private String name, id;
+    private String name;
     private int leadership, combatPower, intelligence, politics;
     private int damage, defence;
+    private int commandPower;
     private Ability ability;
     private boolean isInjured = false; 
     
-    public Character(String id, String name, int leadership, int combatPower, int intelligence, int politics, Ability ability)
+    public Character(String name, int leadership, int combatPower, int intelligence, int politics, Ability ability)
     {
-        this.id = id;
         this.name = name;
         this.leadership = leadership;
         this.combatPower = combatPower;
@@ -38,6 +38,7 @@ public class Character
         this.combatPower = combatPower;
         this.intelligence = intelligence;
         this.politics = politics;
+        commandPower = calcCommandPower();
         damage = 0;
         defence = 0;
     }
@@ -45,6 +46,13 @@ public class Character
     public Character(String name)
     {
         this.name = name;
+        leadership = 0;
+        combatPower = 0;
+        intelligence = 0;
+        politics = 0;
+        commandPower = calcCommandPower();
+        damage = 0;
+        defence = 0;
     }
     
     public void addLeadership(int increment)
@@ -97,15 +105,9 @@ public class Character
     
     
     // Calculates the maximum number of soldiers this specific character can command.
-    public int calcCommandPower()
-    {
-        int commandPower;
-        
-        commandPower = 3000 + leadership * 200;
-        
-        return commandPower;
+    private int calcCommandPower() {
+        return 3000 + leadership * 200;
     }
-    
     
     // Calculates the Dmg and Def for each Character.
     // Damage -> Max: 120, Min: 0
@@ -269,22 +271,6 @@ public class Character
     {
         this.politics = politics;
     }
-
-    /**
-     * @return the id
-     */
-    public String getId()
-    {
-        return id;
-    }
-
-    /**
-     * @param id the id to set
-     */
-    public void setId(String id)
-    {
-        this.id = id;
-    }
     
     public Ability getAbility()
     {
@@ -294,5 +280,9 @@ public class Character
     public void setAbility(Ability ability)
     {
         this.ability = ability;
+    }
+    
+    public int getCommandPower() {
+        return commandPower;
     }
 }

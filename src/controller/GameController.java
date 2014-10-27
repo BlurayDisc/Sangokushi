@@ -23,7 +23,7 @@ public class GameController implements GameParameters
     private List<Character> characterList;
     
     private Force player;
-    private City selectedCity;
+    private City selectedCity, attackedCity;
     private int month;
     private int year;
 
@@ -274,12 +274,28 @@ public class GameController implements GameParameters
         selectedCity = city;
     }
     
+    public void setAttackedCity(int num) {
+        attackedCity = this.getCity(num);
+    }
+    
+    public void setAttackedCity(City city) {
+        attackedCity = city;
+    }
+    
     public City getCity() {
         return selectedCity;
     }
     
+    public City getAttackedCity() {
+        return attackedCity;
+    }
+    
     public boolean cityIsPlayerOwned() {
         return player.owns(selectedCity);
+    }
+    
+    public Character getChar(int index) {
+        return selectedCity.get(index);
     }
     
     public String getCityName() {
@@ -290,10 +306,17 @@ public class GameController implements GameParameters
     }
     
     public int getCharNumber() {
+        if (selectedCity == null) {
+            return 0;
+        }
+        
         return selectedCity.getCharNumber();
     }
     
     public int getSoldiers() {
+        if (selectedCity == null) {
+            return 0;
+        }
         return selectedCity.getSoldiers();
     }
 }

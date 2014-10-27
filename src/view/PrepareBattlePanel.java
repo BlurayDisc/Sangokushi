@@ -14,7 +14,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import model.Character;
 import model.City;
-import model.Legion;
+import model.Army;
 
 /**
  *
@@ -25,21 +25,26 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
     private static final long serialVersionUID = 1L;
     private final GamePanel gp;
     private final MainFrame frame;
-    private final int NONE = 0, NORTH = 1, SOUTH = 2, WEST = 3, EAST = 4;
-    private int gate;
-    private City city;
-    private City attackedCity;
-    private Character selectedGeneral, northGeneral, southGeneral, westGeneral, eastGeneral;
-    private Legion northGateLegion, southGateLegion, westGateLegion, eastGateLegion;
-    private String gateName;
-    private String charName;
-    private final int[] soldiers;
-    private int remainingSoldiers;
+    private final NewBattlePanel bp;
     private final GameController gc;
     private final JButton[] cityButtonList;
+    private final int[] soldiers;
+    
+    private City currentCity;
+    private Character mainGeneral, frontGeneral, leftWingGeneral, rightWingGeneral;
+    private Character armyCommander, armyLieutenant;
+    private Army mainArmy, frontArmy,leftWingArmy, rightWingArmy;
+    private int remainingSoldiers;
+    
+    private enum Armies {FRONT, MAIN, LEFTWING, RIGHTWING}
+    private enum General {COMMANDER, LIEUTENANT}
+    private Armies selectedArmy;
+    private General selectedGeneral;
+
+
     
     /**
-     * Creates new form CombatPanel
+     * Creates new form Prepare Battle Panel
      * @param frame
      * @param gp
      * @param controller
@@ -50,10 +55,14 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
         this.gp = gp;
         this.frame = frame;
         this.gc = controller;
-        
         soldiers = new int[4];
         Arrays.fill(soldiers, 0);
         cityButtonList = new JButton[8];
+        
+        mainArmy = null;
+        frontArmy = null;
+        leftWingArmy = null;
+        rightWingArmy = null;
         
         initComponents();
         
@@ -66,40 +75,74 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
         cityButtonList[6] = southWest;
         cityButtonList[7] = southEast;
         
+        bp = new NewBattlePanel();
+        frame.getContentPane().add(bp);
+        bp.setVisible(false);
+        
+        
         // initDropDownLists();
         
-        selectFormation.setVisible(false);
+        selectFormationPanel.setVisible(false);
         selectCharacterPanel.setVisible(false);
-        jLayeredPane1.setVisible(false);
+        selectArmyPanel.setVisible(false);
     }
     
-    public void updateData() {
-        city = gc.getCity();
+    private void initFormationPanel() {
+        castleLabel.setText(gc.getAttackedCity().getCityName() + "城");
+    }
+      
+    private void updateFormationPanel() {
+        updateFormationButtons();
+        updateFormationlabels();
+    }
+    
+    private void initArmyPanel() {
+        armyCommander = null;
+        armyLieutenant = null;
+        updateArmyPanel();
+    }
+    
+    private void updateArmyPanel() {
+        updateArmyLabels();
+        updateSlider();
+        updateBox();
+    }
+    
+    private void updateArmyPanel(Army army) {
+        armyCommanderName.setText(army.getCommander().getName() + "军");
+        armyCommanderButton.setText(army.getCommander().getName());
+        armyAttackLabel.setText("攻击：" + army.getCommander().getDmg());
+        armyDefenceLabel.setText("防御：" + army.getCommander().getDef());
+        armyLieutenantName.setText("副将: " + "");
+        armyLieutenantButton.setText("");
+    }
+
+    public void init() {
+        currentCity = gc.getCity();
         remainingSoldiers = gc.getSoldiers();
         initCity();
         initTable();
     }
     
-    private void initTable()
-    {        
-        int i;
-        for (i = 0; i < city.getCharacterList().size(); i++)
-        {
-            charTable.setValueAt(city.getCharacterList().get(i).getName(), i, 0);
-            charTable.setValueAt(city.getCharacterList().get(i).calcCommandPower(), i, 1);
-            charTable.setValueAt(city.getCharacterList().get(i).getLeadership(), i, 2);
-            charTable.setValueAt(city.getCharacterList().get(i).getCombatPower(), i, 3);
-            charTable.setValueAt(city.getCharacterList().get(i).getIntelligence(), i, 4);
-            charTable.setValueAt(city.getCharacterList().get(i).getPolitics(), i, 5);
+    private void initTable() {
+        for (int i = 0; i < currentCity.getCharacterList().size(); i++) {
+            charTable.setValueAt(gc.getChar(i).getName(), i, 0);
+            charTable.setValueAt("无", i, 1);
+            charTable.setValueAt(gc.getChar(i).getCommandPower(), i, 2);
+            charTable.setValueAt("无", i, 3);
+            charTable.setValueAt(gc.getChar(i).getLeadership(), i, 4);
+            charTable.setValueAt(gc.getChar(i).getCombatPower(), i, 5);
+            charTable.setValueAt(gc.getChar(i).getIntelligence(), i, 6);
+            charTable.setValueAt(gc.getChar(i).getPolitics(), i, 7);
+            charTable.setValueAt(false, i, 8);
         }
     }
     
-    private void initCity()
-    {
+    private void initCity() {
         int cityNumber;
-        middle.setText(city.getCityName());
+        middle.setText(currentCity.getCityName());
         for (int i = 0; i < 8; i++) {
-            cityNumber = city.getNeighbour(i + 1);
+            cityNumber = currentCity.getNeighbour(i + 1);
             if (cityNumber == CITY_EMPTY) {
                 cityButtonList[i].setVisible(false);
             } else {
@@ -109,20 +152,9 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
         }
     }
     
-    private void calcRemainingSoldiers()
-    {
-        soldiers[0] = northSlider.getValue();
-        soldiers[1] = southSlider.getValue();
-        soldiers[2] = westSlider.getValue();
-        soldiers[3] = eastSlider.getValue();
-        
-        remainingSoldiers = city.getSoldiers() - soldiers[0] - soldiers[1] - soldiers[2] - soldiers[3];
-    }
-    
-    private int calcSlider(Character general)
-    {
+    private int calcSlider(Character general) {
         int result;
-        int commandPower = general.calcCommandPower();
+        int commandPower = general.getCommandPower();
         
         if (remainingSoldiers >= commandPower) {
             result = commandPower;
@@ -132,111 +164,139 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
         
         return result;
     }
-    
-    private void dispatchTroops()
-    {
-        if (gate == NORTH)
-        {
-            if (isDispatched()) {
-                JOptionPane.showMessageDialog(frame, charName + "已在" + gateName +"出战！", "武将分配错误", JOptionPane.PLAIN_MESSAGE);
-            } else
-            {
-                northGeneral = city.getCharacterList().get(charTable.getSelectedRow());
-                northGateButton.setText(northGeneral.getName());
-                northSlider.setMaximum(calcSlider(northGeneral));
-                northSlider.setValue(northSlider.getMaximum());
-            }
-        }
-        else if (gate == SOUTH)
-        {
-            if (isDispatched()) {
-                JOptionPane.showMessageDialog(frame, charName + "已在" + gateName +"出战！", "武将分配错误", JOptionPane.PLAIN_MESSAGE);
-            } else
-            {
-                southGeneral = city.getCharacterList().get(charTable.getSelectedRow());
-                southGateButton.setText(southGeneral.getName());
-                southSlider.setMaximum(calcSlider(southGeneral));
-                southSlider.setValue(southSlider.getMaximum());
-            }
-        }
-        else if (gate == WEST)
-        {
-            if (isDispatched()) {
-                JOptionPane.showMessageDialog(frame, charName + "已在" + gateName +"出战！", "武将分配错误", JOptionPane.PLAIN_MESSAGE);
-            } else
-            {
-                westGeneral = city.getCharacterList().get(charTable.getSelectedRow());
-                westGateButton.setText(westGeneral.getName());
-                westSlider.setMaximum(westGeneral.calcCommandPower());
-                westSlider.setValue(westSlider.getMaximum());
-            }
-        }
-        else if (gate == EAST)
-        {
-            if (isDispatched()) {
-                JOptionPane.showMessageDialog(frame, charName + "已在" + gateName +"出战！", "武将分配错误", JOptionPane.PLAIN_MESSAGE);
-            } else
-            {
-                eastGeneral = city.getCharacterList().get(charTable.getSelectedRow());
-                eastGateButton.setText(eastGeneral.getName());
-                eastSlider.setMaximum(eastGeneral.calcCommandPower());
-                eastSlider.setValue(eastSlider.getMaximum());
-            }
-        }
+
+    private void showFormationPanel() {
+        initFormationPanel();
+        selectFormationPanel.setVisible(true);
+        selectCityPanel.setVisible(false);
     }
     
+    private void showNewArmyPanel() {
+        initArmyPanel();
+        selectArmyPanel.setVisible(true);
+        selectFormationPanel.setVisible(false);
+    }
     
-    // Sets the currentCity and attackingCity.
-    // Imports selected city and name of the attackingCity.
-    // Returns nothing.
-    private void setAttackedCity(int attackedCityNumber)
-    {
-        attackedCity = gc.getCity(attackedCityNumber);
-        selectCityPanel.setVisible(false);
-        castleLabel.setText(attackedCity.getCityName() + "城");
-        selectFormation.setVisible(true);
+    private void showEditArmyPanel() {
+        if (selectedArmy == Armies.FRONT) {
+            updateArmyPanel(frontArmy);
+        } else if (selectedArmy == Armies.MAIN) {
+            updateArmyPanel(mainArmy);
+        } else if (selectedArmy == Armies.LEFTWING) {
+            updateArmyPanel(leftWingArmy);
+        } else if (selectedArmy == Armies.RIGHTWING) {
+            updateArmyPanel(rightWingArmy);
+        }
+        selectArmyPanel.setVisible(true);
+        selectFormationPanel.setVisible(false);
+    }
+    
+    private void showBattlePanel() {
+        this.setVisible(false);
+        bp.initBattle(mainArmy);
+        bp.setVisible(true);
     }
 
-    private boolean isDispatched()
-    {
-        boolean isDispatched = false;
+    private void selectAttackedCity(int cityNumber) {
+        gc.setAttackedCity(cityNumber);
+    }
+    
+    private void updateFormationButtons() {
+        if (frontArmy != null) {
+            frontArmyButton.setText(frontArmy.getCommander().getName());
+        } 
+        if (mainArmy != null) {
+            mainArmyButton.setText(mainArmy.getCommander().getName());
+        } 
+        if (leftWingArmy != null) {
+            leftWingArmyButton.setText(leftWingArmy.getCommander().getName());
+        }
+        if (rightWingArmy != null) {
+            rightWingArmyButton.setText(rightWingArmy.getCommander().getName());
+        }
+    }
+    
+    private void updateFormationlabels() {
+        // enemy soldier, player soldier and remaining soldier code goes here.
+    }
+    
+    private void updateArmyLabels() {     
+        if (armyCommander == null) {
+            armyCommanderName.setText("无");
+            armyCommanderButton.setText("主将");
+            armyAttackLabel.setText("攻击：" + 0);
+            armyDefenceLabel.setText("防御：" + 0);
+        } else {
+            armyCommanderName.setText(armyCommander.getName() + "军");
+            armyCommanderButton.setText(armyCommander.getName());
+            armyAttackLabel.setText("攻击：" + armyCommander.getDmg());
+            armyDefenceLabel.setText("防御：" + armyCommander.getDef());
+        }
         
-        if (northGateButton.getText().equals(charName) || southGateButton.getText().equals(charName) ||
-           eastGateButton.getText().equals(charName) || westGateButton.getText().equals(charName))
-        {
-            isDispatched = true;
-            if (northGateButton.getText().equals(charName)) {
-                gateName = "北门";
-            } else if (southGateButton.getText().equals(charName)) {
-                gateName = "南门";
-            } else if (westGateButton.getText().equals(charName)) {
-                gateName = "西门";
-            } else if (eastGateButton.getText().equals(charName)) {
-                gateName = "东门";
+        if (armyLieutenant == null) {
+            armyLieutenantName.setText("无");
+            armyLieutenantButton.setText("副将");
+        } else {
+            armyLieutenantName.setText("副将: " + armyLieutenant.getName());
+            armyLieutenantButton.setText(armyLieutenant.getName());
+        }
+    }
+    
+    private void updateSlider() {
+        if (armyCommander != null) {
+            armySlider.setMaximum(armyCommander.getCommandPower());
+            armySlider.setValue(armySlider.getMaximum() / 2);
+        } else {
+            armySlider.setMaximum(0);
+        }
+    }
+    private void updateBox() {
+        // black smith system code goes here.
+    }
+    
+    private void selectGeneral() {
+        if (selectedGeneral == General.COMMANDER) {
+            armyCommander = gc.getChar(charTable.getSelectedRow());
+        } else if (selectedGeneral == General.LIEUTENANT) {
+            armyLieutenant = gc.getChar(charTable.getSelectedRow());
+        }
+    }
+    
+    private void createArmy() {
+        // Legion(Commander, Soldiers, UnitType)
+        
+        if (selectedArmy == Armies.FRONT) {
+            if (frontArmy == null) {
+                frontGeneral = armyCommander;
+                frontArmy = new Army(frontGeneral, armySlider.getValue(), 1);
+            }
+        } else if (selectedArmy == Armies.MAIN) {
+            if (mainArmy == null) {
+                mainGeneral = armyCommander;
+                mainArmy = new Army(mainGeneral, armySlider.getValue(), 1);
+            }
+        } else if (selectedArmy == Armies.LEFTWING) {
+            if (leftWingArmy == null) {
+                leftWingGeneral = armyCommander;
+                leftWingArmy = new Army(leftWingGeneral, armySlider.getValue(), 1);
+            }
+            
+        } else if (selectedArmy == Armies.RIGHTWING) {
+            if (rightWingArmy == null) {
+                rightWingGeneral = armyCommander;
+                rightWingArmy = new Army(rightWingGeneral, armySlider.getValue(), 1);
             }
         }
-           
-        return isDispatched;
     }
     
-    private void createBattlePanel()
-    {
-        BattlePanel bp = new BattlePanel(gp, city, attackedCity, northGateLegion, southGateLegion, westGateLegion, eastGateLegion);
-        frame.getContentPane().add(bp);
-    }
-    
-        /**
-        * This method is called from within the constructor to initialize the form.
-        * WARNING: Do NOT modify this code. The content of this method is always
-        * regenerated by the Form Editor.
-        */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
+        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
-        jLayeredPane1 = new javax.swing.JLayeredPane();
         selectCityPanel = new javax.swing.JLayeredPane();
+        characterTitleLabel1 = new javax.swing.JLabel();
         northWest = new javax.swing.JButton();
         north = new javax.swing.JButton();
         northEast = new javax.swing.JButton();
@@ -246,80 +306,72 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
         south = new javax.swing.JButton();
         southEast = new javax.swing.JButton();
         middle = new javax.swing.JButton();
+        selectFormationPanel = new javax.swing.JLayeredPane();
+        formationTittle = new javax.swing.JLabel();
+        formationTotalLabel = new javax.swing.JLabel();
+        formationEnemyTotalLabel = new javax.swing.JLabel();
+        formationSoldierRemainLabel = new javax.swing.JLabel();
+        frontLabel = new javax.swing.JLabel();
+        mainLabel = new javax.swing.JLabel();
+        leftWingLabel = new javax.swing.JLabel();
+        rightWingLabel = new javax.swing.JLabel();
+        formationConfirmButton = new javax.swing.JButton();
+        formationBackButton = new javax.swing.JButton();
+        leftWingArmyButton = new javax.swing.JButton();
+        rightWingArmyButton = new javax.swing.JButton();
+        mainArmyButton = new javax.swing.JButton();
+        frontArmyButton = new javax.swing.JButton();
+        castleLabel = new javax.swing.JLabel();
+        formationForceLabel = new javax.swing.JLabel();
+        totalLabel = new javax.swing.JLabel();
+        remainingLabel = new javax.swing.JLabel();
+        totalLabel1 = new javax.swing.JLabel();
+        selectArmyPanel = new javax.swing.JLayeredPane();
+        armyTitle1 = new javax.swing.JLabel();
+        armyTitle2 = new javax.swing.JLabel();
+        armyTitle3 = new javax.swing.JLabel();
+        armyLabel1 = new javax.swing.JLabel();
+        armyLabel2 = new javax.swing.JLabel();
+        armyCommanderName = new javax.swing.JLabel();
+        armyLieutenantName = new javax.swing.JLabel();
+        armyAttackLabel = new javax.swing.JLabel();
+        armyDefenceLabel = new javax.swing.JLabel();
+        armySlider = new javax.swing.JSlider();
+        armySoldierText = new javax.swing.JTextField();
+        armyBox = new javax.swing.JComboBox();
+        armyConfirmButton = new javax.swing.JButton();
+        armyBackButton = new javax.swing.JButton();
+        armyCommanderButton = new javax.swing.JButton();
+        armyLieutenantButton = new javax.swing.JButton();
+        swordValue = new javax.swing.JLabel();
+        spearValue = new javax.swing.JLabel();
+        halberdValue = new javax.swing.JLabel();
+        bowValue = new javax.swing.JLabel();
+        leatherValue = new javax.swing.JLabel();
+        armourValue = new javax.swing.JLabel();
+        horseValue = new javax.swing.JLabel();
+        chariotValue = new javax.swing.JLabel();
+        armyTitle4 = new javax.swing.JLabel();
+        armyTitle5 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
         selectCharacterPanel = new javax.swing.JLayeredPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         charTable = new javax.swing.JTable();
-        confirmButton = new javax.swing.JButton();
-        tableBackButton = new javax.swing.JButton();
-        title = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
-        nameLabel = new javax.swing.JLabel();
-        attackLabel = new javax.swing.JLabel();
-        defenceLabel = new javax.swing.JLabel();
-        selectFormation = new javax.swing.JLayeredPane();
-        startButton = new javax.swing.JButton();
-        backButton = new javax.swing.JButton();
-        northGateButton = new javax.swing.JButton();
-        southGateButton = new javax.swing.JButton();
-        westGateButton = new javax.swing.JButton();
-        eastGateButton = new javax.swing.JButton();
-        castleLabel = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        northSlider = new javax.swing.JSlider();
-        northSoldiersLabel = new javax.swing.JTextField();
-        bingli1 = new javax.swing.JLabel();
-        southSlider = new javax.swing.JSlider();
-        bingli3 = new javax.swing.JLabel();
-        southSoldiersLabel = new javax.swing.JTextField();
-        westSlider = new javax.swing.JSlider();
-        bingli2 = new javax.swing.JLabel();
-        westSoldiersLabel = new javax.swing.JTextField();
-        eastSlider = new javax.swing.JSlider();
-        bingli4 = new javax.swing.JLabel();
-        eastSoldiersLabel = new javax.swing.JTextField();
-        jComboBox1 = new javax.swing.JComboBox();
-        jComboBox2 = new javax.swing.JComboBox();
-        jComboBox3 = new javax.swing.JComboBox();
-        jComboBox4 = new javax.swing.JComboBox();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        remainingLabel = new javax.swing.JLabel();
+        characterTitleLabel = new javax.swing.JLabel();
+        characterConfirmButton = new javax.swing.JButton();
+        characterBackButton = new javax.swing.JButton();
 
         setMaximumSize(new java.awt.Dimension(800, 600));
         setMinimumSize(new java.awt.Dimension(800, 600));
         setPreferredSize(new java.awt.Dimension(800, 600));
         setLayout(new java.awt.GridBagLayout());
 
-        jLayeredPane1.setMaximumSize(new java.awt.Dimension(800, 600));
-        jLayeredPane1.setMinimumSize(new java.awt.Dimension(800, 600));
-
-        javax.swing.GroupLayout jLayeredPane1Layout = new javax.swing.GroupLayout(jLayeredPane1);
-        jLayeredPane1.setLayout(jLayeredPane1Layout);
-        jLayeredPane1Layout.setHorizontalGroup(
-            jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 850, Short.MAX_VALUE)
-        );
-        jLayeredPane1Layout.setVerticalGroup(
-            jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 650, Short.MAX_VALUE)
-        );
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.ipadx = 100;
-        gridBagConstraints.ipady = 100;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        add(jLayeredPane1, gridBagConstraints);
-
         selectCityPanel.setMaximumSize(new java.awt.Dimension(800, 600));
         selectCityPanel.setMinimumSize(new java.awt.Dimension(800, 600));
+        selectCityPanel.setPreferredSize(new java.awt.Dimension(800, 600));
+
+        characterTitleLabel1.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
+        characterTitleLabel1.setText("出兵");
 
         northWest.setFont(new java.awt.Font("Microsoft YaHei", 0, 18)); // NOI18N
         northWest.setText("西北");
@@ -422,21 +474,28 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
                     .addComponent(southWest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(northWest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(165, 165, 165)
-                .addGroup(selectCityPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(north, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(south, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(middle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(165, 165, 165)
                 .addGroup(selectCityPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(northEast, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(southEast, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(east, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(selectCityPanelLayout.createSequentialGroup()
+                        .addGroup(selectCityPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(north, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(south, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(middle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(165, 165, 165)
+                        .addGroup(selectCityPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(northEast, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(southEast, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(east, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(selectCityPanelLayout.createSequentialGroup()
+                        .addGap(42, 42, 42)
+                        .addComponent(characterTitleLabel1)))
                 .addGap(55, 55, 55))
         );
         selectCityPanelLayout.setVerticalGroup(
             selectCityPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(selectCityPanelLayout.createSequentialGroup()
-                .addGap(55, 55, 55)
+                .addGap(24, 24, 24)
+                .addComponent(characterTitleLabel1)
+                .addGap(29, 29, 29)
                 .addGroup(selectCityPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(northWest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(north, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -451,8 +510,9 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
                     .addComponent(southWest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(south, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(southEast, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(55, 55, 55))
+                .addGap(35, 35, 35))
         );
+        selectCityPanel.setLayer(characterTitleLabel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
         selectCityPanel.setLayer(northWest, javax.swing.JLayeredPane.DEFAULT_LAYER);
         selectCityPanel.setLayer(north, javax.swing.JLayeredPane.DEFAULT_LAYER);
         selectCityPanel.setLayer(northEast, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -469,122 +529,638 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(selectCityPanel, gridBagConstraints);
 
+        selectFormationPanel.setMaximumSize(new java.awt.Dimension(800, 600));
+        selectFormationPanel.setMinimumSize(new java.awt.Dimension(800, 600));
+
+        formationTittle.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
+        formationTittle.setText("阵型");
+
+        formationTotalLabel.setText("总兵力：");
+
+        formationEnemyTotalLabel.setText("敌方总兵力：");
+
+        formationSoldierRemainLabel.setText("剩余兵力：");
+
+        frontLabel.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
+        frontLabel.setText("前军");
+
+        mainLabel.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
+        mainLabel.setText("中军");
+
+        leftWingLabel.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
+        leftWingLabel.setText("左军");
+
+        rightWingLabel.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
+        rightWingLabel.setText("右军");
+
+        formationConfirmButton.setText("确定");
+        formationConfirmButton.setFocusable(false);
+        formationConfirmButton.setMaximumSize(new java.awt.Dimension(80, 40));
+        formationConfirmButton.setMinimumSize(new java.awt.Dimension(80, 40));
+        formationConfirmButton.setPreferredSize(new java.awt.Dimension(100, 50));
+        formationConfirmButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                formationConfirmButtonActionPerformed(evt);
+            }
+        });
+
+        formationBackButton.setText("取消");
+        formationBackButton.setFocusable(false);
+        formationBackButton.setMaximumSize(new java.awt.Dimension(80, 40));
+        formationBackButton.setMinimumSize(new java.awt.Dimension(80, 40));
+        formationBackButton.setPreferredSize(new java.awt.Dimension(100, 50));
+        formationBackButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                formationBackButtonActionPerformed(evt);
+            }
+        });
+
+        leftWingArmyButton.setFont(new java.awt.Font("Microsoft YaHei", 0, 15)); // NOI18N
+        leftWingArmyButton.setFocusable(false);
+        leftWingArmyButton.setMaximumSize(new java.awt.Dimension(75, 100));
+        leftWingArmyButton.setMinimumSize(new java.awt.Dimension(75, 100));
+        leftWingArmyButton.setPreferredSize(new java.awt.Dimension(75, 100));
+        leftWingArmyButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                leftWingArmyButtonActionPerformed(evt);
+            }
+        });
+
+        rightWingArmyButton.setFont(new java.awt.Font("Microsoft YaHei", 0, 15)); // NOI18N
+        rightWingArmyButton.setFocusable(false);
+        rightWingArmyButton.setMaximumSize(new java.awt.Dimension(75, 100));
+        rightWingArmyButton.setMinimumSize(new java.awt.Dimension(75, 100));
+        rightWingArmyButton.setPreferredSize(new java.awt.Dimension(75, 100));
+        rightWingArmyButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rightWingArmyButtonActionPerformed(evt);
+            }
+        });
+
+        mainArmyButton.setFont(new java.awt.Font("Microsoft YaHei", 0, 15)); // NOI18N
+        mainArmyButton.setFocusable(false);
+        mainArmyButton.setMaximumSize(new java.awt.Dimension(100, 100));
+        mainArmyButton.setMinimumSize(new java.awt.Dimension(100, 100));
+        mainArmyButton.setPreferredSize(new java.awt.Dimension(100, 100));
+        mainArmyButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mainArmyButtonActionPerformed(evt);
+            }
+        });
+
+        frontArmyButton.setFont(new java.awt.Font("Microsoft YaHei", 0, 15)); // NOI18N
+        frontArmyButton.setFocusable(false);
+        frontArmyButton.setMaximumSize(new java.awt.Dimension(100, 40));
+        frontArmyButton.setMinimumSize(new java.awt.Dimension(100, 40));
+        frontArmyButton.setPreferredSize(new java.awt.Dimension(100, 40));
+        frontArmyButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                frontArmyButtonActionPerformed(evt);
+            }
+        });
+
+        castleLabel.setFont(new java.awt.Font("Microsoft YaHei", 1, 16)); // NOI18N
+        castleLabel.setText("北平城");
+
+        formationForceLabel.setFont(new java.awt.Font("Microsoft YaHei", 1, 16)); // NOI18N
+        formationForceLabel.setText("公孙瓒势");
+
+        totalLabel.setText("0");
+
+        remainingLabel.setText("0");
+
+        totalLabel1.setText("0");
+
+        javax.swing.GroupLayout selectFormationPanelLayout = new javax.swing.GroupLayout(selectFormationPanel);
+        selectFormationPanel.setLayout(selectFormationPanelLayout);
+        selectFormationPanelLayout.setHorizontalGroup(
+            selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectFormationPanelLayout.createSequentialGroup()
+                .addGap(275, 275, 275)
+                .addComponent(formationConfirmButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(50, 50, 50)
+                .addComponent(formationBackButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(275, 275, 275))
+            .addGroup(selectFormationPanelLayout.createSequentialGroup()
+                .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectFormationPanelLayout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(formationForceLabel)
+                        .addGap(18, 18, 18)
+                        .addComponent(castleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(121, 121, 121))
+                    .addGroup(selectFormationPanelLayout.createSequentialGroup()
+                        .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(selectFormationPanelLayout.createSequentialGroup()
+                                .addGap(504, 504, 504)
+                                .addComponent(rightWingArmyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(selectFormationPanelLayout.createSequentialGroup()
+                                .addGap(229, 229, 229)
+                                .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(selectFormationPanelLayout.createSequentialGroup()
+                                        .addComponent(leftWingArmyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(50, 50, 50))
+                                    .addGroup(selectFormationPanelLayout.createSequentialGroup()
+                                        .addComponent(leftWingLabel)
+                                        .addGap(75, 75, 75)))
+                                .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(mainArmyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(frontArmyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(selectFormationPanelLayout.createSequentialGroup()
+                                        .addGap(30, 30, 30)
+                                        .addComponent(mainLabel)))
+                                .addGap(68, 68, 68)
+                                .addComponent(rightWingLabel))
+                            .addGroup(selectFormationPanelLayout.createSequentialGroup()
+                                .addGap(382, 382, 382)
+                                .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(frontLabel)
+                                    .addComponent(formationTittle))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(selectFormationPanelLayout.createSequentialGroup()
+                        .addComponent(formationEnemyTotalLabel)
+                        .addGap(18, 18, 18)
+                        .addComponent(totalLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(selectFormationPanelLayout.createSequentialGroup()
+                            .addComponent(formationSoldierRemainLabel)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(remainingLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(selectFormationPanelLayout.createSequentialGroup()
+                            .addComponent(formationTotalLabel)
+                            .addGap(18, 18, 18)
+                            .addComponent(totalLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap())
+        );
+        selectFormationPanelLayout.setVerticalGroup(
+            selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(selectFormationPanelLayout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addComponent(formationTittle)
+                .addGap(41, 41, 41)
+                .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(castleLabel)
+                    .addComponent(formationEnemyTotalLabel)
+                    .addComponent(totalLabel1)
+                    .addComponent(formationForceLabel))
+                .addGap(95, 95, 95)
+                .addComponent(frontLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(frontArmyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(30, 30, 30)
+                .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(selectFormationPanelLayout.createSequentialGroup()
+                        .addComponent(rightWingLabel)
+                        .addGap(18, 18, 18)
+                        .addComponent(rightWingArmyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(selectFormationPanelLayout.createSequentialGroup()
+                        .addComponent(leftWingLabel)
+                        .addGap(18, 18, 18)
+                        .addComponent(leftWingArmyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(selectFormationPanelLayout.createSequentialGroup()
+                        .addComponent(mainLabel)
+                        .addGap(18, 18, 18)
+                        .addComponent(mainArmyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(selectFormationPanelLayout.createSequentialGroup()
+                        .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(formationTotalLabel)
+                            .addComponent(totalLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(formationSoldierRemainLabel)
+                            .addComponent(remainingLabel))))
+                .addGap(74, 74, 74)
+                .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(formationBackButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(formationConfirmButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(21, 21, 21))
+        );
+        selectFormationPanel.setLayer(formationTittle, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormationPanel.setLayer(formationTotalLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormationPanel.setLayer(formationEnemyTotalLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormationPanel.setLayer(formationSoldierRemainLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormationPanel.setLayer(frontLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormationPanel.setLayer(mainLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormationPanel.setLayer(leftWingLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormationPanel.setLayer(rightWingLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormationPanel.setLayer(formationConfirmButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormationPanel.setLayer(formationBackButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormationPanel.setLayer(leftWingArmyButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormationPanel.setLayer(rightWingArmyButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormationPanel.setLayer(mainArmyButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormationPanel.setLayer(frontArmyButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormationPanel.setLayer(castleLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormationPanel.setLayer(formationForceLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormationPanel.setLayer(totalLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormationPanel.setLayer(remainingLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectFormationPanel.setLayer(totalLabel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        add(selectFormationPanel, gridBagConstraints);
+
+        selectArmyPanel.setMaximumSize(new java.awt.Dimension(800, 600));
+        selectArmyPanel.setMinimumSize(new java.awt.Dimension(800, 600));
+
+        armyTitle1.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
+        armyTitle1.setText("编辑军队");
+
+        armyTitle2.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
+        armyTitle2.setText("军队概要");
+
+        armyTitle3.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
+        armyTitle3.setText("兵装概要");
+
+        armyLabel1.setFont(new java.awt.Font("Microsoft YaHei", 0, 18)); // NOI18N
+        armyLabel1.setText("兵科:");
+
+        armyLabel2.setFont(new java.awt.Font("Microsoft YaHei", 0, 18)); // NOI18N
+        armyLabel2.setText("兵力:");
+
+        armyCommanderName.setFont(new java.awt.Font("Microsoft YaHei", 1, 13)); // NOI18N
+        armyCommanderName.setText("曹操军");
+
+        armyLieutenantName.setFont(new java.awt.Font("Microsoft YaHei", 1, 13)); // NOI18N
+        armyLieutenantName.setText("副将: 曹仁");
+
+        armyAttackLabel.setText("攻击: 100");
+
+        armyDefenceLabel.setText("防御: 100");
+
+        armySlider.setMajorTickSpacing(100);
+        armySlider.setMaximum(10000);
+        armySlider.setMinorTickSpacing(1);
+
+        armySoldierText.setEditable(false);
+        armySoldierText.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        armySoldierText.setMaximumSize(new java.awt.Dimension(60, 22));
+        armySoldierText.setMinimumSize(new java.awt.Dimension(60, 22));
+        armySoldierText.setPreferredSize(new java.awt.Dimension(60, 22));
+
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, armySlider, org.jdesktop.beansbinding.ELProperty.create("${value}"), armySoldierText, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        bindingGroup.addBinding(binding);
+
+        armyBox.setFont(new java.awt.Font("Microsoft YaHei", 0, 18)); // NOI18N
+        armyBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "剑", "枪", "弓", "骑" }));
+
+        armyConfirmButton.setText("确定");
+        armyConfirmButton.setFocusable(false);
+        armyConfirmButton.setPreferredSize(new java.awt.Dimension(100, 50));
+        armyConfirmButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                armyConfirmButtonActionPerformed(evt);
+            }
+        });
+
+        armyBackButton.setText("取消");
+        armyBackButton.setFocusable(false);
+        armyBackButton.setPreferredSize(new java.awt.Dimension(100, 50));
+        armyBackButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                armyBackButtonActionPerformed(evt);
+            }
+        });
+
+        armyCommanderButton.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
+        armyCommanderButton.setText("主将");
+        armyCommanderButton.setPreferredSize(new java.awt.Dimension(125, 100));
+        armyCommanderButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                armyCommanderButtonActionPerformed(evt);
+            }
+        });
+
+        armyLieutenantButton.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
+        armyLieutenantButton.setText("副将");
+        armyLieutenantButton.setPreferredSize(new java.awt.Dimension(100, 75));
+        armyLieutenantButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                armyLieutenantButtonActionPerformed(evt);
+            }
+        });
+
+        swordValue.setText("剑: 0");
+
+        spearValue.setText("枪: 0");
+
+        halberdValue.setText("戟: 0");
+
+        bowValue.setText("弓: 0");
+
+        leatherValue.setText("皮: 0");
+
+        armourValue.setText("甲: 0");
+
+        horseValue.setText("马: 0");
+
+        chariotValue.setText("车: 0");
+
+        armyTitle4.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
+        armyTitle4.setText("配置士兵");
+
+        armyTitle5.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
+        armyTitle5.setText("配置武将");
+
+        jLabel1.setText("消耗粮草： 10000");
+
+        javax.swing.GroupLayout selectArmyPanelLayout = new javax.swing.GroupLayout(selectArmyPanel);
+        selectArmyPanel.setLayout(selectArmyPanelLayout);
+        selectArmyPanelLayout.setHorizontalGroup(
+            selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectArmyPanelLayout.createSequentialGroup()
+                .addGap(81, 81, 81)
+                .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                        .addGap(23, 23, 23)
+                        .addComponent(armyTitle5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(armyTitle4)
+                        .addGap(138, 138, 138))
+                    .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                        .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(armyCommanderButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                                .addGap(11, 11, 11)
+                                .addComponent(armyLieutenantButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectArmyPanelLayout.createSequentialGroup()
+                .addContainerGap(276, Short.MAX_VALUE)
+                .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectArmyPanelLayout.createSequentialGroup()
+                        .addComponent(armyConfirmButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(50, 50, 50)
+                        .addComponent(armyBackButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(274, 274, 274))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectArmyPanelLayout.createSequentialGroup()
+                        .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(armyLieutenantName, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(armyCommanderName, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(armyDefenceLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(armyAttackLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                                    .addComponent(jLabel1)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                                            .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                .addComponent(swordValue, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(spearValue, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(halberdValue, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(bowValue, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGap(18, 18, 18)
+                                            .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                .addComponent(leatherValue, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(armourValue, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(horseValue, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(chariotValue, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                                            .addGap(22, 22, 22)
+                                            .addComponent(armyTitle3))))
+                                .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                                    .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                                            .addComponent(armyTitle1)
+                                            .addGap(136, 136, 136))
+                                        .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                                            .addComponent(armyTitle2)
+                                            .addGap(164, 164, 164)))
+                                    .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                                            .addComponent(armyLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addGap(18, 18, 18)
+                                            .addComponent(armyBox, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(armySlider, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                                            .addComponent(armyLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addGap(18, 18, 18)
+                                            .addComponent(armySoldierText, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                        .addGap(78, 78, 78))))
+        );
+        selectArmyPanelLayout.setVerticalGroup(
+            selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectArmyPanelLayout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addComponent(armyTitle1)
+                .addGap(51, 51, 51)
+                .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(armyTitle5)
+                    .addComponent(armyTitle4))
+                .addGap(18, 18, 18)
+                .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                        .addComponent(armyCommanderButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(armyLieutenantButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(armyConfirmButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(armyBackButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(21, 21, 21))
+                    .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                        .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                                .addComponent(armyTitle2)
+                                .addGap(18, 18, 18)
+                                .addComponent(armyCommanderName)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(armyLieutenantName)
+                                .addGap(18, 18, 18)
+                                .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                                        .addComponent(armyAttackLabel)
+                                        .addGap(26, 26, 26))
+                                    .addComponent(armyDefenceLabel)))
+                            .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                                .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(armyLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(armyBox, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(28, 28, 28)
+                                .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(armyLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(armySoldierText, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(armySlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                                .addGap(22, 22, 22)
+                                .addComponent(jLabel1))
+                            .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                                .addGap(30, 30, 30)
+                                .addComponent(armyTitle3)
+                                .addGap(18, 18, 18)
+                                .addGroup(selectArmyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                                        .addComponent(leatherValue)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(armourValue)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(horseValue)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(chariotValue))
+                                    .addGroup(selectArmyPanelLayout.createSequentialGroup()
+                                        .addComponent(swordValue)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(spearValue)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(halberdValue)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(bowValue)))))
+                        .addContainerGap(157, Short.MAX_VALUE))))
+        );
+        selectArmyPanel.setLayer(armyTitle1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(armyTitle2, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(armyTitle3, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(armyLabel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(armyLabel2, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(armyCommanderName, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(armyLieutenantName, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(armyAttackLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(armyDefenceLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(armySlider, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(armySoldierText, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(armyBox, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(armyConfirmButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(armyBackButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(armyCommanderButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(armyLieutenantButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(swordValue, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(spearValue, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(halberdValue, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(bowValue, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(leatherValue, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(armourValue, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(horseValue, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(chariotValue, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(armyTitle4, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(armyTitle5, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectArmyPanel.setLayer(jLabel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        add(selectArmyPanel, gridBagConstraints);
+
         selectCharacterPanel.setMaximumSize(new java.awt.Dimension(800, 600));
         selectCharacterPanel.setMinimumSize(new java.awt.Dimension(800, 600));
 
         charTable.setFont(new java.awt.Font("Microsoft YaHei", 0, 14)); // NOI18N
         charTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "武将", "指挥兵力", "统", "武", "智", "政"
+                "武将", "官职", "指挥兵力", "技能", "统率", "武力", "智力", "政治", "已出战"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
+                java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Boolean.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -599,99 +1175,90 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
         charTable.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         charTable.setMaximumSize(new java.awt.Dimension(450, 1600));
         charTable.setMinimumSize(new java.awt.Dimension(450, 1600));
+        charTable.getTableHeader().setReorderingAllowed(false);
         charTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 charTableMouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(charTable);
+        if (charTable.getColumnModel().getColumnCount() > 0) {
+            charTable.getColumnModel().getColumn(0).setResizable(false);
+            charTable.getColumnModel().getColumn(0).setPreferredWidth(75);
+            charTable.getColumnModel().getColumn(1).setResizable(false);
+            charTable.getColumnModel().getColumn(1).setPreferredWidth(75);
+            charTable.getColumnModel().getColumn(2).setResizable(false);
+            charTable.getColumnModel().getColumn(2).setPreferredWidth(100);
+            charTable.getColumnModel().getColumn(3).setResizable(false);
+            charTable.getColumnModel().getColumn(4).setResizable(false);
+            charTable.getColumnModel().getColumn(4).setPreferredWidth(50);
+            charTable.getColumnModel().getColumn(5).setResizable(false);
+            charTable.getColumnModel().getColumn(5).setPreferredWidth(50);
+            charTable.getColumnModel().getColumn(6).setResizable(false);
+            charTable.getColumnModel().getColumn(6).setPreferredWidth(50);
+            charTable.getColumnModel().getColumn(7).setResizable(false);
+            charTable.getColumnModel().getColumn(7).setPreferredWidth(50);
+            charTable.getColumnModel().getColumn(8).setResizable(false);
+            charTable.getColumnModel().getColumn(8).setPreferredWidth(55);
+        }
 
-        confirmButton.setText("确定");
-        confirmButton.setFocusable(false);
-        confirmButton.setPreferredSize(new java.awt.Dimension(100, 50));
-        confirmButton.addActionListener(new java.awt.event.ActionListener() {
+        characterTitleLabel.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
+        characterTitleLabel.setText("选择武将");
+
+        characterConfirmButton.setText("确定");
+        characterConfirmButton.setFocusable(false);
+        characterConfirmButton.setPreferredSize(new java.awt.Dimension(100, 50));
+        characterConfirmButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                confirmButtonActionPerformed(evt);
+                characterConfirmButtonActionPerformed(evt);
             }
         });
 
-        tableBackButton.setText("返回");
-        tableBackButton.setFocusable(false);
-        tableBackButton.setPreferredSize(new java.awt.Dimension(100, 50));
-        tableBackButton.addActionListener(new java.awt.event.ActionListener() {
+        characterBackButton.setText("返回");
+        characterBackButton.setFocusable(false);
+        characterBackButton.setPreferredSize(new java.awt.Dimension(100, 50));
+        characterBackButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tableBackButtonActionPerformed(evt);
+                characterBackButtonActionPerformed(evt);
             }
         });
-
-        title.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
-        title.setText("请选择武将");
-
-        jLabel10.setText("portrait");
-
-        nameLabel.setText("曹操");
-
-        attackLabel.setText("攻击：100");
-
-        defenceLabel.setText("防御：100");
 
         javax.swing.GroupLayout selectCharacterPanelLayout = new javax.swing.GroupLayout(selectCharacterPanel);
         selectCharacterPanel.setLayout(selectCharacterPanelLayout);
         selectCharacterPanelLayout.setHorizontalGroup(
             selectCharacterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(selectCharacterPanelLayout.createSequentialGroup()
-                .addGroup(selectCharacterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(selectCharacterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(selectCharacterPanelLayout.createSequentialGroup()
-                            .addGap(275, 275, 275)
-                            .addComponent(confirmButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(31, 31, 31)
-                            .addComponent(tableBackButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(selectCharacterPanelLayout.createSequentialGroup()
-                            .addGap(332, 332, 332)
-                            .addComponent(title))))
-                .addGap(32, 32, 32)
                 .addGroup(selectCharacterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(nameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(selectCharacterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(defenceLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
-                        .addComponent(attackLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap(137, Short.MAX_VALUE))
+                    .addGroup(selectCharacterPanelLayout.createSequentialGroup()
+                        .addGap(275, 275, 275)
+                        .addComponent(characterConfirmButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(50, 50, 50)
+                        .addComponent(characterBackButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(selectCharacterPanelLayout.createSequentialGroup()
+                        .addGap(364, 364, 364)
+                        .addComponent(characterTitleLabel))
+                    .addGroup(selectCharacterPanelLayout.createSequentialGroup()
+                        .addGap(99, 99, 99)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 603, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(98, Short.MAX_VALUE))
         );
         selectCharacterPanelLayout.setVerticalGroup(
             selectCharacterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(selectCharacterPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(title)
-                .addGroup(selectCharacterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(selectCharacterPanelLayout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 445, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(selectCharacterPanelLayout.createSequentialGroup()
-                        .addGap(56, 56, 56)
-                        .addComponent(nameLabel)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(attackLabel)
-                        .addGap(18, 18, 18)
-                        .addComponent(defenceLabel)))
-                .addGap(32, 32, 32)
+                .addGap(24, 24, 24)
+                .addComponent(characterTitleLabel)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 445, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addGroup(selectCharacterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(confirmButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(tableBackButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(18, Short.MAX_VALUE))
+                    .addComponent(characterConfirmButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(characterBackButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
         selectCharacterPanel.setLayer(jScrollPane1, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectCharacterPanel.setLayer(confirmButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectCharacterPanel.setLayer(tableBackButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectCharacterPanel.setLayer(title, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectCharacterPanel.setLayer(jLabel10, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectCharacterPanel.setLayer(nameLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectCharacterPanel.setLayer(attackLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectCharacterPanel.setLayer(defenceLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectCharacterPanel.setLayer(characterTitleLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectCharacterPanel.setLayer(characterConfirmButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectCharacterPanel.setLayer(characterBackButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -699,591 +1266,221 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(selectCharacterPanel, gridBagConstraints);
 
-        selectFormation.setMaximumSize(new java.awt.Dimension(800, 600));
-        selectFormation.setMinimumSize(new java.awt.Dimension(800, 600));
-
-        startButton.setText("Start");
-        startButton.setFocusable(false);
-        startButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                startButtonActionPerformed(evt);
-            }
-        });
-
-        backButton.setText("Back");
-        backButton.setFocusable(false);
-        backButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                backButtonActionPerformed(evt);
-            }
-        });
-
-        northGateButton.setFont(new java.awt.Font("Microsoft YaHei", 0, 15)); // NOI18N
-        northGateButton.setFocusable(false);
-        northGateButton.setPreferredSize(new java.awt.Dimension(80, 50));
-        northGateButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                northGateButtonActionPerformed(evt);
-            }
-        });
-
-        southGateButton.setFont(new java.awt.Font("Microsoft YaHei", 0, 15)); // NOI18N
-        southGateButton.setFocusable(false);
-        southGateButton.setPreferredSize(new java.awt.Dimension(80, 50));
-        southGateButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                southGateButtonActionPerformed(evt);
-            }
-        });
-
-        westGateButton.setFont(new java.awt.Font("Microsoft YaHei", 0, 15)); // NOI18N
-        westGateButton.setFocusable(false);
-        westGateButton.setPreferredSize(new java.awt.Dimension(80, 50));
-        westGateButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                westGateButtonActionPerformed(evt);
-            }
-        });
-
-        eastGateButton.setFont(new java.awt.Font("Microsoft YaHei", 0, 15)); // NOI18N
-        eastGateButton.setFocusable(false);
-        eastGateButton.setPreferredSize(new java.awt.Dimension(80, 50));
-        eastGateButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                eastGateButtonActionPerformed(evt);
-            }
-        });
-
-        castleLabel.setText("castle");
-
-        jLabel5.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
-        jLabel5.setText("北门");
-
-        jLabel6.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
-        jLabel6.setText("南门");
-
-        jLabel7.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
-        jLabel7.setText("西门");
-
-        jLabel8.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
-        jLabel8.setText("东门");
-
-        northSlider.setMajorTickSpacing(100);
-        northSlider.setMaximum(30000);
-        northSlider.setMinorTickSpacing(1);
-        northSlider.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                northSliderStateChanged(evt);
-            }
-        });
-
-        northSoldiersLabel.setEditable(false);
-        northSoldiersLabel.setText("0");
-        northSoldiersLabel.setMaximumSize(new java.awt.Dimension(60, 22));
-        northSoldiersLabel.setMinimumSize(new java.awt.Dimension(60, 22));
-        northSoldiersLabel.setPreferredSize(new java.awt.Dimension(60, 22));
-
-        bingli1.setText("兵力:");
-
-        southSlider.setMajorTickSpacing(100);
-        southSlider.setMaximum(10000);
-        southSlider.setMinorTickSpacing(1);
-        southSlider.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                southSliderStateChanged(evt);
-            }
-        });
-
-        bingli3.setText("兵力:");
-
-        southSoldiersLabel.setEditable(false);
-        southSoldiersLabel.setText("0");
-        southSoldiersLabel.setMaximumSize(new java.awt.Dimension(60, 22));
-        southSoldiersLabel.setMinimumSize(new java.awt.Dimension(60, 22));
-        southSoldiersLabel.setPreferredSize(new java.awt.Dimension(60, 22));
-
-        westSlider.setMajorTickSpacing(100);
-        westSlider.setMaximum(10000);
-        westSlider.setMinorTickSpacing(1);
-        westSlider.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                westSliderStateChanged(evt);
-            }
-        });
-
-        bingli2.setText("兵力:");
-
-        westSoldiersLabel.setEditable(false);
-        westSoldiersLabel.setText("0");
-        westSoldiersLabel.setMaximumSize(new java.awt.Dimension(60, 22));
-        westSoldiersLabel.setMinimumSize(new java.awt.Dimension(60, 22));
-        westSoldiersLabel.setPreferredSize(new java.awt.Dimension(60, 22));
-
-        eastSlider.setMajorTickSpacing(100);
-        eastSlider.setMaximum(10000);
-        eastSlider.setMinorTickSpacing(1);
-        eastSlider.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                eastSliderStateChanged(evt);
-            }
-        });
-
-        bingli4.setText("兵力:");
-
-        eastSoldiersLabel.setEditable(false);
-        eastSoldiersLabel.setText("0");
-        eastSoldiersLabel.setMaximumSize(new java.awt.Dimension(60, 22));
-        eastSoldiersLabel.setMinimumSize(new java.awt.Dimension(60, 22));
-        eastSoldiersLabel.setPreferredSize(new java.awt.Dimension(60, 22));
-
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "剑", "枪", "弓", "骑" }));
-
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "剑", "枪", "弓", "骑" }));
-
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "剑", "枪", "弓", "骑" }));
-
-        jComboBox4.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "剑", "枪", "弓", "骑" }));
-
-        jLabel1.setText("兵种:");
-
-        jLabel2.setText("兵种:");
-
-        jLabel3.setText("兵种:");
-
-        jLabel4.setText("兵种:");
-
-        jLabel9.setText("剩余兵力：");
-
-        remainingLabel.setText("0");
-
-        javax.swing.GroupLayout selectFormationLayout = new javax.swing.GroupLayout(selectFormation);
-        selectFormation.setLayout(selectFormationLayout);
-        selectFormationLayout.setHorizontalGroup(
-            selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectFormationLayout.createSequentialGroup()
-                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(selectFormationLayout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(startButton)
-                        .addGap(18, 18, 18)
-                        .addComponent(backButton))
-                    .addGroup(selectFormationLayout.createSequentialGroup()
-                        .addGap(60, 60, 60)
-                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(selectFormationLayout.createSequentialGroup()
-                                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(selectFormationLayout.createSequentialGroup()
-                                        .addComponent(bingli2)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(westSoldiersLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(westSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(selectFormationLayout.createSequentialGroup()
-                                        .addComponent(bingli4)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(eastSoldiersLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(eastSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(selectFormationLayout.createSequentialGroup()
-                                        .addComponent(jLabel3)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, selectFormationLayout.createSequentialGroup()
-                                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(westGateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(selectFormationLayout.createSequentialGroup()
-                                        .addGap(16, 16, 16)
-                                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel7)
-                                            .addComponent(jLabel9)
-                                            .addComponent(remainingLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                .addGap(89, 89, 89)
-                                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(southGateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(northGateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGroup(selectFormationLayout.createSequentialGroup()
-                                            .addGap(18, 18, 18)
-                                            .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                .addComponent(jLabel5)
-                                                .addComponent(jLabel6))))
-                                    .addComponent(castleLabel))
-                                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(selectFormationLayout.createSequentialGroup()
-                                        .addGap(45, 45, 45)
-                                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(northSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addGroup(selectFormationLayout.createSequentialGroup()
-                                                .addComponent(bingli1)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(northSoldiersLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(selectFormationLayout.createSequentialGroup()
-                                                .addComponent(jLabel1)
-                                                .addGap(12, 12, 12)
-                                                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addComponent(southSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addGroup(selectFormationLayout.createSequentialGroup()
-                                                .addComponent(bingli3)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(southSoldiersLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(selectFormationLayout.createSequentialGroup()
-                                                .addComponent(jLabel2)
-                                                .addGap(12, 12, 12)
-                                                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                    .addGroup(selectFormationLayout.createSequentialGroup()
-                                        .addGap(237, 237, 237)
-                                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(selectFormationLayout.createSequentialGroup()
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addComponent(jLabel8)
-                                                .addGap(28, 28, 28))
-                                            .addComponent(eastGateButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                .addGap(0, 0, Short.MAX_VALUE)))))
-                .addGap(18, 18, 18))
-            .addGroup(selectFormationLayout.createSequentialGroup()
-                .addGap(58, 58, 58)
-                .addComponent(jLabel4)
-                .addGap(12, 12, 12)
-                .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        selectFormationLayout.setVerticalGroup(
-            selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(selectFormationLayout.createSequentialGroup()
-                .addGap(33, 33, 33)
-                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(selectFormationLayout.createSequentialGroup()
-                        .addComponent(jLabel5)
-                        .addGap(20, 20, 20)
-                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(northGateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(selectFormationLayout.createSequentialGroup()
-                                .addComponent(jLabel9)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(remainingLabel))))
-                    .addGroup(selectFormationLayout.createSequentialGroup()
-                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(northSoldiersLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(bingli1, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(northSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel1))))
-                .addGap(75, 75, 75)
-                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(selectFormationLayout.createSequentialGroup()
-                        .addComponent(jLabel7)
-                        .addGap(18, 18, 18)
-                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(westGateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectFormationLayout.createSequentialGroup()
-                                .addComponent(castleLabel)
-                                .addGap(20, 20, 20))))
-                    .addGroup(selectFormationLayout.createSequentialGroup()
-                        .addComponent(jLabel8)
-                        .addGap(18, 18, 18)
-                        .addComponent(eastGateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(29, 29, 29)
-                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectFormationLayout.createSequentialGroup()
-                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(westSoldiersLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(bingli2, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(westSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectFormationLayout.createSequentialGroup()
-                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(bingli4, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(eastSoldiersLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(eastSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3)
-                    .addComponent(jLabel4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectFormationLayout.createSequentialGroup()
-                        .addComponent(jLabel6)
-                        .addGap(20, 20, 20)
-                        .addComponent(southGateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectFormationLayout.createSequentialGroup()
-                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(southSoldiersLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(bingli3, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(southSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2))))
-                .addGap(39, 39, 39)
-                .addGroup(selectFormationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(backButton)
-                    .addComponent(startButton))
-                .addContainerGap())
-        );
-        selectFormation.setLayer(startButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(backButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(northGateButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(southGateButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(westGateButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(eastGateButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(castleLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(jLabel5, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(jLabel6, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(jLabel7, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(jLabel8, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(northSlider, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(northSoldiersLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(bingli1, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(southSlider, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(bingli3, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(southSoldiersLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(westSlider, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(bingli2, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(westSoldiersLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(eastSlider, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(bingli4, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(eastSoldiersLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(jComboBox1, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(jComboBox2, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(jComboBox3, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(jComboBox4, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(jLabel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(jLabel2, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(jLabel3, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(jLabel4, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(jLabel9, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormation.setLayer(remainingLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        add(selectFormation, gridBagConstraints);
+        bindingGroup.bind();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void middleActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_middleActionPerformed
-    {//GEN-HEADEREND:event_middleActionPerformed
+    private void formationBackButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_formationBackButtonActionPerformed
+    {//GEN-HEADEREND:event_formationBackButtonActionPerformed
+        selectedArmy = null;
+        selectCityPanel.setVisible(true);
+        selectFormationPanel.setVisible(false);
+    }//GEN-LAST:event_formationBackButtonActionPerformed
+
+    private void leftWingArmyButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_leftWingArmyButtonActionPerformed
+    {//GEN-HEADEREND:event_leftWingArmyButtonActionPerformed
+        selectedArmy = Armies.LEFTWING;
+        if (leftWingArmy == null) {
+            showNewArmyPanel();
+        } else {
+            showEditArmyPanel();
+        }
+    }//GEN-LAST:event_leftWingArmyButtonActionPerformed
+
+    private void rightWingArmyButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_rightWingArmyButtonActionPerformed
+    {//GEN-HEADEREND:event_rightWingArmyButtonActionPerformed
+        selectedArmy = Armies.RIGHTWING;
+        if (rightWingArmy == null) {
+            showNewArmyPanel();
+        } else {
+            showEditArmyPanel();
+        }    
+    }//GEN-LAST:event_rightWingArmyButtonActionPerformed
+
+    private void mainArmyButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mainArmyButtonActionPerformed
+    {//GEN-HEADEREND:event_mainArmyButtonActionPerformed
+        selectedArmy = Armies.MAIN;
+        if (mainArmy== null) {
+            showNewArmyPanel();
+        } else {
+            showEditArmyPanel();
+        }  
+    }//GEN-LAST:event_mainArmyButtonActionPerformed
+
+    private void frontArmyButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_frontArmyButtonActionPerformed
+    {//GEN-HEADEREND:event_frontArmyButtonActionPerformed
+        selectedArmy = Armies.FRONT;
+        if (frontArmy == null) {
+            showNewArmyPanel();
+        } else {
+            showEditArmyPanel();
+        }        
+    }//GEN-LAST:event_frontArmyButtonActionPerformed
+
+    private void characterConfirmButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_characterConfirmButtonActionPerformed
+    {//GEN-HEADEREND:event_characterConfirmButtonActionPerformed
+        if ((boolean)charTable.getValueAt(charTable.getSelectedRow(), 8) == true) {
+            JOptionPane.showMessageDialog(frame, "该武将已经出战！", "选择错误", JOptionPane.PLAIN_MESSAGE);
+        } else {
+            selectGeneral();
+            updateArmyPanel();
+            selectArmyPanel.setVisible(true);
+            selectCharacterPanel.setVisible(false);
+        }
+    }//GEN-LAST:event_characterConfirmButtonActionPerformed
+
+    private void characterBackButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_characterBackButtonActionPerformed
+    {//GEN-HEADEREND:event_characterBackButtonActionPerformed
+        selectArmyPanel.setVisible(true);
+        selectCharacterPanel.setVisible(false);
+    }//GEN-LAST:event_characterBackButtonActionPerformed
+
+    private void formationConfirmButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_formationConfirmButtonActionPerformed
+    {//GEN-HEADEREND:event_formationConfirmButtonActionPerformed
+        showBattlePanel();
+    }//GEN-LAST:event_formationConfirmButtonActionPerformed
+
+    private void charTableMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_charTableMouseClicked
+    {//GEN-HEADEREND:event_charTableMouseClicked
+        if ((gc.getCharacterList().isEmpty()) || (charTable.getSelectedRow() >= gc.getCharNumber())) {
+            JOptionPane.showMessageDialog(frame, "请选择有效武将！", "选择错误", JOptionPane.PLAIN_MESSAGE);
+        }
+    }//GEN-LAST:event_charTableMouseClicked
+
+    private void armyConfirmButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_armyConfirmButtonActionPerformed
+        createArmy();
+        updateFormationPanel();
+        selectFormationPanel.setVisible(true);
+        selectArmyPanel.setVisible(false);
+    }//GEN-LAST:event_armyConfirmButtonActionPerformed
+
+    private void armyBackButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_armyBackButtonActionPerformed
+        selectFormationPanel.setVisible(true);
+        selectArmyPanel.setVisible(false);
+    }//GEN-LAST:event_armyBackButtonActionPerformed
+
+    private void middleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_middleActionPerformed
         this.setVisible(false);
         gp.setVisible(true);
     }//GEN-LAST:event_middleActionPerformed
 
-    private void northActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_northActionPerformed
-    {//GEN-HEADEREND:event_northActionPerformed
-        setAttackedCity(city.getNeighbour(DIRECTION_NORTH));
-    }//GEN-LAST:event_northActionPerformed
-
-    private void backButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_backButtonActionPerformed
-    {//GEN-HEADEREND:event_backButtonActionPerformed
-        gate = NONE;
-        selectFormation.setVisible(false);
-        selectCityPanel.setVisible(true);
-    }//GEN-LAST:event_backButtonActionPerformed
-
-    private void northGateButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_northGateButtonActionPerformed
-    {//GEN-HEADEREND:event_northGateButtonActionPerformed
-        gate = NORTH;
-        selectFormation.setVisible(false);
-        selectCharacterPanel.setVisible(true);
-    }//GEN-LAST:event_northGateButtonActionPerformed
-
-    private void southGateButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_southGateButtonActionPerformed
-    {//GEN-HEADEREND:event_southGateButtonActionPerformed
-        gate = SOUTH;
-        selectFormation.setVisible(false);
-        selectCharacterPanel.setVisible(true);
-    }//GEN-LAST:event_southGateButtonActionPerformed
-
-    private void westGateButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_westGateButtonActionPerformed
-    {//GEN-HEADEREND:event_westGateButtonActionPerformed
-        gate = WEST;
-        selectFormation.setVisible(false);
-        selectCharacterPanel.setVisible(true);
-    }//GEN-LAST:event_westGateButtonActionPerformed
-
-    private void eastGateButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_eastGateButtonActionPerformed
-    {//GEN-HEADEREND:event_eastGateButtonActionPerformed
-        gate = EAST;
-        selectFormation.setVisible(false);
-        selectCharacterPanel.setVisible(true);
-    }//GEN-LAST:event_eastGateButtonActionPerformed
-
-    private void confirmButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_confirmButtonActionPerformed
-    {//GEN-HEADEREND:event_confirmButtonActionPerformed
-        charName = selectedGeneral.getName();
-        
-        if (charName.equals("无") || charName == null || charName.equals("")) {
-            JOptionPane.showMessageDialog(frame, "请选择有效武将！", "选择错误", JOptionPane.PLAIN_MESSAGE);
-        } else
-        {
-            dispatchTroops();
-            selectCharacterPanel.setVisible(false);
-            selectFormation.setVisible(true);
-        }
-    }//GEN-LAST:event_confirmButtonActionPerformed
-
-    private void tableBackButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_tableBackButtonActionPerformed
-    {//GEN-HEADEREND:event_tableBackButtonActionPerformed
-        selectCharacterPanel.setVisible(false);
-        selectFormation.setVisible(true);
-    }//GEN-LAST:event_tableBackButtonActionPerformed
-
-    private void southActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_southActionPerformed
-    {//GEN-HEADEREND:event_southActionPerformed
-        setAttackedCity(city.getNeighbour(DIRECTION_SOUTH));
-    }//GEN-LAST:event_southActionPerformed
-
-    private void westActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_westActionPerformed
-    {//GEN-HEADEREND:event_westActionPerformed
-        setAttackedCity(city.getNeighbour(DIRECTION_WEST));
-    }//GEN-LAST:event_westActionPerformed
-
-    private void eastActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_eastActionPerformed
-    {//GEN-HEADEREND:event_eastActionPerformed
-        setAttackedCity(city.getNeighbour(DIRECTION_EAST));
-    }//GEN-LAST:event_eastActionPerformed
-
-    private void northWestActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_northWestActionPerformed
-    {//GEN-HEADEREND:event_northWestActionPerformed
-        setAttackedCity(city.getNeighbour(DIRECTION_NORTHWEST));
-    }//GEN-LAST:event_northWestActionPerformed
-
-    private void northEastActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_northEastActionPerformed
-    {//GEN-HEADEREND:event_northEastActionPerformed
-        setAttackedCity(city.getNeighbour(DIRECTION_NORTHEAST));
-    }//GEN-LAST:event_northEastActionPerformed
-
-    private void southWestActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_southWestActionPerformed
-    {//GEN-HEADEREND:event_southWestActionPerformed
-        setAttackedCity(city.getNeighbour(DIRECTION_SOUTHWEST));
-    }//GEN-LAST:event_southWestActionPerformed
-
-    private void southEastActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_southEastActionPerformed
-    {//GEN-HEADEREND:event_southEastActionPerformed
-        setAttackedCity(city.getNeighbour(DIRECTION_SOUTHEAST));
+    private void southEastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_southEastActionPerformed
+        selectAttackedCity(currentCity.getNeighbour(DIRECTION_SOUTHEAST));
+        showFormationPanel();
     }//GEN-LAST:event_southEastActionPerformed
 
-    private void startButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_startButtonActionPerformed
-    {//GEN-HEADEREND:event_startButtonActionPerformed
-        // Legion(Commander, Soldiers, UnitType)
-        northGateLegion = new Legion(northGeneral, northSlider.getValue(), 1);
-        southGateLegion = new Legion(southGeneral, southSlider.getValue(), 1);
-        // westGateLegion = new Legion(westGeneral, westSlider.getValue(), 1);
-        // eastGateLegion = new Legion(eastGeneral, eastSlider.getValue(), 1);
-        
-        createBattlePanel();
-        this.setVisible(false);
+    private void southActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_southActionPerformed
+        selectAttackedCity(currentCity.getNeighbour(DIRECTION_SOUTH));
+        showFormationPanel();
+    }//GEN-LAST:event_southActionPerformed
 
-        // Display Commander info
-        // northGeneral.calcCommanderStats();
-        // southGeneral.calcCommanderStats();
-        // System.out.println(northGeneral.getName() + " Damage: " + northGeneral.getDmg() + " Defence: " + northGeneral.getDef());
-        // System.out.println(southGeneral.getName() + " Damage: " + southGeneral.getDmg() + " Defence: " + southGeneral.getDef());
-        // Display Legion info
-        // System.out.println("北门军队 HP:" + northGateLegion.getHP() + " Damage: " + northGateLegion.getDmg() + " Defence: " + northGateLegion.getDef());
-        // System.out.println("南门军队 HP:" + southGateLegion.getHP() + " Damage " + southGateLegion.getDmg() + " Defence: " + southGateLegion.getDef());
-    }//GEN-LAST:event_startButtonActionPerformed
+    private void southWestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_southWestActionPerformed
+        selectAttackedCity(currentCity.getNeighbour(DIRECTION_SOUTHWEST));
+        showFormationPanel();
+    }//GEN-LAST:event_southWestActionPerformed
 
-    private void northSliderStateChanged(javax.swing.event.ChangeEvent evt)//GEN-FIRST:event_northSliderStateChanged
-    {//GEN-HEADEREND:event_northSliderStateChanged
-        northSoldiersLabel.setText(northSlider.getValue() + "");
-        calcRemainingSoldiers();
-        remainingLabel.setText(remainingSoldiers + "");
-    }//GEN-LAST:event_northSliderStateChanged
+    private void eastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eastActionPerformed
+        selectAttackedCity(currentCity.getNeighbour(DIRECTION_EAST));
+        showFormationPanel();
+    }//GEN-LAST:event_eastActionPerformed
 
-    private void southSliderStateChanged(javax.swing.event.ChangeEvent evt)//GEN-FIRST:event_southSliderStateChanged
-    {//GEN-HEADEREND:event_southSliderStateChanged
-        southSoldiersLabel.setText(southSlider.getValue() + "");
-        calcRemainingSoldiers();
-        remainingLabel.setText(remainingSoldiers + "");
-    }//GEN-LAST:event_southSliderStateChanged
+    private void westActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_westActionPerformed
+        selectAttackedCity(currentCity.getNeighbour(DIRECTION_WEST));
+        showFormationPanel();
+    }//GEN-LAST:event_westActionPerformed
 
-    private void westSliderStateChanged(javax.swing.event.ChangeEvent evt)//GEN-FIRST:event_westSliderStateChanged
-    {//GEN-HEADEREND:event_westSliderStateChanged
-        westSoldiersLabel.setText(westSlider.getValue() + "");
-        calcRemainingSoldiers();
-        remainingLabel.setText(remainingSoldiers + "");
-    }//GEN-LAST:event_westSliderStateChanged
+    private void northEastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_northEastActionPerformed
+        selectAttackedCity(currentCity.getNeighbour(DIRECTION_NORTHEAST));
+        showFormationPanel();
+    }//GEN-LAST:event_northEastActionPerformed
 
-    private void eastSliderStateChanged(javax.swing.event.ChangeEvent evt)//GEN-FIRST:event_eastSliderStateChanged
-    {//GEN-HEADEREND:event_eastSliderStateChanged
-        eastSoldiersLabel.setText(eastSlider.getValue() + "");
-        calcRemainingSoldiers();
-        remainingLabel.setText(remainingSoldiers + "");
-    }//GEN-LAST:event_eastSliderStateChanged
+    private void northActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_northActionPerformed
+        selectAttackedCity(currentCity.getNeighbour(DIRECTION_NORTH));
+        showFormationPanel();
+    }//GEN-LAST:event_northActionPerformed
 
-    private void charTableMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_charTableMouseClicked
-    {//GEN-HEADEREND:event_charTableMouseClicked
-        if ((!city.getCharacterList().isEmpty()) && (charTable.getSelectedRow() < city.getCharacterList().size())) {
-            selectedGeneral = city.getCharacterList().get(charTable.getSelectedRow());      // set general to the according selected row.
-            nameLabel.setText(selectedGeneral.getName());
-            selectedGeneral.calcCommanderStats();
-            attackLabel.setText("攻击：" + selectedGeneral.getDmg());
-            defenceLabel.setText("防御：" + selectedGeneral.getDef());
-        }
-    }//GEN-LAST:event_charTableMouseClicked
+    private void northWestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_northWestActionPerformed
+        selectAttackedCity(currentCity.getNeighbour(DIRECTION_NORTHWEST));
+        showFormationPanel();
+    }//GEN-LAST:event_northWestActionPerformed
+
+    private void armyCommanderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_armyCommanderButtonActionPerformed
+       selectedGeneral = General.COMMANDER;
+       selectCharacterPanel.setVisible(true);
+       selectArmyPanel.setVisible(false);
+    }//GEN-LAST:event_armyCommanderButtonActionPerformed
+
+    private void armyLieutenantButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_armyLieutenantButtonActionPerformed
+        selectedGeneral = General.LIEUTENANT;
+        selectCharacterPanel.setVisible(true);
+        selectArmyPanel.setVisible(false);
+    }//GEN-LAST:event_armyLieutenantButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel attackLabel;
-    private javax.swing.JButton backButton;
-    private javax.swing.JLabel bingli1;
-    private javax.swing.JLabel bingli2;
-    private javax.swing.JLabel bingli3;
-    private javax.swing.JLabel bingli4;
+    private javax.swing.JLabel armourValue;
+    private javax.swing.JLabel armyAttackLabel;
+    private javax.swing.JButton armyBackButton;
+    private javax.swing.JComboBox armyBox;
+    private javax.swing.JButton armyCommanderButton;
+    private javax.swing.JLabel armyCommanderName;
+    private javax.swing.JButton armyConfirmButton;
+    private javax.swing.JLabel armyDefenceLabel;
+    private javax.swing.JLabel armyLabel1;
+    private javax.swing.JLabel armyLabel2;
+    private javax.swing.JButton armyLieutenantButton;
+    private javax.swing.JLabel armyLieutenantName;
+    private javax.swing.JSlider armySlider;
+    private javax.swing.JTextField armySoldierText;
+    private javax.swing.JLabel armyTitle1;
+    private javax.swing.JLabel armyTitle2;
+    private javax.swing.JLabel armyTitle3;
+    private javax.swing.JLabel armyTitle4;
+    private javax.swing.JLabel armyTitle5;
+    private javax.swing.JLabel bowValue;
     private javax.swing.JLabel castleLabel;
     private javax.swing.JTable charTable;
-    private javax.swing.JButton confirmButton;
-    private javax.swing.JLabel defenceLabel;
+    private javax.swing.JButton characterBackButton;
+    private javax.swing.JButton characterConfirmButton;
+    private javax.swing.JLabel characterTitleLabel;
+    private javax.swing.JLabel characterTitleLabel1;
+    private javax.swing.JLabel chariotValue;
     private javax.swing.JButton east;
-    private javax.swing.JButton eastGateButton;
-    private javax.swing.JSlider eastSlider;
-    private javax.swing.JTextField eastSoldiersLabel;
-    private javax.swing.JComboBox jComboBox1;
-    private javax.swing.JComboBox jComboBox2;
-    private javax.swing.JComboBox jComboBox3;
-    private javax.swing.JComboBox jComboBox4;
+    private javax.swing.JButton formationBackButton;
+    private javax.swing.JButton formationConfirmButton;
+    private javax.swing.JLabel formationEnemyTotalLabel;
+    private javax.swing.JLabel formationForceLabel;
+    private javax.swing.JLabel formationSoldierRemainLabel;
+    private javax.swing.JLabel formationTittle;
+    private javax.swing.JLabel formationTotalLabel;
+    private javax.swing.JButton frontArmyButton;
+    private javax.swing.JLabel frontLabel;
+    private javax.swing.JLabel halberdValue;
+    private javax.swing.JLabel horseValue;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
-    private javax.swing.JLayeredPane jLayeredPane1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel leatherValue;
+    private javax.swing.JButton leftWingArmyButton;
+    private javax.swing.JLabel leftWingLabel;
+    private javax.swing.JButton mainArmyButton;
+    private javax.swing.JLabel mainLabel;
     private javax.swing.JButton middle;
-    private javax.swing.JLabel nameLabel;
     private javax.swing.JButton north;
     private javax.swing.JButton northEast;
-    private javax.swing.JButton northGateButton;
-    private javax.swing.JSlider northSlider;
-    private javax.swing.JTextField northSoldiersLabel;
     private javax.swing.JButton northWest;
     private javax.swing.JLabel remainingLabel;
+    private javax.swing.JButton rightWingArmyButton;
+    private javax.swing.JLabel rightWingLabel;
+    private javax.swing.JLayeredPane selectArmyPanel;
     private javax.swing.JLayeredPane selectCharacterPanel;
     private javax.swing.JLayeredPane selectCityPanel;
-    private javax.swing.JLayeredPane selectFormation;
+    private javax.swing.JLayeredPane selectFormationPanel;
     private javax.swing.JButton south;
     private javax.swing.JButton southEast;
-    private javax.swing.JButton southGateButton;
-    private javax.swing.JSlider southSlider;
-    private javax.swing.JTextField southSoldiersLabel;
     private javax.swing.JButton southWest;
-    private javax.swing.JButton startButton;
-    private javax.swing.JButton tableBackButton;
-    private javax.swing.JLabel title;
+    private javax.swing.JLabel spearValue;
+    private javax.swing.JLabel swordValue;
+    private javax.swing.JLabel totalLabel;
+    private javax.swing.JLabel totalLabel1;
     private javax.swing.JButton west;
-    private javax.swing.JButton westGateButton;
-    private javax.swing.JSlider westSlider;
-    private javax.swing.JTextField westSoldiersLabel;
+    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }

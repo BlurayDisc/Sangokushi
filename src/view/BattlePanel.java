@@ -12,7 +12,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 import model.City;
-import model.Legion;
+import model.Army;
 
 /**
  *
@@ -23,10 +23,10 @@ public class BattlePanel extends javax.swing.JPanel
     private final BattleScreen bs;
     private final GamePanel gp;
     private Battle battle1, battle2, battle3, battle4;
-    private final Legion northLegion;
-    private final Legion southLegion;
-    private final Legion westLegion;
-    private final Legion eastLegion;
+    private final Army northLegion;
+    private final Army southLegion;
+    private final Army westLegion;
+    private final Army eastLegion;
     private String resultString, playerLog, enemyLog;
     private String playerMaxHp, enemyMaxHp;
     ActionListener playerMsgListener, enemyMsgListener;
@@ -36,7 +36,7 @@ public class BattlePanel extends javax.swing.JPanel
     /**
      * Creates new form Battle
      */
-    public BattlePanel(GamePanel gp, City currentCity, City attackingCity, Legion northLegion, Legion southLegion, Legion westLegion, Legion eastLegion)
+    public BattlePanel(GamePanel gp, City currentCity, City attackingCity, Army northLegion, Army southLegion, Army westLegion, Army eastLegion)
     {
         super();
         setSize(800, 600);

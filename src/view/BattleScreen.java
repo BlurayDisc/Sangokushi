@@ -5,7 +5,6 @@
  */
 package view;
 
-import controller.Side;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
@@ -27,9 +26,10 @@ import model.units.Unit;
  *  Ancient Military Ranking:
  *  1. 什长     10人     什
  *  2. 百夫长   100人    行
- *  3. 千夫长   1000人   大行
- *  4. 正副将   3000人   师
- *  5. 正副将军 10000人  王师
+ *  3. 屯长     500人    旅  
+ *  4. 千夫长   1000人   大行
+ *  5. 正副将   2500人   师
+ *  6. 正副将军 12500人  军
  * 
  * Ancient Military Chariot Formation:
  * 
@@ -58,6 +58,7 @@ public class BattleScreen {
     
     private final List<Unit> playerMainArmy, enemyMainArmy;
     private final Point2D.Double playerMainArmySpawnPoint, enemyMainArmySpawnPoint;
+    private enum Side {PLAYER, ENEMY}
     
     public BattleScreen() {
         playerMainArmySpawnPoint = new Point2D.Double(380, 540);

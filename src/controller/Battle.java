@@ -7,7 +7,7 @@
 package controller;
 
 import model.Dice;
-import model.Legion;
+import model.Army;
 
 /**
  *
@@ -15,7 +15,7 @@ import model.Legion;
  */
 public class Battle
 {
-    private final Legion playerLegion, enemyLegion;
+    private final Army playerLegion, enemyLegion;
     private final Dice playerDice;
     private final Dice enemyDice;
     private int roundCounter;
@@ -35,7 +35,7 @@ public class Battle
     private int[] player = new int[3], enemy = new int[3];
     private int playerIndex = 0, enemyIndex = 0;
 
-    public Battle(Legion player, Legion enemy) {  
+    public Battle(Army player, Army enemy) {  
         roundCounter = 0;
         playerLegion = player;
         enemyLegion = enemy;

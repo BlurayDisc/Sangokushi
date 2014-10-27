@@ -12,7 +12,7 @@ import controller.UnitTypeDataManager;
  *
  * @author RuN
  */
-public class Legion
+public class Army
 {
     private final Character commander;
     private final UnitTypeDataManager typeData;
@@ -24,7 +24,7 @@ public class Legion
     private boolean isDefeated;
     private boolean isCaptured;
     
-    public Legion(Character commander, int soldiers, int typeNumber)
+    public Army(Character commander, int soldiers, int typeNumber)
     {
         typeData = new UnitTypeDataManager();
         typeData.setNewType(typeNumber);

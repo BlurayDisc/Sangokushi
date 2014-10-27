@@ -212,7 +212,7 @@ public class GamePanel extends JPanel implements GameParameters
     }
         
     private void battleButtonClicked(){
-        prepareBattlePanel.updateData();
+        prepareBattlePanel.init();
         prepareBattlePanel.setVisible(true);
         this.setVisible(false);
     }
