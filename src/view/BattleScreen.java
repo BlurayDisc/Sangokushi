@@ -5,17 +5,19 @@
  */
 package view;
 
+import controller.ArmyType;
+import controller.UnitType;
+import view.units.Unit;
+import view.units.FootmanUnit;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
-import model.units.Calvary;
-import model.units.Footman;
-import model.units.Unit;
+import model.Army;
+import view.units.CavalryUnit;
 
 /**
  *
@@ -57,21 +59,11 @@ import model.units.Unit;
 public class BattleScreen {
     
     private final List<Unit> playerMainArmy, enemyMainArmy;
-    private final Point2D.Double playerMainArmySpawnPoint, enemyMainArmySpawnPoint;
-    private enum Side {PLAYER, ENEMY}
+    public enum Side {PLAYER, ENEMY}
     
     public BattleScreen() {
-        playerMainArmySpawnPoint = new Point2D.Double(380, 540);
-        enemyMainArmySpawnPoint = new Point2D.Double(380, 50);
-        
         playerMainArmy = new ArrayList<>(100);
         enemyMainArmy = new ArrayList<>(100);
-        
-    }
-    
-    public void init() {
-        setPlayerSoldiers(5000, playerMainArmy, playerMainArmySpawnPoint);
-        setEnemySoldiers(10000, enemyMainArmy, enemyMainArmySpawnPoint);
     }
     
     public void move() {
@@ -84,14 +76,14 @@ public class BattleScreen {
         }
     }
     
-    private void translate(Shape shape, Side s) {
-        if (shape instanceof Ellipse2D.Double) {
+    private void translate(Shape shape, Side side) {
+        if (shape instanceof Ellipse2D) {
             Ellipse2D.Double footman = (Ellipse2D.Double)shape;
-            if (s == Side.PLAYER) {footman.y -= 10;}
+            if (side == Side.PLAYER) {footman.y -= 10;}
             else {footman.y += 10;}
-        } else if (shape instanceof Rectangle2D.Double) {
+        } else if (shape instanceof Rectangle2D) {
             Rectangle2D.Double calvary = (Rectangle2D.Double)shape;
-            if (s == Side.PLAYER) {calvary.y -= 30;}
+            if (side == Side.PLAYER) {calvary.y -= 30;}
             else {calvary.y += 30;}
         }
     }
@@ -113,83 +105,64 @@ public class BattleScreen {
     public void paintBackground() {
         
     }
+    
+    public void setSoldiers(ArmyType armyType, int numSoldiers, UnitType unitType) {
+        numSoldiers = numSoldiers / 100;
+        List<Unit> army = getArmy(armyType);
         
-    // value bounds: 1 - 37500
-    public void setPlayerSoldiers(int inValue, List<Unit> soldierList, Point2D.Double inSpawnPoint) {
+        Unit head = getUnitType(unitType);
+        head.setSpawnPoint(armyType);
+        head.adjustSpawnPoint(armyType, numSoldiers);
+        head.translate(head.getSpawnPoint().x, head.getSpawnPoint().y);
+        
+        army.add(head);
+        addSoldiers(army, numSoldiers, unitType);
+        adjustSoldierPositions(armyType, army, head);
+    }
+    
+    private void addSoldiers(List<Unit> army, int numSoldiers, UnitType unitType) {
+        for (int i = 1; i < numSoldiers; i++) {
+            army.add(getUnitType(unitType));
+        }
+    }
+    
+    private void adjustSoldierPositions(ArmyType armyType, List<Unit> army, Unit head) {
+        
         int x = 0, y = 0, dx = 0, dy = 0;
-        int value = inValue / 100;
         
-        Point2D.Double spawnPoint = calcPlayerSpawnPoint(value, inSpawnPoint);
-        
-        for(int i = 0; i < value; i++) {
-            if (x == 5) { x = 0; y++; }
-            if (y == 5) { y=0; dx+=6; }
-            if (dx == 30) {dx = 0; dy+=6;}
-            soldierList.add(new Footman(spawnPoint.x + 10 * (x + dx), spawnPoint.y + 10 * (y + dy)));
+        for (int i = 1; i < army.size(); i++) {
+            if (x == 5) {x = 0; y++;}           // 5 little columss
+            if (y == 5) {y = 0; dx += 6;}       // 5 rows
+            if (dx == 30) {dx = 0; dy += 6;}    // dx / 3 big columns
+            if (armyType == ArmyType.PLAYER_MAIN) {
+                army.get(i).translate(head.x + 10 * (x + dx), head.y + 10 * (y + dy));
+            } else {
+                army.get(i).translate(head.x + 10 * (x + dx), head.y - 10 * (y + dy));
+            }
             x++;
         }
     }
     
-    // value bounds: 1 - 37500
-    public void setEnemySoldiers(int inValue, List<Unit> soldierList, Point2D.Double inSpawnPoint) {
-        int x = 0, y = 0, dx = 0, dy = 0;
-        int value = inValue / 100;
-        
-        Point2D.Double spawnPoint = calcEnemySpawnPoint(value, inSpawnPoint);
-        
-        for(int i = 0; i < value; i++) {
-            if (x == 5) { x = 0; y++; }
-            if (y == 5) { y=0; dx+=6; }
-            if (dx == 30) {dx = 0; dy+=6;}
-            soldierList.add(new Calvary(spawnPoint.x + 10 * (x + dx), spawnPoint.y - 10 * (y + dy)));
-            x++;
+    private Unit getUnitType(UnitType type) {
+        switch(type) {
+            case SWORDSMAN: return new FootmanUnit();
+            case LIGHT_CAVALRY: return new CavalryUnit();
+            default: return null;
         }
     }
     
-    private Point2D.Double calcPlayerSpawnPoint(int value, Point2D.Double spawnPoint) {
-        
-        Point2D.Double newSpawn = new Point2D.Double();
-        
-        if (value > 250) {
-            newSpawn.setLocation(spawnPoint.x - 120, spawnPoint.y - 120);
-        } else if (value > 125) {
-            newSpawn.setLocation(spawnPoint.x - 120, spawnPoint.y - 60);
-        } else if (value > 100) {
-            newSpawn.setLocation(spawnPoint.x - 120, spawnPoint.y);
-        } else if (value > 75) {
-            newSpawn.setLocation(spawnPoint.x - 90, spawnPoint.y);
-        } else if (value > 50) {
-            newSpawn.setLocation(spawnPoint.x - 60, spawnPoint.y);
-        }else if (value > 25) {
-            newSpawn.setLocation(spawnPoint.x - 30, spawnPoint.y);
-        } else {
-            newSpawn.setLocation(spawnPoint.x, spawnPoint.y);
+    private List<Unit> getArmy(ArmyType type){
+        switch(type) {
+            case PLAYER_FRONT: return null;
+            case PLAYER_MAIN: return playerMainArmy;
+            case PLAYER_LEFTWING: return null;
+            case PLAYER_RIGHTWING: return null;
+            case ENEMY_FRONT: return null;
+            case ENEMY_MAIN: return enemyMainArmy;
+            case ENEMY_LEFTWING: return null;
+            case ENEMY_RIGHTWING: return null;
+            default: return null;
         }
-        
-        return newSpawn;
-    }
-    
-    private Point2D.Double calcEnemySpawnPoint(int value, Point2D.Double spawnPoint) {
-        
-        Point2D.Double newSpawn = new Point2D.Double();
-        
-        if (value > 250) {
-            newSpawn.setLocation(spawnPoint.x - 120, spawnPoint.y + 120);
-        } else if (value > 125) {
-            newSpawn.setLocation(spawnPoint.x - 120, spawnPoint.y + 60);
-        } else if (value > 100) {
-            newSpawn.setLocation(spawnPoint.x - 120, spawnPoint.y);
-        } else if (value > 75) {
-            newSpawn.setLocation(spawnPoint.x - 90, spawnPoint.y);
-        } else if (value > 50) {
-            newSpawn.setLocation(spawnPoint.x - 60, spawnPoint.y);
-        } else if (value > 25) {
-            newSpawn.setLocation(spawnPoint.x - 30, spawnPoint.y);
-        } else {
-            newSpawn.setLocation(spawnPoint.x, spawnPoint.y);
-        }
-        
-        return newSpawn;
     }
     
     public void drawChariotFormation(Graphics2D g) {

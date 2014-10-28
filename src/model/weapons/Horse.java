@@ -9,6 +9,10 @@ package model.weapons;
  *
  * @author RuN
  */
-public class Horse {
+public class Horse extends Equipment {
+    
+    public Horse() {
+        
+    }
     
 }

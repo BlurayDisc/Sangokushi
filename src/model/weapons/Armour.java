@@ -9,6 +9,10 @@ package model.weapons;
  *
  * @author RuN
  */
-public class IronArmour {
+public class Armour extends Equipment {
     
+    public Armour() {
+        cost = 5;
+        rate = 35;
+    }
 }

@@ -6,6 +6,7 @@
 
 package view;
 
+import controller.ArmyType;
 import controller.GameController;
 import controller.GameParameters;
 import java.util.Arrays;
@@ -36,9 +37,8 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
     private Army mainArmy, frontArmy,leftWingArmy, rightWingArmy;
     private int remainingSoldiers;
     
-    private enum Armies {FRONT, MAIN, LEFTWING, RIGHTWING}
     private enum General {COMMANDER, LIEUTENANT}
-    private Armies selectedArmy;
+    private ArmyType selectedArmy;
     private General selectedGeneral;
 
 
@@ -178,13 +178,13 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
     }
     
     private void showEditArmyPanel() {
-        if (selectedArmy == Armies.FRONT) {
+        if (selectedArmy == ArmyType.PLAYER_FRONT) {
             updateArmyPanel(frontArmy);
-        } else if (selectedArmy == Armies.MAIN) {
+        } else if (selectedArmy == ArmyType.PLAYER_MAIN) {
             updateArmyPanel(mainArmy);
-        } else if (selectedArmy == Armies.LEFTWING) {
+        } else if (selectedArmy == ArmyType.PLAYER_LEFTWING) {
             updateArmyPanel(leftWingArmy);
-        } else if (selectedArmy == Armies.RIGHTWING) {
+        } else if (selectedArmy == ArmyType.PLAYER_RIGHTWING) {
             updateArmyPanel(rightWingArmy);
         }
         selectArmyPanel.setVisible(true);
@@ -193,7 +193,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
     
     private void showBattlePanel() {
         this.setVisible(false);
-        bp.initBattle(mainArmy);
+        bp.initBattle(frontArmy, mainArmy, leftWingArmy, rightWingArmy);
         bp.setVisible(true);
     }
 
@@ -265,23 +265,23 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
     private void createArmy() {
         // Legion(Commander, Soldiers, UnitType)
         
-        if (selectedArmy == Armies.FRONT) {
+        if (selectedArmy == ArmyType.PLAYER_FRONT) {
             if (frontArmy == null) {
                 frontGeneral = armyCommander;
                 frontArmy = new Army(frontGeneral, armySlider.getValue(), 1);
             }
-        } else if (selectedArmy == Armies.MAIN) {
+        } else if (selectedArmy == ArmyType.PLAYER_MAIN) {
             if (mainArmy == null) {
                 mainGeneral = armyCommander;
                 mainArmy = new Army(mainGeneral, armySlider.getValue(), 1);
             }
-        } else if (selectedArmy == Armies.LEFTWING) {
+        } else if (selectedArmy == ArmyType.PLAYER_LEFTWING) {
             if (leftWingArmy == null) {
                 leftWingGeneral = armyCommander;
                 leftWingArmy = new Army(leftWingGeneral, armySlider.getValue(), 1);
             }
             
-        } else if (selectedArmy == Armies.RIGHTWING) {
+        } else if (selectedArmy == ArmyType.PLAYER_RIGHTWING) {
             if (rightWingArmy == null) {
                 rightWingGeneral = armyCommander;
                 rightWingArmy = new Army(rightWingGeneral, armySlider.getValue(), 1);
@@ -368,7 +368,6 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
 
         selectCityPanel.setMaximumSize(new java.awt.Dimension(800, 600));
         selectCityPanel.setMinimumSize(new java.awt.Dimension(800, 600));
-        selectCityPanel.setPreferredSize(new java.awt.Dimension(800, 600));
 
         characterTitleLabel1.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
         characterTitleLabel1.setText("出兵");
@@ -1278,7 +1277,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
 
     private void leftWingArmyButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_leftWingArmyButtonActionPerformed
     {//GEN-HEADEREND:event_leftWingArmyButtonActionPerformed
-        selectedArmy = Armies.LEFTWING;
+        selectedArmy = ArmyType.PLAYER_LEFTWING;
         if (leftWingArmy == null) {
             showNewArmyPanel();
         } else {
@@ -1288,7 +1287,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
 
     private void rightWingArmyButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_rightWingArmyButtonActionPerformed
     {//GEN-HEADEREND:event_rightWingArmyButtonActionPerformed
-        selectedArmy = Armies.RIGHTWING;
+        selectedArmy = ArmyType.PLAYER_RIGHTWING;
         if (rightWingArmy == null) {
             showNewArmyPanel();
         } else {
@@ -1298,7 +1297,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
 
     private void mainArmyButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mainArmyButtonActionPerformed
     {//GEN-HEADEREND:event_mainArmyButtonActionPerformed
-        selectedArmy = Armies.MAIN;
+        selectedArmy = ArmyType.PLAYER_MAIN;
         if (mainArmy== null) {
             showNewArmyPanel();
         } else {
@@ -1308,7 +1307,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
 
     private void frontArmyButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_frontArmyButtonActionPerformed
     {//GEN-HEADEREND:event_frontArmyButtonActionPerformed
-        selectedArmy = Armies.FRONT;
+        selectedArmy = ArmyType.PLAYER_FRONT;
         if (frontArmy == null) {
             showNewArmyPanel();
         } else {

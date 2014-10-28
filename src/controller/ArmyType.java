@@ -3,16 +3,21 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model.weapons;
+package controller;
 
 /**
  *
  * @author RuN
  */
-public class Chariot extends Equipment {
+public enum ArmyType {
+    PLAYER_FRONT, 
+    PLAYER_MAIN, 
+    PLAYER_LEFTWING, 
+    PLAYER_RIGHTWING,
     
-    public Chariot() {
-        
-    }
-    
+    ENEMY_FRONT, 
+    ENEMY_MAIN, 
+    ENEMY_LEFTWING, 
+    ENEMY_RIGHTWING
 }
+

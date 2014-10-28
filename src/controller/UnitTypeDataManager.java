@@ -6,8 +6,6 @@
 
 package controller;
 
-import controller.GameParameters;
-
 /**
  *
  * @author RuN

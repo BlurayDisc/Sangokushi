@@ -9,13 +9,10 @@ package model.buildings;
  *
  * @author RuN
  */
-public class Market extends Building
-{
+public class Market extends Building {
     private int goldIncome;
     
-    public Market()
-    {
-        super();
+    public Market() {
         setName("市场");
         setCost(800);
         setLevel(1);
@@ -32,10 +29,7 @@ public class Market extends Building
         
     }
 
-    public void setGoldIncome(int goldIncome)
-    {
+    public void setGoldIncome(int goldIncome) {
         this.goldIncome = goldIncome;
     }
-
-
 }

@@ -3,12 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model.weapons;
+package model.units;
 
 /**
  *
  * @author RuN
  */
-public class Spear {
-    
+public class Halberdier extends HeavyInfantry {
+    public Halberdier() {
+        attack = 18;
+    }
 }

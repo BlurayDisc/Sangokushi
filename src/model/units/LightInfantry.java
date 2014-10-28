@@ -3,12 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model.weapons;
+package model.units;
 
 /**
  *
  * @author RuN
  */
-public class Bow {
-    
+public class LightInfantry  extends Unit {
+    public LightInfantry() {
+        hp = 10;
+        defence = 5;
+        range = 0;
+        speed = 1;
+    }
 }

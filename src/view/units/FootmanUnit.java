@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model.units;
+package view.units;
 
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
@@ -12,14 +12,19 @@ import java.awt.geom.Ellipse2D;
  *
  * @author RuN
  */
-public class Calvary extends Unit{
+public class FootmanUnit extends Unit {
     
     private final Ellipse2D.Double unit;
     
-    public Calvary(double x, double y) {
+    public FootmanUnit(double x, double y) {
         super();
         this.x = x;
         this.y = y;
+        unit = new Ellipse2D.Double(x, y, length, length);
+    }
+    
+    public FootmanUnit() {
+        super();
         unit = new Ellipse2D.Double(x, y, length, length);
     }
     
@@ -30,7 +35,11 @@ public class Calvary extends Unit{
         unit.x = x;
         unit.y = y;
     }
+    
+    public void applyDefaultTranslation() {
         
+    }
+    
     public Ellipse2D.Double getUnit() {
         return unit;
     }
@@ -39,4 +48,6 @@ public class Calvary extends Unit{
     public Shape getShape() {
         return unit;
     }
+
+    
 }

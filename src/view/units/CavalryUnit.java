@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model.units;
+package view.units;
 
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
@@ -12,14 +12,19 @@ import java.awt.geom.Rectangle2D;
  *
  * @author RuN
  */
-public class Footman extends Unit {
+public class CavalryUnit extends Unit{
     
     private final Rectangle2D.Double unit;
     
-    public Footman(double x, double y) {
-        super();
+    public CavalryUnit(double x, double y) {
         this.x = x;
         this.y = y;
+        length = 9;
+        unit = new Rectangle2D.Double(x, y, length, length);
+    }
+    
+    public CavalryUnit() {
+        length = 9;
         unit = new Rectangle2D.Double(x, y, length, length);
     }
     
@@ -30,7 +35,7 @@ public class Footman extends Unit {
         unit.x = x;
         unit.y = y;
     }
-    
+        
     public Rectangle2D.Double getUnit() {
         return unit;
     }
@@ -39,6 +44,4 @@ public class Footman extends Unit {
     public Shape getShape() {
         return unit;
     }
-
-    
 }

@@ -9,13 +9,12 @@ package model.weapons;
  *
  * @author RuN
  */
-public class Weapon {
-    private int cost;
-    private int productionRate;
-    private String name;
+public class Weapon extends Equipment {
+
     
     public Weapon() {
-        
+        cost = 2;
+        rate = 100;
     }
     
 }

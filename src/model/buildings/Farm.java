@@ -9,13 +9,10 @@ package model.buildings;
  *
  * @author RuN
  */
-public class Farm extends Building
-{
+public class Farm extends Building {
     private int foodIncome;
     
-    public Farm()
-    {
-        super();
+    public Farm() {
         setName("农田");
         setCost(1200);
         setLevel(1);
@@ -28,13 +25,11 @@ public class Farm extends Building
     }
     
     @Override
-    public int getFoodIncome()
-    {
+    public int getFoodIncome() {
         return foodIncome;
     }
 
-    public void setFoodIncome(int foodIncome)
-    {
+    public void setFoodIncome(int foodIncome) {
         this.foodIncome = foodIncome;
     }
 }

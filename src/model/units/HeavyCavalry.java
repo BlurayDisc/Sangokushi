@@ -3,12 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model.weapons;
+package model.units;
 
 /**
  *
  * @author RuN
  */
-public class CrossBow {
-    
+public class HeavyCavalry extends Unit {
+    public HeavyCavalry() {
+        hp = 25;
+        attack = 15;
+        defence = 12;
+        range = 0;
+        speed = 2;
+    }
 }

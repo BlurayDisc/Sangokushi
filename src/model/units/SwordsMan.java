@@ -3,12 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model.weapons;
+package model.units;
 
 /**
  *
  * @author RuN
  */
-public class Halberd {
-    
+public class SwordsMan extends LightInfantry {
+    public SwordsMan() {
+        attack = 10;
+    }
 }

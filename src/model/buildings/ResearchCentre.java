@@ -11,7 +11,6 @@ package model.buildings;
  */
 public class ResearchCentre extends Building{
     public ResearchCentre(){
-        super();
         setName("研究所");
         setCost(2000);
         setLevel(1);

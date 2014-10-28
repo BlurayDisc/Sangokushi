@@ -6,6 +6,7 @@
 
 package model;
 
+import controller.UnitType;
 import controller.UnitTypeDataManager;
 
 /**
@@ -103,5 +104,9 @@ public class Army
     public int getRange()
     {
         return range;
+    }
+    
+    public UnitType getUnitTypt() {
+        return UnitType.SWORDSMAN;
     }
 }

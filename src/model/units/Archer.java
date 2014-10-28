@@ -3,16 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model.weapons;
+package model.units;
 
 /**
  *
  * @author RuN
  */
-public class Chariot extends Equipment {
-    
-    public Chariot() {
-        
+public class Archer extends LightInfantry {
+    public Archer() {
+        hp = 8;
+        attack = 8;
+        range = 5;
     }
-    
 }

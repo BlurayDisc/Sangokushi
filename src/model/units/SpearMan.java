@@ -3,12 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model.weapons;
+package model.units;
 
 /**
  *
  * @author RuN
  */
-public class Sword extends Weapon {
-    
+public class SpearMan extends LightInfantry {
+    public SpearMan() {
+        attack = 14;
+    }
 }

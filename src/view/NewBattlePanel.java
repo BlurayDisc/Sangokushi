@@ -5,6 +5,8 @@
  */
 package view;
 
+import controller.ArmyType;
+import controller.UnitType;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -28,7 +30,6 @@ public class NewBattlePanel extends JPanel {
         setSize(800, 600);
         
         bs = new BattleScreen();
-        bs.init();
     }
     
     @Override
@@ -41,8 +42,14 @@ public class NewBattlePanel extends JPanel {
         bs.drawEnemyArmy(g2);
     }
     
-    public void initBattle(Army mainArmy) {
-        bs.init();
+    public void initBattle(Army frontArmy, Army mainArmy, Army leftWingArmy, Army rightWingArmy) {
+        bs.setSoldiers(ArmyType.PLAYER_MAIN, mainArmy.getSoldiers(), mainArmy.getUnitTypt());
+        bs.setSoldiers(ArmyType.ENEMY_MAIN, 10000, UnitType.LIGHT_CAVALRY);
+    }
+    
+    public void runExample() {
+        bs.setSoldiers(ArmyType.PLAYER_MAIN, 11230, UnitType.LIGHT_CAVALRY);
+        bs.setSoldiers(ArmyType.ENEMY_MAIN, 33900, UnitType.SWORDSMAN);
     }
 
     @SuppressWarnings("unchecked")

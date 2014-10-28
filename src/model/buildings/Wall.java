@@ -11,7 +11,6 @@ package model.buildings;
  */
 public class Wall extends Building{
     public Wall(){
-        super();
         setName("城墙");
         setCost(1000);
         setLevel(1);

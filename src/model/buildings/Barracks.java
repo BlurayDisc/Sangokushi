@@ -9,13 +9,10 @@ package model.buildings;
  *
  * @author RuN
  */
-public class Barracks extends Building
-{
+public class Barracks extends Building {
     private int soldierIncome;
     
-    public Barracks()
-    {
-        super();
+    public Barracks() {
         setName("兵营");
         setCost(1500);
         setLevel(1);
@@ -33,8 +30,7 @@ public class Barracks extends Building
     }
     
 
-    public void setSoldierIncome(int unitIncome)
-    {
+    public void setSoldierIncome(int unitIncome) {
         this.soldierIncome = unitIncome;
     }
 }

@@ -5,28 +5,56 @@
  */
 package model.units;
 
-import java.awt.Shape;
-
 /**
  *
  * @author RuN
  */
-public abstract class Unit {
+public class Unit {
     
-    public double x, y;
-    protected final int length;
-    
-    public Unit() {
-        length = 8;
-        x = 0;
-        y = 0;
+    protected int hp;
+    protected int attack;
+    protected int defence;
+    protected int range;
+    protected int speed;
+
+    public int getHp() {
+        return hp;
+    }
+
+    public void setHp(int hp) {
+        this.hp = hp;
+    }
+
+    public int getAttack() {
+        return attack;
+    }
+
+    public void setAttack(int attack) {
+        this.attack = attack;
+    }
+
+    public int getDefence() {
+        return defence;
+    }
+
+    public void setDefence(int defence) {
+        this.defence = defence;
+    }
+
+    public int getRange() {
+        return range;
+    }
+
+    public void setRange(int range) {
+        this.range = range;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
     }
     
-    public int getLength() {
-        return length;
-    }
-    
-    public abstract Shape getShape();
-    
-    public abstract void translate(double x, double y);    
 }
