@@ -11,10 +11,16 @@ package model.units;
  */
 public class LightCavalry  extends Unit {
     public LightCavalry() {
-        hp = 18;
+        name = "轻骑兵";
+        
+        hp = 20;
         attack = 12;
-        defence = 8;
+        defence = 5;
         range = 0;
         speed = 3;
+        
+        armourRequired = 1;
+        weaponRequired = 1;
+        horseRequired = 1;
     }
 }

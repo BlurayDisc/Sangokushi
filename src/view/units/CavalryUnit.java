@@ -30,10 +30,15 @@ public class CavalryUnit extends Unit{
     
     @Override
     public void translate(double x, double y) {
-        this.x = x;
-        this.y = y;
-        unit.x = x;
-        unit.y = y;
+        this.x += x;
+        this.y += y;
+        unit.x += x;
+        unit.y += y;
+    }
+    
+    @Override
+    public void moveForward() {
+        translate(0, -30);
     }
         
     public Rectangle2D.Double getUnit() {
@@ -43,5 +48,10 @@ public class CavalryUnit extends Unit{
     @Override
     public Shape getShape() {
         return unit;
+    }
+
+    @Override
+    public void moveBackward() {
+        translate(0, 30);
     }
 }

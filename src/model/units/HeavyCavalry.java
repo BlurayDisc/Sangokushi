@@ -11,10 +11,16 @@ package model.units;
  */
 public class HeavyCavalry extends Unit {
     public HeavyCavalry() {
+        name = "重骑兵";
+        
         hp = 25;
         attack = 15;
-        defence = 12;
+        defence = 10;
         range = 0;
         speed = 2;
+        
+        armourRequired = 3;
+        weaponRequired = 1;
+        horseRequired = 1;
     }
 }

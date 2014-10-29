@@ -22,7 +22,7 @@ public class StartPanel extends javax.swing.JPanel {
     private final Scenario scenario1;
     private final Scenario scenario2;
     private final GameController controller;
-    private final NewBattlePanel examplePanel;
+    private final BattlePanel examplePanel;
     
     /**
      * Creates new form StartPanel
@@ -33,7 +33,7 @@ public class StartPanel extends javax.swing.JPanel {
         
         this.frame = frame;
         
-        examplePanel = new NewBattlePanel();
+        examplePanel = new BattlePanel();
         frame.getContentPane().add(examplePanel);
         examplePanel.setVisible(false);
         

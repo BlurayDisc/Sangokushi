@@ -30,10 +30,10 @@ public class FootmanUnit extends Unit {
     
     @Override
     public void translate(double x, double y) {
-        this.x = x;
-        this.y = y;
-        unit.x = x;
-        unit.y = y;
+        this.x += x;
+        this.y += y;
+        unit.x += x;
+        unit.y += y;
     }
     
     public void applyDefaultTranslation() {
@@ -47,6 +47,16 @@ public class FootmanUnit extends Unit {
     @Override
     public Shape getShape() {
         return unit;
+    }
+
+    @Override
+    public void moveForward() {
+        translate(0, -10);
+    }
+
+    @Override
+    public void moveBackward() {
+        translate(0, 10);
     }
 
     

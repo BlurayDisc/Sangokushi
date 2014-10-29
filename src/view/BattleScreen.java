@@ -14,9 +14,9 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import model.Army;
 import view.units.CavalryUnit;
 
 /**
@@ -58,33 +58,55 @@ import view.units.CavalryUnit;
  */
 public class BattleScreen {
     
-    private final List<Unit> playerMainArmy, enemyMainArmy;
+    private final LinkedList<Unit> playerMainArmy, enemyMainArmy;
+    private LinkedList<Unit> army;
+    private Unit firstUnit;
     public enum Side {PLAYER, ENEMY}
     
     public BattleScreen() {
-        playerMainArmy = new ArrayList<>(100);
-        enemyMainArmy = new ArrayList<>(100);
+        playerMainArmy = new LinkedList<>();
+        enemyMainArmy = new LinkedList<>();
+    }
+    
+    public void updateSoldiers(ArmyType type, int soldiers) {
+        army = getArmyByType(type);
+        if (!army.isEmpty()) {
+            removeUnits(army, soldiers);
+        }
+    }
+    
+    private void removeUnits(LinkedList<Unit> unitList, int soldiers) {
+        for (int i = 0; i < soldiers; i++) {
+            if (!army.isEmpty()) {
+                unitList.removeLast();
+            }
+        }
+    }
+    
+    public boolean isMovable() {
+        if (playerMainArmy.isEmpty() || enemyMainArmy.isEmpty()) {
+            return false;
+        } else if (playerMainArmy.getFirst().y >= enemyMainArmy.getFirst().y + 50) {
+            return true;
+        }
+        return false;
     }
     
     public void move() {
-        for (int i = 0; i < enemyMainArmy.size(); i++) {
-            translate(enemyMainArmy.get(i).getShape(), Side.ENEMY);
+        for (Iterator<Unit> it = enemyMainArmy.iterator(); it.hasNext();) {
+            translate(it.next(), Side.ENEMY);
         }
         
-        for (int i = 0; i < playerMainArmy.size(); i++) {
-            translate(playerMainArmy.get(i).getShape(), Side.PLAYER);
+        for (Iterator<Unit> it = playerMainArmy.iterator(); it.hasNext();) {
+            translate(it.next(), Side.PLAYER);
         }
     }
     
-    private void translate(Shape shape, Side side) {
-        if (shape instanceof Ellipse2D) {
-            Ellipse2D.Double footman = (Ellipse2D.Double)shape;
-            if (side == Side.PLAYER) {footman.y -= 10;}
-            else {footman.y += 10;}
-        } else if (shape instanceof Rectangle2D) {
-            Rectangle2D.Double calvary = (Rectangle2D.Double)shape;
-            if (side == Side.PLAYER) {calvary.y -= 30;}
-            else {calvary.y += 30;}
+    private void translate(Unit unit, Side side) {
+        if (side == Side.PLAYER) {
+            unit.moveForward();
+        } else {
+            unit.moveBackward();
         }
     }
     
@@ -108,42 +130,43 @@ public class BattleScreen {
     
     public void setSoldiers(ArmyType armyType, int numSoldiers, UnitType unitType) {
         numSoldiers = numSoldiers / 100;
-        List<Unit> army = getArmy(armyType);
         
-        Unit head = getUnitType(unitType);
-        head.setSpawnPoint(armyType);
-        head.adjustSpawnPoint(armyType, numSoldiers);
-        head.translate(head.getSpawnPoint().x, head.getSpawnPoint().y);
+        army = getArmyByType(armyType);
+        firstUnit = getUnitByType(unitType);
         
-        army.add(head);
-        addSoldiers(army, numSoldiers, unitType);
-        adjustSoldierPositions(armyType, army, head);
+        firstUnit.setSpawnPoint(armyType);                                                   // set spawn point according to armyType
+        firstUnit.adjustSpawnPoint(armyType, numSoldiers);                                   // adjust inital spawn postions
+        firstUnit.translate(firstUnit.getSpawnPoint().x, firstUnit.getSpawnPoint().y);       // translate it
+        
+        addSoldiers(army, numSoldiers, unitType);               // add soldiers to army list
+        adjustSoldierPositions(armyType, army);                 // adjust spawn postions for every soldier in the army
+        army.addFirst(firstUnit);
     }
     
     private void addSoldiers(List<Unit> army, int numSoldiers, UnitType unitType) {
-        for (int i = 1; i < numSoldiers; i++) {
-            army.add(getUnitType(unitType));
+        for (int i = 0; i < numSoldiers; i++) {
+            army.add(getUnitByType(unitType));
         }
     }
     
-    private void adjustSoldierPositions(ArmyType armyType, List<Unit> army, Unit head) {
+    private void adjustSoldierPositions(ArmyType armyType, List<Unit> army) {
         
         int x = 0, y = 0, dx = 0, dy = 0;
         
-        for (int i = 1; i < army.size(); i++) {
-            if (x == 5) {x = 0; y++;}           // 5 little columss
-            if (y == 5) {y = 0; dx += 6;}       // 5 rows
-            if (dx == 30) {dx = 0; dy += 6;}    // dx / 3 big columns
+        for (Iterator<Unit> it = army.iterator(); it.hasNext();) {
+            if (x == 5) {x = 0; y++;}
+            if (y == 5) {y = 0; dx += 6;}
+            if (dx == 30) {dx = 0; dy += 6;}
             if (armyType == ArmyType.PLAYER_MAIN) {
-                army.get(i).translate(head.x + 10 * (x + dx), head.y + 10 * (y + dy));
+                it.next().translate(firstUnit.x + 10 * (x + dx), firstUnit.y + 10 * (y + dy));
             } else {
-                army.get(i).translate(head.x + 10 * (x + dx), head.y - 10 * (y + dy));
+                it.next().translate(firstUnit.x + 10 * (x + dx), firstUnit.y - 10 * (y + dy));
             }
             x++;
         }
     }
     
-    private Unit getUnitType(UnitType type) {
+    private Unit getUnitByType(UnitType type) {
         switch(type) {
             case SWORDSMAN: return new FootmanUnit();
             case LIGHT_CAVALRY: return new CavalryUnit();
@@ -151,7 +174,7 @@ public class BattleScreen {
         }
     }
     
-    private List<Unit> getArmy(ArmyType type){
+    private LinkedList<Unit> getArmyByType(ArmyType type){
         switch(type) {
             case PLAYER_FRONT: return null;
             case PLAYER_MAIN: return playerMainArmy;

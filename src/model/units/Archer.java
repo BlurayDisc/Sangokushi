@@ -11,8 +11,14 @@ package model.units;
  */
 public class Archer extends LightInfantry {
     public Archer() {
-        hp = 8;
+        super();
+        
+        name = "弓箭手";
+        
         attack = 8;
+        defence = 0;
         range = 5;
+        
+        weaponRequired = 2;
     }
 }

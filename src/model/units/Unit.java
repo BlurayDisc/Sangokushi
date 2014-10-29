@@ -9,52 +9,54 @@ package model.units;
  *
  * @author RuN
  */
-public class Unit {
+public abstract class Unit {
+    
+    protected String name;
     
     protected int hp;
     protected int attack;
     protected int defence;
     protected int range;
     protected int speed;
+    
+    protected int weaponRequired;
+    protected int armourRequired;
+    protected int horseRequired;
+    
+    public String getName() {
+        return name;
+    }
 
     public int getHp() {
         return hp;
-    }
-
-    public void setHp(int hp) {
-        this.hp = hp;
     }
 
     public int getAttack() {
         return attack;
     }
 
-    public void setAttack(int attack) {
-        this.attack = attack;
-    }
-
     public int getDefence() {
         return defence;
-    }
-
-    public void setDefence(int defence) {
-        this.defence = defence;
     }
 
     public int getRange() {
         return range;
     }
 
-    public void setRange(int range) {
-        this.range = range;
-    }
-
     public int getSpeed() {
         return speed;
     }
 
-    public void setSpeed(int speed) {
-        this.speed = speed;
+    public int getWeaponRequired() {
+        return weaponRequired;
+    }
+
+    public int getArmourRequired() {
+        return armourRequired;
+    }
+
+    public int getHorseRequired() {
+        return horseRequired;
     }
     
 }

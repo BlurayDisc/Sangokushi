@@ -16,6 +16,7 @@ import controller.UnitTypeDataManager;
 public class Army
 {
     private final Character commander;
+    private Character Lieutenant;
     private final UnitTypeDataManager typeData;
     private final int soldiers;
     private final int range;
@@ -43,13 +44,13 @@ public class Army
         isDefeated = false;
         isCaptured = false;
         
-        calcLegionStats();
+        calcArmyStats();
     }
           
     // HP -> MAX: 69000 => (23000 + rank bonus) * 3.0 (number of soldiers * army unit type co-efficient).
     // Attack -> MAX: 3600 => 120 * 30 (character attack * army unit typ co-efficient).
     // Defence -> MAX: 300 => 100 * 30 (character defence * army unit typ co-efficient).
-    private void calcLegionStats()
+    private void calcArmyStats()
     {
         legionHP = Math.round(soldiers * hpCoEfficiency / 10);
         legionAttack = Math.round(commanderAttack * attackCoEfficiency);

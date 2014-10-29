@@ -3,18 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model.units;
+package controller;
 
 /**
  *
  * @author RuN
  */
-public class Halberdier extends HeavyInfantry {
-    public Halberdier() {
-        super();
-        
-        name = "戟兵";
-        
-        attack = 18;
-    }
+public enum Mode {
+    PLAYER_SEIGE,
+    ENEMY_SEIGE,
+    BATTLE
 }

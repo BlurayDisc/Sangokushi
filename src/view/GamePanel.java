@@ -6,7 +6,6 @@
 
 package view;
 
-import controller.ForceColourManager;
 import controller.GameController;
 import controller.GameParameters;
 import java.awt.Graphics;
@@ -27,7 +26,7 @@ public class GamePanel extends JPanel implements GameParameters
 {
     private static final long serialVersionUID = 1L;
     
-    private final BuildingsPanel buildPanel;
+    private final BuildingsPanelOld buildPanel;
     private final PrepareBattlePanel prepareBattlePanel;
     private Image menuImage;
     private Image hideMenuImage;
@@ -71,7 +70,7 @@ public class GamePanel extends JPanel implements GameParameters
         frame.getContentPane().add(prepareBattlePanel);
         prepareBattlePanel.setVisible(false);
         
-        buildPanel = new BuildingsPanel(this, controller);
+        buildPanel = new BuildingsPanelOld(this, controller);
         frame.getContentPane().add(buildPanel);
         buildPanel.setVisible(false);
     }

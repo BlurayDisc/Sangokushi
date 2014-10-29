@@ -3,284 +3,168 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package controller;
 
-import model.Dice;
+import java.util.Arrays;
 import model.Army;
+import model.Dice;
 
 /**
  *
  * @author RuN
+
+ This class implements Risk Battle Logics. 3 Dice are rolled each time, 
+ dice logics are different due to which side is attacking.
+ Added dice logic support for field fieldBattle situations.
+ This will be used as the new fieldBattle logics system.
  */
-public class Battle
-{
-    private final Army playerLegion, enemyLegion;
-    private final Dice playerDice;
-    private final Dice enemyDice;
+public class Battle {
+
+    private final int[] playerResult, enemyResult;
+    private final Dice playerDice, enemyDice;
+    private int playerSoldiers, enemySoldiers;
+    private int playerLife, enemyLife;
     private int roundCounter;
-    private int playerHp;
-    private final int playerDmg;
-    private final int playerDef, playerRange;
-    private int enemyHp;
-    private final int enemyDmg;
-    private final int enemyDef, enemyRange;
-    private int p, e;
-    private double diceResult;
-    private int damageToEnemy, damageToPlayer;
-    private int playerUnitNumber, enemyUnitNumber;
-    private int playerUnitCasualty, enemyUnitCasualty;
-    private int playerUnitHp, enemyUnitHp;
+    private Mode mode;
     
-    private int[] player = new int[3], enemy = new int[3];
-    private int playerIndex = 0, enemyIndex = 0;
-
-    public Battle(Army player, Army enemy) {  
-        roundCounter = 0;
-        playerLegion = player;
-        enemyLegion = enemy;
-        playerHp = playerLegion.getHP();
-        playerDmg = playerLegion.getDmg();
-        playerDef = playerLegion.getDef();
-        playerRange = playerLegion.getRange();
-        enemyHp = enemyLegion.getHP();
-        enemyDmg = enemyLegion.getDmg();
-        enemyDef = enemyLegion.getDef();
-        enemyRange = enemyLegion.getRange();
-
-        // create 2 6-sided dice
+    public Battle() {
         playerDice = new Dice(1, 6);
         enemyDice = new Dice(1, 6);
-    }
-   
-    // These methods should be executed in the following orders:
-    // 1. playerAttack()
-    // 2. enemyAttack()
-    // 3. endRound()
-    
-    public void playerAttack()
-    {
-        applyDiceLogic();
-        playerActions();
+        playerResult = new int[3];
+        enemyResult = new int[3];
+        mode = Mode.BATTLE;
+        playerLife = 3; 
+        enemyLife = 3;
     }
     
-    public void enemyAttack()
-    {
-        applyDiceLogic();
-        enemyActions();
-    }
-    
-    public void incrementRoundCounter()
-    {
-        roundCounter++;
-        //printResult();
-    }
-    
-    private void playerActions()
-    {      
-        damageToEnemy = (int) (playerDmg * diceResult - enemyDef);
-        if (damageLessThanDefence())
-        {
-            damageToEnemy = playerDmg / 5;
-            if (diceResult == 0)
-                damageToEnemy = 0;
-            enemyHp = enemyHp - damageToEnemy;
-        }
-        else
-        {
-            enemyHp = enemyHp - damageToEnemy;
-        }
-    }
-    
-    private void enemyActions()
-    {
-        damageToPlayer = (int) (enemyDmg * diceResult - playerDef);     // DiceResult = 1.0 - 1.6 for normal condition and 0 or 2 for miss or crit.
-        if (damageLessThanDefence())
-        {
-            damageToPlayer = enemyDmg / 5;
-            if (diceResult == 0)
-                damageToPlayer = 0;
-            playerHp = playerHp - damageToPlayer;
-        }
-        else
-        {
-            playerHp = playerHp - damageToPlayer;
-        }
-    }
-    
-    private void newDiceLogics(int mode) { 
+    public void startBattle() {
+        increaseRound();
         rollDice();
-        if (mode == 1) {
-            playerAttacksCastle();
-        } else if (mode == 2) {
-            enemyAttacksCastle();
+        calcAttack();
+        updateSoldiers();
+        resetValues();
+    }
+    
+    private void updateSoldiers() {
+        playerSoldiers -= (3 - playerLife);
+        enemySoldiers -= (3 - enemyLife);
+    }
+    
+    private void calcAttack() {
+        switch(mode) {
+            case PLAYER_SEIGE: playerSeige(); 
+                               break;
+            case ENEMY_SEIGE: enemySeige(); 
+                              break;
+            case BATTLE: fieldBattle(); 
+                         break;
         }
     }
     
-    private void rollDice() {
+    private void rollDice() {        
         for (int i = 0; i < 3; i++) {
             playerDice.rollDice();
             enemyDice.rollDice();
-            player[i] = playerDice.getDice();
-            enemy[i] = enemyDice.getDice();
+            playerResult[i] = playerDice.getDice();
+            enemyResult[i] = enemyDice.getDice();
         }
+        Arrays.sort(playerResult);
+        Arrays.sort(enemyResult);
     }
     
-    private void playerAttacksCastle() {
-        // attack
-        while (playerIndex < 2 || enemyIndex < 2) {
-            if (player[playerIndex] > enemy[enemyIndex]) {
-                enemyIndex++;
-            } else {
-                playerIndex++;
+    
+    // player = enemy -> both dies
+    private void fieldBattle() {
+        while (playerLife >= 1 && enemyLife >= 1) {
+            if (playerResult[playerLife - 1] > enemyResult[enemyLife - 1]) {
+                enemyLife --;
+            } else if (enemyResult[playerLife - 1] > playerResult[enemyLife - 1]){
+                playerLife --;
+            } else if (playerResult[playerLife - 1] == enemyResult[enemyLife - 1]) {
+                enemyLife --;
+                playerLife --;
             }
         }
     }
     
-    private void enemyAttacksCastle() {
-        // defend
-        while (playerIndex < 2 || enemyIndex < 2) {
-            if (enemy[enemyIndex] > player[playerIndex]) {
-                playerIndex++;
+    // player = enemy -> player dies
+    private void playerSeige() {
+        while (playerLife >= 1 && enemyLife >= 1) {
+            if (playerResult[playerLife - 1] > enemyResult[enemyLife - 1]) {
+                enemyLife --;
             } else {
-                enemyIndex++;
+                playerLife --;
+            }
+        }
+    }
+
+    // player = enemy -> enemy dies
+    private void enemySeige() {
+        while (playerLife >= 1 && enemyLife >= 1) {
+            if (enemyResult[enemyLife - 1] > playerResult[playerLife - 1]) {
+                playerLife --;
+            } else {
+                enemyLife --;
             }
         }
     }
     
-    // Generates variable diceResult
-    // diceResult = MIN: 0, MAX: 2, NORM: 1.0 - 1.6
+    private void resetValues() {
+        playerLife = 3;
+        enemyLife = 3;
+    }
     
-    private void applyDiceLogic()
-    {
-        // roll both dice
+    public void increaseRound() {
+        roundCounter++;
+    }    
         
-        playerDice.rollDice();
-        enemyDice.rollDice();
+    public void setMode(Mode mode) {
+        this.mode = mode;
+    }
+    
+    public void setArmies(Army playerArmy, Army enemyArmy) {
+        playerSoldiers = playerArmy.getSoldiers() / 100;
+        enemySoldiers = enemyArmy.getSoldiers() / 100;
+    }
+    
+    public void setSoldiers(int player, int enemy) {
+        playerSoldiers = player / 100;
+        enemySoldiers = enemy / 100;
+    }
+    
+    public int getPlayerSoldiers() {
+        return playerSoldiers;
+    }
+    
+    public int getEnemySoldiers() {
+        return enemySoldiers;
+    }
+    
+    public int getPlayerCasualty() {
+        return 3 - playerLife;
+    }
+    
+    public int getEnemyCasualty() {
+        return 3 - enemyLife;
+    }
+     
+    public void testBattleLogics() { 
+        setMode(Mode.BATTLE);
+        increaseRound();
+        rollDice();
+        calcAttack();
+        resetValues();
         
-        p = playerDice.getDice();
-        e = enemyDice.getDice();
+        setMode(Mode.PLAYER_SEIGE);
+        increaseRound();
+        rollDice();
+        calcAttack();
+        resetValues();
         
-        if ((p == 1  && e >= 5) || (p == 2 && e == 6))         // Chance: 1/12 = 8.33%, miss and deal no dmg.
-        {
-            diceResult = 0;
-        }
-        else if ((p == 6 && e <= 2) || (p == 5 && e == 1))      // Chance: 1/12 = 8.33%, critical strike and deal 2x dmg.
-        {
-            diceResult = 2;
-        }
-        else                                                       // Chance: 10/12 = 83.33%, normal attack with dmg modification.
-        {
-            diceResult = p - e + 3;                                 // Range: (0) to (+6)
-            diceResult =  (1 + (diceResult / 10));                     // Range: 100% to 160% Dmg
-        }
-    }
-    
-    public void calcUnitCasualty()
-    {
-        playerUnitCasualty = damageToPlayer % playerUnitHp;
-        playerUnitNumber = playerUnitNumber - playerUnitCasualty;
-    }
-    
-    public boolean damageLessThanDefence()
-    {
-        boolean isLess = false;
-        if ( ( damageToEnemy < (playerDmg/5) ) || ( damageToPlayer < (enemyDmg/5) ) )
-            isLess = true;
-        return isLess;
-    }
-    
-    private void printResult()
-    {
-        System.out.println("**************************");
-        System.out.println("Round: " + roundCounter);
-        System.out.println(enemyLegion.getCommander().getName() + "对" + playerLegion.getCommander().getName() + 
-                        "造成了" + damageToPlayer + "点伤害！");
-        System.out.println(playerLegion.getCommander().getName() + " HP: " + playerHp);
-        System.out.println(playerLegion.getCommander().getName() + "对" + enemyLegion.getCommander().getName() + 
-                        "造成了" + damageToEnemy + "点伤害！");
-        System.out.println(enemyLegion.getCommander().getName() + " HP: " + enemyHp);
-    }
-    
-    // Setters
-    
-    public void setRoundCounter(int inNumber)
-    {
-        roundCounter = inNumber;
-    }
-    
-    // Getters
-    public int getRoundCounter()
-    {
-        return roundCounter;
-    }
-
-    public int getPlayerHp()
-    {
-        if (playerHp < 0)
-            playerHp = 0;
-        return playerHp;
-    }
-
-    public int getPlayerDmg()
-    {
-        return playerDmg;
-    }
-
-    public int getPlayerDef()
-    {
-        return playerDef;
-    }
-
-    public int getPlayerRange()
-    {
-        return playerRange;
-    }
-
-    public int getEnemyHp()
-    {
-        if (enemyHp <0)
-            enemyHp = 0;
-        return enemyHp;
-    }
-
-    public int getEnemyDmg()
-    {
-        return enemyDmg;
-    }
-
-    public int getEnemyDef()
-    {
-        return enemyDef;
-    }
-
-    public int getEnemyRange()
-    {
-        return enemyRange;
-    }
-
-    public double getDiceResult()
-    {
-        return diceResult;
-    }
-    
-    public int getDmgToPlayer()
-    {
-        return damageToPlayer;
-    }
-    
-    public int getDmgToEnemy()
-    {
-        return damageToEnemy;
-    }
-    
-    public String getPlayerName()
-    {
-        return playerLegion.getCommander().getName();
-    }
-    
-    public String getEnemyName()
-    {
-        return enemyLegion.getCommander().getName();
+        setMode(Mode.ENEMY_SEIGE);
+        increaseRound();
+        rollDice();
+        calcAttack();
+        resetValues();
     }
 }

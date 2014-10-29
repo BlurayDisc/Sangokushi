@@ -27,6 +27,14 @@ public class AI
         update();
     }
     
+    public AI() {
+        
+    }
+    
+    public Army generateDummyArmy() {
+        return new Army(new Character("RuN", 70, 70, 80, 50), 10000, 0);
+    }
+    
     public void update()
     {        
         calcOwnNetworth();

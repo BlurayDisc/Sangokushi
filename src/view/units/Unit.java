@@ -68,5 +68,9 @@ public abstract class Unit {
     
     public abstract Shape getShape();
     
+    public abstract void moveForward();
+    
+    public abstract void moveBackward();
+    
     public abstract void translate(double x, double y);    
 }

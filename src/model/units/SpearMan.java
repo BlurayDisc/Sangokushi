@@ -11,6 +11,10 @@ package model.units;
  */
 public class SpearMan extends LightInfantry {
     public SpearMan() {
+        super();
+        
+        name = "长矛兵";
+        
         attack = 14;
     }
 }

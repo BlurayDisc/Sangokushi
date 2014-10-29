@@ -26,7 +26,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
     private static final long serialVersionUID = 1L;
     private final GamePanel gp;
     private final MainFrame frame;
-    private final NewBattlePanel bp;
+    private final BattlePanel bp;
     private final GameController gc;
     private final JButton[] cityButtonList;
     private final int[] soldiers;
@@ -75,7 +75,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
         cityButtonList[6] = southWest;
         cityButtonList[7] = southEast;
         
-        bp = new NewBattlePanel();
+        bp = new BattlePanel();
         frame.getContentPane().add(bp);
         bp.setVisible(false);
         
@@ -189,12 +189,6 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
         }
         selectArmyPanel.setVisible(true);
         selectFormationPanel.setVisible(false);
-    }
-    
-    private void showBattlePanel() {
-        this.setVisible(false);
-        bp.initBattle(frontArmy, mainArmy, leftWingArmy, rightWingArmy);
-        bp.setVisible(true);
     }
 
     private void selectAttackedCity(int cityNumber) {
@@ -1335,7 +1329,9 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
 
     private void formationConfirmButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_formationConfirmButtonActionPerformed
     {//GEN-HEADEREND:event_formationConfirmButtonActionPerformed
-        showBattlePanel();
+        this.setVisible(false);
+        bp.initBattle(frontArmy, mainArmy, leftWingArmy, rightWingArmy);
+        bp.setVisible(true);
     }//GEN-LAST:event_formationConfirmButtonActionPerformed
 
     private void charTableMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_charTableMouseClicked

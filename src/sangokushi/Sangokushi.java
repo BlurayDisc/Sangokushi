@@ -12,16 +12,9 @@ import view.MainFrame;
  *
  * @author RuN
  */
-public class Sangokushi
-{
-
-    /**
-        * @param args the command line arguments
-        */
-    public static void main(String args[])
-    {
-        /* Set the Windows look and feel */
-        // Look and feel setting code (optional)
+public class Sangokushi {
+    public static void main(String args[]) {     
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code ">
         try
         {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels())
@@ -32,17 +25,8 @@ public class Sangokushi
                     break;
                 }
             }
-        }
-        
-        //<editor-fold defaultstate="collapsed" desc=" Catch Statement ">
-        
-        catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex)
-        {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex){}
+        //</editor-fold>        
         java.awt.EventQueue.invokeLater(new Runnable()
         {
 

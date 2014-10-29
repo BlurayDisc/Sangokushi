@@ -9,14 +9,16 @@ package model.units;
  *
  * @author RuN
  */
-public class CavalryArcher extends LightCavalry{
-    public CavalryArcher() {
+public class QingZhouTroops extends YellowTurbanTroops {
+    public QingZhouTroops() {
         super();
         
-        name = "骑射手";
+        name = "青州军";
         
-        attack = 8;
+        attack = 11;
+        defence = 4;
         
-        weaponRequired = 2;
+        armourRequired = 1;
     }
+    
 }

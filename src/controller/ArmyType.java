@@ -21,3 +21,5 @@ public enum ArmyType {
     ENEMY_RIGHTWING
 }
 
+
+
