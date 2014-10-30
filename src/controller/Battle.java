@@ -12,106 +12,142 @@ import model.Dice;
 /**
  *
  * @author RuN
-
- This class implements Risk Battle Logics. 3 Dice are rolled each time, 
- dice logics are different due to which side is attacking.
- Added dice logic support for field fieldBattle situations.
- This will be used as the new fieldBattle logics system.
+ *
+ * This class implements Risk Battle Logics. 3 Dice are rolled each time, 
+ * dice logics are different due to which side is attacking.
+ * Added dice logic support for field fieldBattle situations.
+ * This will be used as the new fieldBattle logics system.
  */
 public class Battle {
 
-    private final int[] playerResult, enemyResult;
+    private final int[] playerDiceList, enemyDiceList;
     private final Dice playerDice, enemyDice;
+    private int playerCasualty, enemyCasualty;
     private int playerSoldiers, enemySoldiers;
-    private int playerLife, enemyLife;
     private int roundCounter;
     private Mode mode;
     
     public Battle() {
         playerDice = new Dice(1, 6);
         enemyDice = new Dice(1, 6);
-        playerResult = new int[3];
-        enemyResult = new int[3];
-        mode = Mode.BATTLE;
-        playerLife = 3; 
-        enemyLife = 3;
+        playerDiceList = new int[4];
+        enemyDiceList = new int[4];
+        Arrays.fill(playerDiceList, 0);
+        Arrays.fill(enemyDiceList, 0);
+        
+        mode = Mode.ENEMY_SEIGE;
+        
+        playerSoldiers = 0;
+        enemySoldiers = 0;
+        playerCasualty = 0;
+        enemyCasualty = 0;
+        roundCounter = 0;
     }
     
-    public void startBattle() {
+    public void start() {
         increaseRound();
-        rollDice();
+        resetValues();
+        rollPlayerDice();
+        rollEnemyDice();
         calcAttack();
         updateSoldiers();
-        resetValues();
     }
     
     private void updateSoldiers() {
-        playerSoldiers -= (3 - playerLife);
-        enemySoldiers -= (3 - enemyLife);
+        playerSoldiers -= playerCasualty;
+        enemySoldiers -= enemyCasualty;
     }
     
     private void calcAttack() {
         switch(mode) {
-            case PLAYER_SEIGE: playerSeige(); 
-                               break;
-            case ENEMY_SEIGE: enemySeige(); 
-                              break;
-            case BATTLE: fieldBattle(); 
-                         break;
+            case PLAYER_SEIGE: playerSeige(); break;
+            case ENEMY_SEIGE: enemySeige(); break;
+            case FIELD_BATTLE: fieldBattle(); break;
+            default: break;
         }
     }
     
-    private void rollDice() {        
-        for (int i = 0; i < 3; i++) {
+    // Attackers have their number of dice reduced.
+    private void rollPlayerDice() {
+        int numDice = 4;
+        if (mode == Mode.PLAYER_SEIGE) { numDice = 3; }
+        for (int i = 0; i < numDice; i++) {
             playerDice.rollDice();
-            enemyDice.rollDice();
-            playerResult[i] = playerDice.getDice();
-            enemyResult[i] = enemyDice.getDice();
+            playerDiceList[i] = playerDice.getDice();
         }
-        Arrays.sort(playerResult);
-        Arrays.sort(enemyResult);
+        sort(playerDiceList);
     }
     
+    private void rollEnemyDice() {
+        int numDice = 4;
+        if (mode == Mode.ENEMY_SEIGE) { numDice = 3; }
+        for (int i = 0; i < numDice; i++) {
+            enemyDice.rollDice();
+            enemyDiceList[i] = enemyDice.getDice();
+        }
+        sort(enemyDiceList);
+    }
     
+    // Bubble Sort Algorithm
+    private void sort(int[] A) {
+        int i, j, temp;
+ 
+        for (i = 0; i < A.length - 1; i++) {
+            for(j = A.length -1; j > i; j--) {
+                if (A[j] > A[j-1]) {
+                    temp = A[j-1];
+                    A[j-1] = A[j];
+                    A[j] = temp;
+                }
+            }
+	}
+    }
+
     // player = enemy -> both dies
     private void fieldBattle() {
-        while (playerLife >= 1 && enemyLife >= 1) {
-            if (playerResult[playerLife - 1] > enemyResult[enemyLife - 1]) {
-                enemyLife --;
-            } else if (enemyResult[playerLife - 1] > playerResult[enemyLife - 1]){
-                playerLife --;
-            } else if (playerResult[playerLife - 1] == enemyResult[enemyLife - 1]) {
-                enemyLife --;
-                playerLife --;
+        for (int i = 0; i < playerDiceList.length; i++) {
+            if (playerDiceList[i] > enemyDiceList[i]) {
+                enemyCasualty++;
+            } else if (enemyDiceList[i] > playerDiceList[i]) {
+                playerCasualty++;
+            } else {
+                enemyCasualty++;
+                playerCasualty++;
             }
         }
     }
     
     // player = enemy -> player dies
     private void playerSeige() {
-        while (playerLife >= 1 && enemyLife >= 1) {
-            if (playerResult[playerLife - 1] > enemyResult[enemyLife - 1]) {
-                enemyLife --;
-            } else {
-                playerLife --;
+        for (int i = 0; i < playerDiceList.length; i++) {
+            if (playerDiceList[i] != 0) {
+                if (playerDiceList[i] > enemyDiceList[i]) {
+                    enemyCasualty++;
+                } else {
+                    playerCasualty++;
+                }
             }
         }
     }
 
     // player = enemy -> enemy dies
     private void enemySeige() {
-        while (playerLife >= 1 && enemyLife >= 1) {
-            if (enemyResult[enemyLife - 1] > playerResult[playerLife - 1]) {
-                playerLife --;
-            } else {
-                enemyLife --;
+        for (int i = 0; i < playerDiceList.length; i++) {
+            if (enemyDiceList[i] != 0) {
+                if (enemyDiceList[i] > playerDiceList[i]) {
+                    playerCasualty++;
+                } else {
+                    enemyCasualty++;
+                }
             }
         }
     }
     
     private void resetValues() {
-        playerLife = 3;
-        enemyLife = 3;
+        Arrays.fill(playerDiceList, 0);
+        Arrays.fill(enemyDiceList, 0);
+        enemyCasualty = 0;
+        playerCasualty = 0;
     }
     
     public void increaseRound() {
@@ -122,7 +158,7 @@ public class Battle {
         this.mode = mode;
     }
     
-    public void setArmies(Army playerArmy, Army enemyArmy) {
+    public void setSoldiers(Army playerArmy, Army enemyArmy) {
         playerSoldiers = playerArmy.getSoldiers() / 100;
         enemySoldiers = enemyArmy.getSoldiers() / 100;
     }
@@ -141,30 +177,14 @@ public class Battle {
     }
     
     public int getPlayerCasualty() {
-        return 3 - playerLife;
+        return playerCasualty;
     }
     
     public int getEnemyCasualty() {
-        return 3 - enemyLife;
+        return enemyCasualty;
     }
-     
-    public void testBattleLogics() { 
-        setMode(Mode.BATTLE);
-        increaseRound();
-        rollDice();
-        calcAttack();
-        resetValues();
-        
-        setMode(Mode.PLAYER_SEIGE);
-        increaseRound();
-        rollDice();
-        calcAttack();
-        resetValues();
-        
-        setMode(Mode.ENEMY_SEIGE);
-        increaseRound();
-        rollDice();
-        calcAttack();
-        resetValues();
+    
+    public int getRound() {
+        return roundCounter;
     }
 }

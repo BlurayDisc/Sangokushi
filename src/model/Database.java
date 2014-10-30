@@ -8,7 +8,6 @@ package model;
 
 import controller.GameParameters;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -94,12 +93,15 @@ import java.util.List;
 // 39 永安
 // 40 云南
 
-public class Database implements GameParameters
-{
-    private List<Character> characterList;
-    private List<City> cityList;
-    private List<Force> forceList;
+public class Database implements GameParameters{
     
+    // Singleton implementation
+    private static final Database instance = new Database();
+    
+    protected int year;
+    protected ArrayList<Character> characterList;
+    protected ArrayList<City> cityList;
+    protected ArrayList<Force> forceList;
     
     // 武将 按编号
 
@@ -544,10 +546,9 @@ public class Database implements GameParameters
     Force liuyaoForce;
     Force yanbaihuForce;
     Force wanglangForce;
-    Force neutralForce;
+    Force neutralForce;    
     
-    
-    public Database() {
+    protected Database() {
         // initCharacters
         // 名， 统帅， 武力， 治理， 政治
         ahuinan = new Character("阿会喃", 65, 74, 26, 33);      // 1
@@ -1189,6 +1190,10 @@ public class Database implements GameParameters
         neutralForce.setForceColor(230, 230, 230);
                 
         forceList = new ArrayList<>(31);
+        addAllForcesToList();
+    }
+    
+    public void addAllForcesToList() {
         forceList.add(caocaoForce);         // 1
         forceList.add(liubeiForce);
         forceList.add(sunquanForce);
@@ -1233,23 +1238,31 @@ public class Database implements GameParameters
         qiangxi.setUnitsKillCount(1000);
     }
     
-    public List<City> getCityList()
-    {
+    public ArrayList<City> getCityList() {
         return cityList;
     }
     
-    public List<Character> getCharList()
-    {
+    public ArrayList<Character> getCharList() {
         return characterList;
     }
     
-    public List<Force> getForceList()
-    {
+    public ArrayList<Force> getForceList() {
         return forceList;
     }
     
-    public Character getCharacter(int value)
-    {
+    public Character getCharacter(int value) {
         return characterList.get(value - 1);
     }
+    
+    public int getYear() {
+        return year;
+    }
+    
+     
+    public static Database getInstance() {
+        return instance;
+    }
+    
+    public void initScenario2() {}      // to be overrided
+    public void initScenario1() {}      // to be overrided
 }

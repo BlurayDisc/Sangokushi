@@ -11,9 +11,6 @@ import view.units.Unit;
 import view.units.FootmanUnit;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -68,15 +65,15 @@ public class BattleScreen {
         enemyMainArmy = new LinkedList<>();
     }
     
-    public void updateSoldiers(ArmyType type, int soldiers) {
+    public void updateSoldiers(ArmyType type, int casualty) {
         army = getArmyByType(type);
         if (!army.isEmpty()) {
-            removeUnits(army, soldiers);
+            removeUnits(army, casualty);
         }
     }
     
-    private void removeUnits(LinkedList<Unit> unitList, int soldiers) {
-        for (int i = 0; i < soldiers; i++) {
+    private void removeUnits(LinkedList<Unit> unitList, int casualty) {
+        for (int i = 0; i < casualty; i++) {
             if (!army.isEmpty()) {
                 unitList.removeLast();
             }
@@ -96,7 +93,6 @@ public class BattleScreen {
         for (Iterator<Unit> it = enemyMainArmy.iterator(); it.hasNext();) {
             translate(it.next(), Side.ENEMY);
         }
-        
         for (Iterator<Unit> it = playerMainArmy.iterator(); it.hasNext();) {
             translate(it.next(), Side.PLAYER);
         }
@@ -112,15 +108,15 @@ public class BattleScreen {
     
     public void drawPlayerArmy(Graphics2D g) {        
         g.setPaint(Color.RED);
-        for (int i = 0; i < playerMainArmy.size(); i++) {
-            g.fill(playerMainArmy.get(i).getShape());
+        for (Iterator<Unit> it = playerMainArmy.iterator(); it.hasNext();) {
+            g.fill(it.next().getShape());
         }
     }
     
     public void drawEnemyArmy(Graphics2D g) {        
         g.setPaint(Color.BLUE);
-        for (int i = 0; i < enemyMainArmy.size(); i++) {
-            g.fill(enemyMainArmy.get(i).getShape());
+        for (Iterator<Unit> it = enemyMainArmy.iterator(); it.hasNext();) {
+            g.fill(it.next().getShape());
         }
     }
     

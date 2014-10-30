@@ -9,6 +9,7 @@ import controller.GameController;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import javax.swing.JOptionPane;
+import model.Database;
 import model.Scenario;
 
 /**
@@ -18,11 +19,10 @@ import model.Scenario;
 public class StartPanel extends javax.swing.JPanel {
     private static final long serialVersionUID = 1L;
     private ForcePanel forcePanel;
+    private BattlePanel examplePanel;
     private final MainFrame frame;
-    private final Scenario scenario1;
-    private final Scenario scenario2;
+    private final Database scenario;
     private final GameController controller;
-    private final BattlePanel examplePanel;
     
     /**
      * Creates new form StartPanel
@@ -33,17 +33,8 @@ public class StartPanel extends javax.swing.JPanel {
         
         this.frame = frame;
         
-        examplePanel = new BattlePanel();
-        frame.getContentPane().add(examplePanel);
-        examplePanel.setVisible(false);
-        
-        scenario1 = new Scenario();
-        scenario1.initScenario1();
-        
-        scenario2 = new Scenario();
-        scenario2.initScenario2();
-        
-        controller = new GameController();
+        scenario = Scenario.getInstance();
+        controller = GameController.getInstance();
         
         initComponents();
         setSize(800, 600);
@@ -53,8 +44,7 @@ public class StartPanel extends javax.swing.JPanel {
     }
     
     @Override
-    public void paintComponent(Graphics g)
-    {
+    public void paintComponent(Graphics g) {
         super.paintComponent(g); //To change body of generated methods, choose Tools | Templates.
         
         Graphics2D g2 = (Graphics2D)g;
@@ -63,12 +53,15 @@ public class StartPanel extends javax.swing.JPanel {
         g2.drawRect(303, 123, 193, 394);
     }
     
-    private void createForcePanel()
-    {
+    private void createForcePanel() {
         // Create ForcePanel
         forcePanel = new ForcePanel(frame, controller);
         frame.getContentPane().add(forcePanel);
-        forcePanel.setVisible(true);
+    }
+    
+    private void createExample() {
+        examplePanel = new BattlePanel();
+        frame.getContentPane().add(examplePanel);
     }
 
     /**
@@ -243,13 +236,15 @@ public class StartPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_loadGameButtonActionPerformed
 
     private void scenario1ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scenario1ButtonActionPerformed
-        controller.loadScenario(scenario1);
+        scenario.initScenario1();
+        controller.loadScenario(scenario);
         createForcePanel();
         this.setVisible(false);
     }//GEN-LAST:event_scenario1ButtonActionPerformed
 
     private void scenario2ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scenario2ButtonActionPerformed
-        controller.loadScenario(scenario2);
+        scenario.initScenario2();
+        controller.loadScenario(scenario);
         createForcePanel();
         this.setVisible(false);
     }//GEN-LAST:event_scenario2ButtonActionPerformed
@@ -273,8 +268,8 @@ public class StartPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_exitButtonActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        createExample();
         examplePanel.runExample();
-        examplePanel.setVisible(true);
         this.setVisible(false);
     }//GEN-LAST:event_jButton1ActionPerformed
 

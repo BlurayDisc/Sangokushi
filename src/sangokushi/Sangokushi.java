@@ -13,7 +13,7 @@ import view.MainFrame;
  * @author RuN
  */
 public class Sangokushi {
-    public static void main(String args[]) {     
+    public static void main(String args[]) {
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code ">
         try
         {
@@ -27,16 +27,11 @@ public class Sangokushi {
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex){}
         //</editor-fold>        
-        java.awt.EventQueue.invokeLater(new Runnable()
-        {
-
+        java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 new MainFrame().setVisible(true);
             }
         });
-
     }
-    
 }

@@ -35,7 +35,7 @@ public class Army
         defenceCoEfficiency = typeData.getDef();
         
         this.commander = commander;
-        this.commander.calcCommanderStats();
+        this.commander.reCalcStats();
         commanderAttack = this.commander.getDmg();
         commanderDefence = this.commander.getDef();
         

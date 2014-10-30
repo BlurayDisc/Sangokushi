@@ -12,14 +12,12 @@ import java.util.Random;
  *
  * @author RuN
  */
-public class Dice
-{
+public class Dice {
     private int randomNumber;
-    private Random random;
+    private final Random random;
     private int lowerBound, upperBound;
     
-    public Dice(int lowerBound, int upperBound)
-    {
+    public Dice(int lowerBound, int upperBound) {
         randomNumber = 0;
         random = new Random();
         setBounds(lowerBound, upperBound);
@@ -27,32 +25,26 @@ public class Dice
     }
     
     // Roll the dice to generate a random number.
-    public void rollDice()
-    {
+    public void rollDice() {
         randomNumber = random.nextInt((upperBound - lowerBound) + 1) + lowerBound;
     }
     
     
     // Setter for boundary values.
-    private void setBounds(int lowerBound, int upperBound)
-    {
-        if ((upperBound <= 0) || (upperBound - lowerBound) <= 1)
-        {
+    private void setBounds(int lowerBound, int upperBound) {
+        if ((upperBound <= 0) || (upperBound - lowerBound) <= 1) {
             System.out.println("Invalid Bound Values!");
             this.lowerBound = 0;
             this.upperBound = 6;
             // sets to a default 6 sided dice.
-        }
-        else
-        {
+        } else {
             this.lowerBound = lowerBound;
             this.upperBound = upperBound;
         }
     }
     
     // Retreives the result of the dice. (Must roll first)
-    public int getDice()
-    {
+    public int getDice() {
         return randomNumber;
     }
 }

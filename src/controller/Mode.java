@@ -12,5 +12,5 @@ package controller;
 public enum Mode {
     PLAYER_SEIGE,
     ENEMY_SEIGE,
-    BATTLE
+    FIELD_BATTLE
 }

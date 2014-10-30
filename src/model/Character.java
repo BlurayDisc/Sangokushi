@@ -18,41 +18,21 @@ public class Character
     private int commandPower;
     private Ability ability;
     private boolean isInjured = false; 
-    
-    public Character(String name, int leadership, int combatPower, int intelligence, int politics, Ability ability)
-    {
+        
+    public Character(String name, int leadership, int combatPower, int intelligence, int politics) {
         this.name = name;
         this.leadership = leadership;
         this.combatPower = combatPower;
         this.intelligence = intelligence;
         this.politics = politics;
-        this.ability = ability;
-        damage = 0;
-        defence = 0;
+        
+        commandPower = calcCommandPower();
+        damage = calcDmg();
+        defence = calcDef();
     }
     
-    public Character(String name, int leadership, int combatPower, int intelligence, int politics)
-    {
-        this.name = name;
-        this.leadership = leadership;
-        this.combatPower = combatPower;
-        this.intelligence = intelligence;
-        this.politics = politics;
-        commandPower = calcCommandPower();
-        damage = 0;
-        defence = 0;
-    }
-    
-    public Character(String name)
-    {
-        this.name = name;
-        leadership = 0;
-        combatPower = 0;
-        intelligence = 0;
-        politics = 0;
-        commandPower = calcCommandPower();
-        damage = 0;
-        defence = 0;
+    public Character(String name) {
+        this(name, 50, 50, 50, 50);
     }
     
     public void addLeadership(int increment)
@@ -112,53 +92,71 @@ public class Character
     // Calculates the Dmg and Def for each Character.
     // Damage -> Max: 120, Min: 0
     // Defence -> Max: 100, Min: 0
-    public void calcCommanderStats()
-    {        
+    
+    
+            
+    // Apply Damage post-Adjustment (Range 10 to 154).
+
+    // For Example:
+    // 120 -> 154
+    // 100 -> 110
+    // 80 -> 74
+    // 50 -> 35
+    // 20 -> 14
+    // damage = 10 + (int) Math.pow((damage / 10), 2);
+
+    // Apply Defence post-ADjustment (Range 0 to 90)
+    //defence *= 0.9;
+    
+    private int calcDmg() {
+        if (leadership > 92) {                  // For high Leadership commanders
+            return Math.round(leadership + intelligence * 2 / 10);
+        } else if (combatPower > 92) {          // For high combatPower commanders
+            return Math.round(combatPower * 8 / 10 + leadership * 4 / 10);     
+        } else if (intelligence > 92) {         // For high intelligence commanders
+            return Math.round(leadership * 8 / 10 + intelligence * 4 / 10);
+        } else { // For everyone else
+            return Math.round(leadership * 8 / 10 + combatPower * 4 / 10);
+        }
+    }
+    
+    private int calcDef() {
+        if (leadership > 92) {                  // For high Leadership commanders
+            return Math.round(leadership * 8 / 10 + intelligence * 2 / 10);
+        } else if (combatPower > 92) {          // For high combatPower commanders
+            return Math.round(combatPower * 6 / 10 + leadership * 4 / 10);    
+        } else if (intelligence > 92) {         // For high intelligence commanders
+            return Math.round(leadership * 6 / 10 + intelligence * 4 / 10);
+        } else { // For everyone else
+            return Math.round(leadership * 6 / 10 + combatPower * 4 / 10);
+        }
+    }
+    
+    
+    public void reCalcStats() {        
+        if (leadership > 92) {
         // For high Leadership commanders
-        if (leadership > 92)
-        {
             damage = Math.round(leadership + intelligence * 2 / 10);
             defence = Math.round(leadership * 8 / 10 + intelligence * 2 / 10);
-        }
+        } else if (combatPower > 92) { 
         // For high combatPower commanders
-        else if (combatPower > 92)
-        {
             damage = Math.round(combatPower * 8 / 10 + leadership * 4 / 10);     
             defence = Math.round(combatPower * 6 / 10 + leadership * 4 / 10);
-        }
+        } else if (intelligence > 92) {
         // For high intelligence commanders
-        else if (intelligence > 92)
-        {
             damage = Math.round(leadership * 8 / 10 + intelligence * 4 / 10);
             defence = Math.round(leadership * 6 / 10 + intelligence * 4 / 10);
-        }
+        } else {
         // For everyone else
-        else
-        {
             damage = Math.round(leadership * 8 / 10 + combatPower * 4 / 10);
             defence = Math.round(leadership * 6 / 10 + combatPower * 4 / 10);
         }
-        
-        // Apply Damage post-Adjustment (Range 10 to 154).
-        
-        // For Example:
-        // 120 -> 154
-        // 100 -> 110
-        // 80 -> 74
-        // 50 -> 35
-        // 20 -> 14
-        // damage = 10 + (int) Math.pow((damage / 10), 2);
-        
-        // Apply Defence post-ADjustment (Range 0 to 90)
-        //defence *= 0.9;
     }
-    public void increaseDamage(int increment)
-    {
+    public void increaseDamage(int increment) {
         damage = damage + increment;
     }
     
-    public void reduceDamage(int reduction)
-    {
+    public void reduceDamage(int reduction) {
         damage = damage - reduction;
     }
     
@@ -195,90 +193,63 @@ public class Character
     /**
      * @return the name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * @param name the name to set
      */
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
     /**
      * @return the leadership
      */
-    public int getLeadership()
-    {
+    public int getLeadership() {
         return leadership;
     }
 
     /**
-     * @param leadership the leadership to set
+     * Increases Leadership by 1;
      */
-    public void setLeadership(int leadership)
-    {
-        this.leadership = leadership;
+    public void increaseLeadership() {
+        leadership++;
     }
 
     /**
      * @return the combatPower
      */
-    public int getCombatPower()
-    {
+    public int getCombatPower() {
         return combatPower;
     }
 
-    /**
-     * @param combatPower the combatPower to set
-     */
-    public void setCombatPower(int combatPower)
-    {
-        this.combatPower = combatPower;
+    public void increaseCombatPower() {
+        combatPower++;
     }
 
-    /**
-     * @return the intelligence
-     */
-    public int getIntelligence()
-    {
+    public int getIntelligence() {
         return intelligence;
     }
 
-    /**
-     * @param intelligence the intelligence to set
-     */
-    public void setIntelligence(int intelligence)
-    {
-        this.intelligence = intelligence;
+    public void increaseIntelligence() {
+        intelligence++;
     }
 
-    /**
-     * @return the politics
-     */
-    public int getPolitics()
-    {
+    public int getPolitics() {
         return politics;
     }
 
-    /**
-     * @param politics the politics to set
-     */
-    public void setPolitics(int politics)
-    {
-        this.politics = politics;
+    public void increasePolitics() {
+        politics++;
     }
     
-    public Ability getAbility()
-    {
+    public Ability getAbility() {
         return ability;
     }
     
-    public void setAbility(Ability ability)
-    {
+    public void setAbility(Ability ability) {
         this.ability = ability;
     }
     

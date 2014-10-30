@@ -19,7 +19,7 @@ import model.buildings.Wall;
  *
  * @author RuN
  */
-public class BuildingsPanelOld extends JPanel
+public class BuildingsPanel extends JPanel
 {
     private static final long serialVersionUID = 1L;
     private final GamePanel gp;
@@ -36,7 +36,7 @@ public class BuildingsPanelOld extends JPanel
      * @param controller
 
      */
-    public BuildingsPanelOld(GamePanel gp, GameController controller)
+    public BuildingsPanel(GamePanel gp, GameController controller)
     {
         super();
         setSize(800, 600);

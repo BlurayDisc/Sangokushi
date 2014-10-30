@@ -9,27 +9,30 @@ package model;
  *
  * @author RuN
  */
-public class Scenario extends Database
-{    
-    int year;
+public class Scenario extends Database {    
+    private static Database instance = null;
     
-    public Scenario()
-    {
+    private Scenario() {
         super();
     }
         
-    public void initScenario1()
-    {
+    // 载入英雄集结
+    @Override
+    public void initScenario1() {
+        // 初始时间
         year = 251;
-        // 载入英雄集结
         
-        //   * 银两
-        //   * 粮草
-        //   * 势力初始城市
-        //   * 城市兵力
-        //   * 城市人口
-        //   * 城市武将名单
+        // 初始势力列表
+        resetScenario();
+        addAllForcesToList();
         
+        // 初始势力
+        // * 银两
+        // * 粮草
+        // * 势力初始城市
+        // * 城市兵力
+        // * 城市人口 (万)
+        // * 城市武将名单
         
         // 曹操势力
         caocaoForce.setGold(1000);
@@ -215,15 +218,26 @@ public class Scenario extends Database
         
     }
     
-    public void initScenario2()
-    {
-        year = 200;
-            
-        // 载入群雄割据
-        getForceList().clear();
+    // 载入群雄割据
+    @Override
+    public void initScenario2() {
+        // 初始时间
+        year = 200; 
+
+        // 初始势力列表
+        resetScenario();
         getForceList().add(caocaoForce);
         getForceList().add(liubeiForce);
         getForceList().add(neutralForce);
+        
+        // 初始势力      
+        caocaoForce.add(xuchang);
+        caocaoForce.add(chenliu);
+        caocaoForce.add(runan);
+        caocaoForce.add(puyang);
+        
+        liubeiForce.add(xiapi);
+        liubeiForce.add(xiaopei);
         
         neutralForce.getCityList().addAll(getCityList());
         neutralForce.getCityList().remove(xuchang);
@@ -232,18 +246,24 @@ public class Scenario extends Database
         neutralForce.getCityList().remove(puyang);
         neutralForce.getCityList().remove(xiapi);
         neutralForce.getCityList().remove(xiaopei);
-        
-        caocaoForce.add(xuchang);
-        caocaoForce.add(chenliu);
-        caocaoForce.add(runan);
-        caocaoForce.add(puyang);
-        
-        liubeiForce.add(xiapi);
-        liubeiForce.add(xiaopei);
     }
     
-    public int getYear()
-    {
-        return year;
+    private void resetScenario() {
+        forceList.clear();
+        addAllForcesToList();
+        for (Force force: forceList) {
+            for (City city: force.getCityList()) {
+                city.getCharacterList().clear();
+            }
+            force.getCityList().clear();
+        }
+        forceList.clear();
+    }
+     
+    public static synchronized Database getInstance() {
+        if (instance == null) {
+            instance = new Scenario();
+        }
+        return instance;
     }
 }

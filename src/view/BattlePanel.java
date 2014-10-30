@@ -112,10 +112,14 @@ public class BattlePanel extends JPanel {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         System.out.println("Player Soldiers: " + mainBattle.getPlayerSoldiers());
         System.out.println("Enemy Soldiers: " + mainBattle.getEnemySoldiers());
-        if (battleScreen.isMovable()) { battleScreen.move();}
-        //mainBattle.startBattle();
-        battleScreen.updateSoldiers(ArmyType.PLAYER_MAIN, 1);
-        battleScreen.updateSoldiers(ArmyType.ENEMY_MAIN, 3);
+        System.out.println();
+        if (battleScreen.isMovable()) { 
+            battleScreen.move();
+        } else {
+            mainBattle.start();
+            battleScreen.updateSoldiers(ArmyType.PLAYER_MAIN, mainBattle.getPlayerCasualty());
+            battleScreen.updateSoldiers(ArmyType.ENEMY_MAIN, mainBattle.getEnemyCasualty());
+        }
         repaint();
     }//GEN-LAST:event_jButton1ActionPerformed
 

@@ -5,31 +5,31 @@
  */
 package controller;
 
-import java.util.List;
+import java.util.ArrayList;
 import model.City;
 import model.Force;
 import model.Character;
-import model.Scenario;
+import model.Database;
 import model.buildings.Building;
 
 /**
  *
  * @author RuN
  */
-public class GameController implements GameParameters
-{
-    private List<Force> forceList;
-    private List<City> cityList;
-    private List<Character> characterList;
+public class GameController implements GameParameters {
+    
+    private ArrayList<Force> forceList;
+    private ArrayList<City> cityList;
+    private ArrayList<Character> characterList;
     
     private Force player;
     private City selectedCity, attackedCity;
     private int month;
     private int year;
-
     
-    public GameController()
-    {
+    private static GameController instance = null;
+
+    private GameController() {
         forceList = null;
         cityList = null;
         characterList = null;
@@ -38,20 +38,18 @@ public class GameController implements GameParameters
         year = 0;
     }
     
-    public void loadScenario(Scenario scenario)
-    {
+    public void loadScenario(Database scenario) {
         forceList = scenario.getForceList();
         cityList = scenario.getCityList();
         characterList = scenario.getCharList();
         year = scenario.getYear();
     }
     
-    public void updatePlayer(Force force)
-    {
+    public void updatePlayer(Force force) {
         player = force;
     }
     
-    public Force getOwnerOfCity(City city){
+    public Force getOwnerOfCity(City city) {
         for (Force force: getForceList()){
             if (force.getCityList().contains(city)) {
                 return force;
@@ -173,7 +171,7 @@ public class GameController implements GameParameters
         return forceList.get(forceNumber);
     }
     
-    public List<Force> getForceList(){
+    public ArrayList<Force> getForceList(){
         return forceList;
     }
     
@@ -230,17 +228,15 @@ public class GameController implements GameParameters
         return force.getPopulation();
     }
     
-    public City getCity(int cityNumber)
-    {
+    public City getCity(int cityNumber) {
         return cityList.get(cityNumber - 1);
     }
     
-    public List<City> getCityList()
-    {
+    public ArrayList<City> getCityList() {
         return cityList;
     }
     
-    public City getCityByName(String inCityName){
+    public City getCityByName(String inCityName) {
         City tempCity = null;
         for (City city: cityList){
             if (city.getCityName().equals(inCityName)){
@@ -250,7 +246,7 @@ public class GameController implements GameParameters
         return tempCity;
     }
     
-    public City[] getNeighbours(City currentCity){
+    public City[] getNeighbours(City currentCity) {
         City[] neighbourList = new City[8];
         int[] cityNumberList = currentCity.getNeighbours();
         int i = 0;
@@ -266,7 +262,7 @@ public class GameController implements GameParameters
         return neighbourList;
     }
 
-    public List<Character> getCharacterList() {
+    public ArrayList<Character> getCharacterList() {
         return characterList;
     }
     
@@ -318,5 +314,12 @@ public class GameController implements GameParameters
             return 0;
         }
         return selectedCity.getSoldiers();
+    }
+    
+    public static synchronized GameController getInstance() {
+        if (instance == null) {
+            instance = new GameController();
+        }
+        return instance;
     }
 }
