@@ -9,62 +9,58 @@ package view;
 import controller.GameController;
 import controller.GameParameters;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
-import javax.imageio.ImageIO;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 import model.City;
 
 /**
  *
  * @author RuN
  */
-public class GamePanel extends JPanel implements GameParameters {
-    private static final long serialVersionUID = 1L;
+public class GamePanel extends JPanel {
     
-    private final BuildingsPanel buildPanel;
+    private static final long serialVersionUID = 1L;
     private final PrepareBattlePanel prepareBattlePanel;
-    private Image menuImage;
-    private Image hideMenuImage;
-    private Image backgroundImage;
-    private Rectangle[] menuButtons;
-    private City selectedCity;
-    private int selectedButton;
-    private final MainFrame frame;
     private final GameController controller;
-    private final ForceColourManager forceColourManager;
+    private final BuildingsPanel buildPanel;
+    private final GameScreen gameScreen;
     private final AILogicFrame aiFrame;
-
-    /**
-     * Creates new form GamePanel
-     */
+    private final MainFrame frame;
+    private Timer mouseClickTimer;
+    private int selectedButton;
+    private City selectedCity;
+    private boolean isRunning = false;
+    
     public GamePanel() {
         // Inititalise Variables
         super();
         frame = MainFrame.getInstance();
         controller = GameController.getInstance();
+        controller.updateYear();
         selectedCity = null;
-        removePanels();
         
         // Graphics Content
-        forceColourManager = new ForceColourManager(controller.getForceList());
-        InitBackground();
-        initMenuRectangles();
-
+        gameScreen = GameScreen.getInstance();
+        
         // Swing Content
         initComponents();
         initDisplayLabels();
+        initTimer();
+        removePanels();
         
+        // Create AIFrame
         aiFrame = new AILogicFrame(this);
         aiFrame.setVisible(false);
         
+        // Create PrepareBattlePanel
         prepareBattlePanel = new PrepareBattlePanel(this);
         frame.getContentPane().add(prepareBattlePanel);
         prepareBattlePanel.setVisible(false);
         
+        // Create BuildingsPanel
         buildPanel = new BuildingsPanel(this);
         frame.getContentPane().add(buildPanel);
         buildPanel.setVisible(false);
@@ -73,10 +69,22 @@ public class GamePanel extends JPanel implements GameParameters {
     @Override
     public void paintComponent(Graphics g) {   
         super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D)g;
-        drawBackground(g2);
-        forceColourManager.drawPlayerForceColour(controller.getPlayer(), g2);
-        forceColourManager.drawCities(g2);
+        gameScreen.setGraphics(g);
+        gameScreen.drawBackground();
+        gameScreen.drawPlayerForceColour();
+        gameScreen.drawCities();
+    }
+    
+    private void initTimer() {
+        ActionListener mouseClickListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                mouseReleasedLogics();
+                isRunning = false;
+            }
+        };
+        mouseClickTimer = new Timer(150, mouseClickListener);
+        mouseClickTimer.setRepeats(false);
     }
     
     private void removePanels() {
@@ -84,28 +92,8 @@ public class GamePanel extends JPanel implements GameParameters {
         frame.getContentPane().add(this);
         this.setBounds(0, 0, 800, 600);
     }
-        
-    private void InitBackground() {
-        try{
-            backgroundImage = ImageIO.read(getClass().getResourceAsStream("/resources/gameBackground.png"));
-            menuImage = ImageIO.read(getClass().getResourceAsStream("/resources/optionPanelBackground.png"));
-            hideMenuImage = ImageIO.read(getClass().getResourceAsStream("/resources/hideOptionPanel.png"));
-        }
-        catch (Exception e){}
-    }
-    
-    private void initMenuRectangles() {
-        menuButtons = new Rectangle[6];
-        menuButtons[0] = new Rectangle(19 + 20, 29 + 90, 80, 40);
-        menuButtons[1] = new Rectangle(19 + 20, 76 + 90, 80, 40);
-        menuButtons[2] = new Rectangle(137 + 20, 29 + 90, 80, 40);
-        menuButtons[3] = new Rectangle(137 + 20, 76+ 90, 80, 40);
-        menuButtons[4] = new Rectangle(251 + 20, 28 + 90, 80, 40);
-        menuButtons[5] = new Rectangle(251 + 20, 75 + 90, 80, 40);
-    }
     
     private void initDisplayLabels() {
-        // initial display
         nameLabel.setText(controller.getPlayerName());
         yearLabel.setText(controller.getYear() + "年 " + controller.getMonth() + "月");
         cityLabel.setText("城市: " + controller.getPlayer().getPrimaryCityName());
@@ -122,80 +110,38 @@ public class GamePanel extends JPanel implements GameParameters {
         soldierLabel.setText("兵力: " + controller.getSoldiers(selectedCity));
         populationLabel.setText("人口: " + controller.getPopulation(selectedCity) + "万");
     }
-    
-    private void drawBackground(Graphics2D g2) {
-        g2.drawImage(backgroundImage, 0, 0, null);
-    }
-        
-    private void restoreCitySquare() {
-        Graphics2D g2 = (Graphics2D)getGraphics();
-        forceColourManager.drawCity(selectedCity, controller.getOwnerOfCity(selectedCity).getForceColor(), g2);          // change city back
-    }
-    
-    private void makeCitySquarePressed() {
-        Graphics2D g2 = (Graphics2D)getGraphics();
-        forceColourManager.drawCityPressed(selectedCity, controller.getOwnerOfCity(selectedCity).getForceColor(), g2);   // make city pressed
+
+    private void mouseReleasedLogics() {
+        if (selectedCity != null) {                                         // Clicks a city
+            if (controller.cityIsPlayerOwned()) {gameScreen.setMenuVisible();} 
+            else {gameScreen.setMenuHidden();}      // To show or hide menu
+                gameScreen.restoreCitySquare();     // update graphics
+                updateDisplayLabels();              // change things to according values
+        } else if (selectedButton != GameParameters.MENU_BUTTON_UNSELECTED) {              // Clicks a button
+            gameScreen.setMenuHidden();     // hide menu
+            showSelectedPanel();            // show next panel
+        } else {                                                            // Clicks other location on map
+            gameScreen.setMenuHidden();     // hide menu
+            updateDisplayLabels();          // change things to 0
+        }
     }
     
     private void showSelectedPanel() {
         switch(selectedButton) {
-            case MENU_BUTTON_BATTLE: battleButtonClicked();
+            case GameParameters.MENU_BUTTON_BATTLE: battleButtonClicked();
                 break;
-            case MENU_BUTTON_BUILD: buildButtonClicked();
+            case GameParameters.MENU_BUTTON_BUILD: buildButtonClicked();
                 break;
-            case MENU_BUTTON_MILITARY: militaryButtonClicked();
+            case GameParameters.MENU_BUTTON_MILITARY: militaryButtonClicked();
                 break;
-            case MENU_BUTTON_POLITICS: politicsButtonClicked();
+            case GameParameters.MENU_BUTTON_POLITICS: politicsButtonClicked();
                 break;
-            case MENU_BUTTON_PERSONELS: personelsButtonClicked();
+            case GameParameters.MENU_BUTTON_PERSONELS: personelsButtonClicked();
                 break;
-            case MENU_BUTTON_EXIT: exitButtonClicked();
+            case GameParameters.MENU_BUTTON_EXIT: exitButtonClicked();
                 break;
         }
     }
-    
-    private void setMenuVisible(boolean isVisible) {
-        Graphics g = getGraphics();
-        
-        if (isVisible) {
-            g.drawImage(menuImage, 20, 90, null);
-            menuButtons[0].setSize(80, 40);
-            menuButtons[1].setSize(80, 40);
-            menuButtons[2].setSize(80, 40);
-            menuButtons[3].setSize(80, 40);
-            menuButtons[4].setSize(80, 40);
-            menuButtons[5].setSize(80, 40);
-        } else {
-            g.drawImage(hideMenuImage, 20, 90, null);
-            menuButtons[0].setSize(0, 0);
-            menuButtons[1].setSize(0, 0);
-            menuButtons[2].setSize(0, 0);
-            menuButtons[3].setSize(0, 0);
-            menuButtons[4].setSize(0, 0);
-            menuButtons[5].setSize(0, 0);
-        }
-    }
-    
-    private int getSelectedButton(MouseEvent evt) {
-        for (int i = 0; i < menuButtons.length; i++) {
-            if (menuButtons[i].contains(evt.getPoint())) {
-                return i + 1;
-            }
-        }
-        return MENU_BUTTON_UNSELECTED;
-    }
-    
-    private City getSelectedCity(MouseEvent evt) {
-        City city;
-        for (int i = 1; i < 41; i ++) {
-            city = controller.getCity(i);
-            if (city.getRect().contains(evt.getPoint())) {
-                return city;
-            }
-        }
-        return null;
-    }
-
     
     public JButton getProceedButton() {
         return proceedButton;
@@ -365,7 +311,7 @@ public class GamePanel extends JPanel implements GameParameters {
 
     private void proceedButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_proceedButtonActionPerformed
     {//GEN-HEADEREND:event_proceedButtonActionPerformed
-        setMenuVisible(false);
+        gameScreen.setMenuHidden();
         
         controller.increaseTime();
         controller.increaseResources();
@@ -384,29 +330,25 @@ public class GamePanel extends JPanel implements GameParameters {
 
     private void formMousePressed(java.awt.event.MouseEvent evt)//GEN-FIRST:event_formMousePressed
     {//GEN-HEADEREND:event_formMousePressed
-        selectedCity = getSelectedCity(evt);
-        selectedButton = getSelectedButton(evt);
+        if (isRunning) {return;}
+        
+        gameScreen.setGraphics(getGraphics());      // sets a graphic to work with.
+        
+        selectedCity = gameScreen.getSelectedCity(evt);
+        selectedButton = gameScreen.getSelectedButton(evt);
         
         if (selectedCity != null) {
             controller.setCity(selectedCity);          // if city is valid, then store it in the GameController class.
-            makeCitySquarePressed();
+            gameScreen.makeCitySquarePressed();
         }
     }//GEN-LAST:event_formMousePressed
 
     private void formMouseReleased(java.awt.event.MouseEvent evt)//GEN-FIRST:event_formMouseReleased
     {//GEN-HEADEREND:event_formMouseReleased
-        if (selectedCity != null) {                                         // Clicks a city
-            if (controller.cityIsPlayerOwned()) {setMenuVisible(true);} 
-            else {setMenuVisible(false);}   // To show or hide menu
-            restoreCitySquare();            // update graphics
-            updateDisplayLabels();          // change things to according values
-        } else if (selectedButton != MENU_BUTTON_UNSELECTED) {              // Clicks a button
-            setMenuVisible(false);          // hide menu
-            showSelectedPanel();            // show next panel
-        } else {                                                            // Clicks other location on map
-            setMenuVisible(false);          // hide menu
-            updateDisplayLabels();          // change things to 0
-        }
+        if (isRunning) {return;}
+        
+        isRunning = true;
+        mouseClickTimer.start();
     }//GEN-LAST:event_formMouseReleased
 
 

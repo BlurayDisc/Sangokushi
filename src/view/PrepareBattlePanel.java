@@ -82,6 +82,10 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
         selectArmyPanel.setVisible(false);
     }
     
+    private void initButtons() {
+        
+    }
+    
     private void initFormationPanel() {
         castleLabel.setText(gc.getAttackedCity().getCityName() + "城");
     }
@@ -113,7 +117,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
     }
 
     public void init() {
-        currentCity = gc.getCity();
+        currentCity = gc.getSelectedCity();
         remainingSoldiers = gc.getSoldiers();
         initCity();
         initTable();

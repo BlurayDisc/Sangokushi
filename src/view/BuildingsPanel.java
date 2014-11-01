@@ -78,13 +78,13 @@ public class BuildingsPanel extends JPanel
             }
         }
         
-        titleLabel.setText(gc.getCity().getCityName() + "城建筑物");
+        titleLabel.setText(gc.getSelectedCity().getCityName() + "城建筑物");
         descriptionText.setText("");
         buildLayer.setVisible(false);
         
-        soldierIncomeLabel.setText(gc.getCity().getSoldierIncome() + "");
-        foodIncomeLabel.setText(gc.getCity().getFoodIncome() + "");
-        goldIncomeLabel.setText(gc.getCity().getGoldIncome() + "");
+        soldierIncomeLabel.setText(gc.getSelectedCity().getSoldierIncome() + "");
+        foodIncomeLabel.setText(gc.getSelectedCity().getFoodIncome() + "");
+        goldIncomeLabel.setText(gc.getSelectedCity().getGoldIncome() + "");
         goldLabel.setText("现有白银: " + gc.getPlayerGold() + "两");
     }
     
@@ -112,11 +112,11 @@ public class BuildingsPanel extends JPanel
         // goldIncome = goldIncome + buildings[selectedSlot - 1].getGoldIncome();
         // foodIncome = foodIncome + buildings[selectedSlot - 1].getFoodIncome();
         
-        gc.getCity().updateIncomes(gc.getSlot(selectedSlot));
+        gc.getSelectedCity().updateIncomes(gc.getSlot(selectedSlot));
         
-        soldierIncomeLabel.setText(gc.getCity().getSoldierIncome() + "");
-        foodIncomeLabel.setText(gc.getCity().getFoodIncome() + "");
-        goldIncomeLabel.setText(gc.getCity().getGoldIncome() + "");
+        soldierIncomeLabel.setText(gc.getSelectedCity().getSoldierIncome() + "");
+        foodIncomeLabel.setText(gc.getSelectedCity().getFoodIncome() + "");
+        goldIncomeLabel.setText(gc.getSelectedCity().getGoldIncome() + "");
     }
     
     private void changeSlotButtonText() {

@@ -36,15 +36,6 @@ public class GameController implements GameParameters {
         year = 0;
     }
     
-    public Force getOwnerOfCity(City city) {
-        for (Force force: getForceList()){
-            if (force.getCityList().contains(city)) {
-                return force;
-            }
-        }
-        return null;
-    }
-    
     public void increaseIncome(City city) {
         
     }
@@ -232,25 +223,9 @@ public class GameController implements GameParameters {
         }
         return tempCity;
     }
-    
-    public City[] getNeighbours(City currentCity) {
-        City[] neighbourList = new City[8];
-        int[] cityNumberList = currentCity.getNeighbours();
-        int i = 0;
-        for (City neighbourCity: neighbourList){
-            if (cityNumberList[i] == CITY_EMPTY) {
-                neighbourList[i] = null;
-            }
-            else{
-                neighbourList[i] = getCity(cityNumberList[i]);
-            }
-            i++;
-        }
-        return neighbourList;
-    }
 
     public ArrayList<Character> getCharacterList() {
-        return db.getCharList();
+        return db.getCharacterList();
     }
     
     public void setCity(City city) {
@@ -265,7 +240,7 @@ public class GameController implements GameParameters {
         attackedCity = city;
     }
     
-    public City getCity() {
+    public City getSelectedCity() {
         return selectedCity;
     }
     
@@ -292,7 +267,6 @@ public class GameController implements GameParameters {
         if (selectedCity == null) {
             return 0;
         }
-        
         return selectedCity.getCharNumber();
     }
     

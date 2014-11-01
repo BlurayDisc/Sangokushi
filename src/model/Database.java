@@ -7,6 +7,7 @@
 package model;
 
 import controller.GameParameters;
+import controller.Neighbour;
 import java.util.ArrayList;
 
 /**
@@ -99,9 +100,9 @@ public class Database implements GameParameters{
     private static final Database instance = new Database();
     
     protected int year;
-    protected ArrayList<Character> characterList;
-    protected ArrayList<City> cityList;
-    protected ArrayList<Force> forceList;
+    private ArrayList<Character> characterList;
+    private ArrayList<City> cityList;
+    private ArrayList<Force> forceList;
     
     // 武将 按编号
 
@@ -471,7 +472,7 @@ public class Database implements GameParameters{
     
     
     // 城市
-    protected City xuchang;   // 许昌
+    protected final City xuchang;   // 许昌
     protected City luoyang;   // 洛阳
     protected City chenliu;    // 陈留
     protected City puyang;    // 濮阳
@@ -481,7 +482,7 @@ public class Database implements GameParameters{
     protected City shouchun;  // 寿春
     protected City wan;       // 宛
     protected final City yunnan;    // 云南
-    protected City jiangzhou;  // 江州
+    protected final City jiangzhou;  // 江州
     protected City chengdu;   //  成都
     protected City yongan;    // 永安
     protected City zitong;    // 梓潼
@@ -840,7 +841,10 @@ public class Database implements GameParameters{
         zhangjiao = new Character("张角");
         
         // initCities
+        xuchang = new City("许昌");
+        jiangzhou = new City("江州");
         yunnan = new City("云南");
+        
         
         initialiseCharacters();
         initialiseAbilities();
@@ -1157,8 +1161,8 @@ public class Database implements GameParameters{
         // 川蜀
         yunnan.setMapCoordinate(64, 555);
         yunnan.setNeighbours(CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_JIANGZHOU, CITY_EMPTY, CITY_EMPTY);
+        yunnan.setNewNeighbours(Neighbour.EMPTY, Neighbour.EMPTY, Neighbour.EMPTY, Neighbour.EMPTY, Neighbour.EMPTY, Neighbour.JIANGZHOU, Neighbour.EMPTY, Neighbour.EMPTY);
         
-        jiangzhou = new City("江州");
         jiangzhou.setMapCoordinate(166, 450);
         jiangzhou.setNeighbours(CITY_EMPTY, CITY_EMPTY, CITY_CHENGDU, CITY_YONGAN, CITY_ZITONG, CITY_EMPTY, CITY_YUNNAN, CITY_EMPTY);
         
@@ -1175,7 +1179,6 @@ public class Database implements GameParameters{
         zitong.setNeighbours(CITY_HANZHONG, CITY_CHENGDU, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_JIANGZHOU);
         
         // 中原
-        xuchang = new City("许昌");
         xuchang.setMapCoordinate(429, 355);
         xuchang.setNeighbours(CITY_PUYANG, CITY_EMPTY, CITY_WAN, CITY_EMPTY, CITY_LUOYANG, CITY_EMPTY, CITY_EMPTY, CITY_RUNAN);
         
@@ -1483,8 +1486,8 @@ public class Database implements GameParameters{
         return cityList;
     }
     
-    public ArrayList<Character> getCharList() {
-        return characterList;
+    public City getCity(int value) {
+        return cityList.get(value - 1);
     }
     
     public ArrayList<Force> getForceList() {
@@ -1493,6 +1496,10 @@ public class Database implements GameParameters{
     
     public Character getCharacter(int value) {
         return characterList.get(value - 1);
+    }
+    
+    public ArrayList<Character> getCharacterList() {
+        return characterList;
     }
     
     public int getYear() {

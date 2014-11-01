@@ -7,6 +7,7 @@
 package model;
 
 import controller.GameParameters;
+import controller.Neighbour;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,8 +34,9 @@ public class City
     private final List<Character> undiscoveredList;     // undiscovered character
     private final Rectangle rectangle;
     private final int[] neighbours;
+    private final Neighbour[] newNeighbours;
     private final Building[] slots;
-    private final int[] units;                          // refer to game parameters.
+    private final int[] equipments;                          // refer to game parameters.
     protected int soldierIncome;
     private boolean frontline;
     private int goldIncome;
@@ -44,9 +46,11 @@ public class City
     public int x, y;                                    // city location on GamePanel, x-coordinate and y-coordinate
     
     public City(String cityName){
-        units = new int[13];
+        equipments = new int[4];
         neighbours = new int[8];
+        newNeighbours = new Neighbour[8];
         slots = new Building[8];
+        
         rectangle = new Rectangle(0, 0, 25, 25);
         characterList = new ArrayList<>(10);
         undiscoveredList = new ArrayList<>(10);
@@ -59,24 +63,10 @@ public class City
     }
     
     private void initArrays(){
-        Arrays.fill(units, 0);
+        Arrays.fill(equipments, 0);
         Arrays.fill(neighbours, 0);
+        Arrays.fill(equipments, 0);
         Arrays.fill(slots, null);
-        
-        units[0] = Math.round(soldiers * 3 / 10);       // sword
-        units[1] = Math.round(soldiers * 3 / 10);       // spear
-        units[2] = Math.round(soldiers * 3 / 10);       // bow
-        units[3] = Math.round(soldiers * 1 / 10);       // calvary
-    }
-    
-    public void updateSoldierNumbers(){
-        int total = 0;
-        
-        for (int i = 0; i < units.length; i++){
-            total += units[i];
-        }
-        
-        soldiers = total;
     }
     
     public void updateIncomes(Building building) {
@@ -154,22 +144,26 @@ public class City
         return neighbours[index - 1];
     }
     
-    public int[] getNeighbours(){
-        return neighbours;
+    public void setNewNeighbours(Neighbour n, Neighbour s, Neighbour w, Neighbour e, Neighbour nw, Neighbour ne, Neighbour sw, Neighbour se) {
+        newNeighbours[0] = n;
+        newNeighbours[1] = s;
+        newNeighbours[2] = w;
+        newNeighbours[3] = e;
+        newNeighbours[4] = nw;
+        newNeighbours[5] = ne;
+        newNeighbours[6] = sw;
+        newNeighbours[7] = se;
     }
     
-    public void setNeighbours(int north, int south, int west, int east, int northWest, int northEast, int southWest, int southEast){
-        neighbours[0] = north;
-        neighbours[1] = south;
-        neighbours[2] = west;
-        neighbours[3] = east;
+    public void setNeighbours(int north, int south, int west, int east, int northWest, int northEast, int southWest, int southEast) {
+        setNeighbours(north, south, west, east);
         neighbours[4] = northWest;
         neighbours[5] = northEast;
         neighbours[6] = southWest;
         neighbours[7] = southEast;
     }
     
-    public void setNeighbours(int north, int south, int west, int east){
+    public void setNeighbours(int north, int south, int west, int east) {
         neighbours[0] = north;
         neighbours[1] = south;
         neighbours[2] = west;
@@ -181,11 +175,11 @@ public class City
     }
     
     public void updateUnits(int unitType, int number){
-        units[unitType - 1] = number;     //adjust for array index
+        equipments[unitType - 1] = number;     //adjust for array index
     }
     
     public int getUnits(int unitType){
-        return units[unitType - 1];         //adjust for array index
+        return equipments[unitType - 1];         //adjust for array index
     }
 
     public boolean isFrontline(){
@@ -241,5 +235,31 @@ public class City
 
     public void setSoldierIncome(int soldierIncome) {
         this.soldierIncome = soldierIncome;
+    }
+    
+    public City[] getNeighbours() {
+        City[] neighbourList = new City[8];
+        Database db = Database.getInstance();
+        
+        for (int i = 0; i < neighbours.length; i++) {
+            if (neighbours[i] == GameParameters.CITY_EMPTY) {
+                neighbourList[i] = null;
+            } else {
+                neighbourList[i] = db.getCity(neighbours[i]);
+            }
+        }
+        
+        return neighbourList;
+    }
+    
+    public Force getOwner() {
+        Database db = Database.getInstance();
+        
+        for (Force force: db.getForceList()){
+            if (force.getCityList().contains(this)) {
+                return force;
+            }
+        }
+        return null;
     }
 }
