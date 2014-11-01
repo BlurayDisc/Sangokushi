@@ -22,8 +22,7 @@ import model.City;
  *
  * @author RuN
  */
-public class GamePanel extends JPanel implements GameParameters
-{
+public class GamePanel extends JPanel implements GameParameters {
     private static final long serialVersionUID = 1L;
     
     private final BuildingsPanel buildPanel;
@@ -41,17 +40,13 @@ public class GamePanel extends JPanel implements GameParameters
 
     /**
      * Creates new form GamePanel
-     * @param frame main frame
-     * @param controller game controller
      */
-    public GamePanel(MainFrame frame, GameController controller)
-    {
+    public GamePanel() {
         // Inititalise Variables
         super();
-        this.frame = frame;
-        this.controller = controller;
+        frame = MainFrame.getInstance();
+        controller = GameController.getInstance();
         selectedCity = null;
-        
         removePanels();
         
         // Graphics Content
@@ -63,20 +58,20 @@ public class GamePanel extends JPanel implements GameParameters
         initComponents();
         initDisplayLabels();
         
-        aiFrame = new AILogicFrame(frame, this);
+        aiFrame = new AILogicFrame(this);
         aiFrame.setVisible(false);
         
-        prepareBattlePanel = new PrepareBattlePanel(frame, this, controller);
+        prepareBattlePanel = new PrepareBattlePanel(this);
         frame.getContentPane().add(prepareBattlePanel);
         prepareBattlePanel.setVisible(false);
         
-        buildPanel = new BuildingsPanel(this, controller);
+        buildPanel = new BuildingsPanel(this);
         frame.getContentPane().add(buildPanel);
         buildPanel.setVisible(false);
     }
     
     @Override
-    public void paintComponent(Graphics g){   
+    public void paintComponent(Graphics g) {   
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D)g;
         drawBackground(g2);
@@ -84,13 +79,13 @@ public class GamePanel extends JPanel implements GameParameters
         forceColourManager.drawCities(g2);
     }
     
-    private void removePanels(){
+    private void removePanels() {
         frame.getContentPane().removeAll();
         frame.getContentPane().add(this);
         this.setBounds(0, 0, 800, 600);
     }
         
-    private void InitBackground(){
+    private void InitBackground() {
         try{
             backgroundImage = ImageIO.read(getClass().getResourceAsStream("/resources/gameBackground.png"));
             menuImage = ImageIO.read(getClass().getResourceAsStream("/resources/optionPanelBackground.png"));
@@ -99,7 +94,7 @@ public class GamePanel extends JPanel implements GameParameters
         catch (Exception e){}
     }
     
-    private void initMenuRectangles(){
+    private void initMenuRectangles() {
         menuButtons = new Rectangle[6];
         menuButtons[0] = new Rectangle(19 + 20, 29 + 90, 80, 40);
         menuButtons[1] = new Rectangle(19 + 20, 76 + 90, 80, 40);
@@ -109,7 +104,7 @@ public class GamePanel extends JPanel implements GameParameters
         menuButtons[5] = new Rectangle(251 + 20, 75 + 90, 80, 40);
     }
     
-    private void initDisplayLabels(){
+    private void initDisplayLabels() {
         // initial display
         nameLabel.setText(controller.getPlayerName());
         yearLabel.setText(controller.getYear() + "年 " + controller.getMonth() + "月");
@@ -121,23 +116,23 @@ public class GamePanel extends JPanel implements GameParameters
         grainLabel.setText("粮草: " + controller.getPlayerFood());
     }
 
-    private void updateDisplayLabels(){
+    private void updateDisplayLabels() {
         cityLabel.setText("城市: " + controller.getCityName());
         charLabel.setText("武将: " + controller.getCharNumber() + " 名");
         soldierLabel.setText("兵力: " + controller.getSoldiers(selectedCity));
         populationLabel.setText("人口: " + controller.getPopulation(selectedCity) + "万");
     }
     
-    private void drawBackground(Graphics2D g2){
+    private void drawBackground(Graphics2D g2) {
         g2.drawImage(backgroundImage, 0, 0, null);
     }
         
-    private void restoreCitySquare(){
+    private void restoreCitySquare() {
         Graphics2D g2 = (Graphics2D)getGraphics();
         forceColourManager.drawCity(selectedCity, controller.getOwnerOfCity(selectedCity).getForceColor(), g2);          // change city back
     }
     
-    private void makeCitySquarePressed(){
+    private void makeCitySquarePressed() {
         Graphics2D g2 = (Graphics2D)getGraphics();
         forceColourManager.drawCityPressed(selectedCity, controller.getOwnerOfCity(selectedCity).getForceColor(), g2);   // make city pressed
     }
@@ -159,12 +154,10 @@ public class GamePanel extends JPanel implements GameParameters
         }
     }
     
-    private void setMenuVisible(boolean isVisible)
-    {
+    private void setMenuVisible(boolean isVisible) {
         Graphics g = getGraphics();
         
-        if (isVisible)
-        {
+        if (isVisible) {
             g.drawImage(menuImage, 20, 90, null);
             menuButtons[0].setSize(80, 40);
             menuButtons[1].setSize(80, 40);
@@ -172,9 +165,7 @@ public class GamePanel extends JPanel implements GameParameters
             menuButtons[3].setSize(80, 40);
             menuButtons[4].setSize(80, 40);
             menuButtons[5].setSize(80, 40);
-        }
-        else
-        {
+        } else {
             g.drawImage(hideMenuImage, 20, 90, null);
             menuButtons[0].setSize(0, 0);
             menuButtons[1].setSize(0, 0);
@@ -206,35 +197,35 @@ public class GamePanel extends JPanel implements GameParameters
     }
 
     
-    public JButton getProceedButton(){
+    public JButton getProceedButton() {
         return proceedButton;
     }
         
-    private void battleButtonClicked(){
+    private void battleButtonClicked() {
         prepareBattlePanel.init();
         prepareBattlePanel.setVisible(true);
         this.setVisible(false);
     }
     
-    private void buildButtonClicked(){
+    private void buildButtonClicked() {
         buildPanel.updateData();
         buildPanel.setVisible(true);
         this.setVisible(false);
     }
     
-    private void militaryButtonClicked(){
+    private void militaryButtonClicked() {
         System.out.println("军事被选中");
     }
     
-    private void politicsButtonClicked(){
+    private void politicsButtonClicked() {
         System.out.println("内政被选中");
     }
     
-    private void personelsButtonClicked(){
+    private void personelsButtonClicked() {
         System.out.println("武将被选中");
     }
     
-    private void exitButtonClicked(){
+    private void exitButtonClicked() {
         System.exit(0);
     }
     

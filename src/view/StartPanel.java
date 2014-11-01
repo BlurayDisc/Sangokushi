@@ -5,12 +5,10 @@
  */
 package view;
 
-import controller.GameController;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import javax.swing.JOptionPane;
 import model.Database;
-import model.Scenario;
 
 /**
  *
@@ -18,24 +16,12 @@ import model.Scenario;
  */
 public class StartPanel extends javax.swing.JPanel {
     private static final long serialVersionUID = 1L;
-    private ForcePanel forcePanel;
-    private BattlePanel examplePanel;
-    private final MainFrame frame;
     private final Database scenario;
-    private final GameController controller;
-    
-    /**
-     * Creates new form StartPanel
-     * @param frame
-     */
-    public StartPanel(MainFrame frame) {
+    private BattlePanel examplePanel;
+
+    public StartPanel() {
         super();
-        
-        this.frame = frame;
-        
-        scenario = Scenario.getInstance();
-        controller = GameController.getInstance();
-        
+        scenario = Database.getInstance();
         initComponents();
         setSize(800, 600);
         scenario1Button.setVisible(false);
@@ -45,7 +31,7 @@ public class StartPanel extends javax.swing.JPanel {
     
     @Override
     public void paintComponent(Graphics g) {
-        super.paintComponent(g); //To change body of generated methods, choose Tools | Templates.
+        super.paintComponent(g);
         
         Graphics2D g2 = (Graphics2D)g;
 
@@ -53,15 +39,9 @@ public class StartPanel extends javax.swing.JPanel {
         g2.drawRect(303, 123, 193, 394);
     }
     
-    private void createForcePanel() {
-        // Create ForcePanel
-        forcePanel = new ForcePanel(frame, controller);
-        frame.getContentPane().add(forcePanel);
-    }
-    
     private void createExample() {
         examplePanel = new BattlePanel();
-        frame.getContentPane().add(examplePanel);
+        MainFrame.getInstance().getContentPane().add(examplePanel);
     }
 
     /**
@@ -232,25 +212,23 @@ public class StartPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_newGameButtonActionPerformed
 
     private void loadGameButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadGameButtonActionPerformed
-        JOptionPane.showMessageDialog(frame,"暂不支持载入游戏。", "", JOptionPane.PLAIN_MESSAGE);
+        JOptionPane.showMessageDialog(MainFrame.getInstance(),"暂不支持载入游戏。", "", JOptionPane.PLAIN_MESSAGE);
     }//GEN-LAST:event_loadGameButtonActionPerformed
 
     private void scenario1ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scenario1ButtonActionPerformed
         scenario.initScenario1();
-        controller.loadScenario(scenario);
-        createForcePanel();
+        MainFrame.getInstance().showForcePanel();
         this.setVisible(false);
     }//GEN-LAST:event_scenario1ButtonActionPerformed
 
     private void scenario2ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scenario2ButtonActionPerformed
         scenario.initScenario2();
-        controller.loadScenario(scenario);
-        createForcePanel();
+        MainFrame.getInstance().showForcePanel();
         this.setVisible(false);
     }//GEN-LAST:event_scenario2ButtonActionPerformed
 
     private void scenario3ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scenario3ButtonActionPerformed
-        JOptionPane.showMessageDialog(frame,"暂不支持此剧本。", "", JOptionPane.PLAIN_MESSAGE);
+        JOptionPane.showMessageDialog(MainFrame.getInstance(),"暂不支持此剧本。", "", JOptionPane.PLAIN_MESSAGE);
     }//GEN-LAST:event_scenario3ButtonActionPerformed
 
     private void exitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitButtonActionPerformed

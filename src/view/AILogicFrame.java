@@ -19,19 +19,16 @@ public class AILogicFrame extends javax.swing.JFrame
 {
     private static final long serialVersionUID = 1L;
     // AI ai = new AI();
-    private final MainFrame frame;
-    private GamePanel gp;
+    private final GamePanel gp;
     private ActionListener proceedListener, closeListener;
     private Timer proceedTimer, closeTimer;
     /**
      * Creates new form AILogicFrame
-     * @param frame
      * @param gp
      */
-    public AILogicFrame(MainFrame frame, GamePanel gp)
+    public AILogicFrame(GamePanel gp)
     {
         super();
-        this.frame = frame;
         this.gp = gp;
         setUndecorated(true);
         initComponents();
@@ -48,13 +45,13 @@ public class AILogicFrame extends javax.swing.JFrame
     private void disableProceedButton()
     {
         gp.getProceedButton().setEnabled(false);
-        frame.setEnabled(false);
+        MainFrame.getInstance().setEnabled(false);
         requestFocus();
     }
     
     private void centerWindowOnScreen()
     {
-        Point windowLocation = frame.getLocation();
+        Point windowLocation = MainFrame.getInstance().getLocation();
         setLocation((int)windowLocation.getX() + 250, (int)windowLocation.getY() + 250);
         this.setVisible(true);
     }
@@ -84,9 +81,9 @@ public class AILogicFrame extends javax.swing.JFrame
             @Override
             public void actionPerformed(ActionEvent event)
             {
-                frame.setEnabled(true);
+                MainFrame.getInstance().setEnabled(true);
                 gp.getProceedButton().setEnabled(true);
-                frame.requestFocus();
+                MainFrame.getInstance().requestFocus();
                 setVisible(false);
             }
         };

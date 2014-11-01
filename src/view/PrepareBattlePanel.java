@@ -25,7 +25,6 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
 {
     private static final long serialVersionUID = 1L;
     private final GamePanel gp;
-    private final MainFrame frame;
     private final BattlePanel bp;
     private final GameController gc;
     private final JButton[] cityButtonList;
@@ -45,16 +44,13 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
     
     /**
      * Creates new form Prepare Battle Panel
-     * @param frame
      * @param gp
-     * @param controller
      */
-    public PrepareBattlePanel(MainFrame frame, GamePanel gp, GameController controller) {
+    public PrepareBattlePanel(GamePanel gp) {
         super();
         this.setSize(800, 600);
         this.gp = gp;
-        this.frame = frame;
-        this.gc = controller;
+        gc = GameController.getInstance();
         soldiers = new int[4];
         Arrays.fill(soldiers, 0);
         cityButtonList = new JButton[8];
@@ -76,9 +72,8 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
         cityButtonList[7] = southEast;
         
         bp = new BattlePanel();
-        frame.getContentPane().add(bp);
+        MainFrame.getInstance().getContentPane().add(bp);
         bp.setVisible(false);
-        
         
         // initDropDownLists();
         
@@ -1312,7 +1307,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
     private void characterConfirmButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_characterConfirmButtonActionPerformed
     {//GEN-HEADEREND:event_characterConfirmButtonActionPerformed
         if ((boolean)charTable.getValueAt(charTable.getSelectedRow(), 8) == true) {
-            JOptionPane.showMessageDialog(frame, "该武将已经出战！", "选择错误", JOptionPane.PLAIN_MESSAGE);
+            JOptionPane.showMessageDialog(MainFrame.getInstance(), "该武将已经出战！", "选择错误", JOptionPane.PLAIN_MESSAGE);
         } else {
             selectGeneral();
             updateArmyPanel();
@@ -1337,7 +1332,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
     private void charTableMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_charTableMouseClicked
     {//GEN-HEADEREND:event_charTableMouseClicked
         if ((gc.getCharacterList().isEmpty()) || (charTable.getSelectedRow() >= gc.getCharNumber())) {
-            JOptionPane.showMessageDialog(frame, "请选择有效武将！", "选择错误", JOptionPane.PLAIN_MESSAGE);
+            JOptionPane.showMessageDialog(MainFrame.getInstance(), "请选择有效武将！", "选择错误", JOptionPane.PLAIN_MESSAGE);
         }
     }//GEN-LAST:event_charTableMouseClicked
 

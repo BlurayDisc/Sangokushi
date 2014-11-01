@@ -9,64 +9,36 @@ package view;
 
 import controller.GameController;
 import javax.swing.JOptionPane;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import model.Force;
 /**
  *
  * @author RuN
  */
 
-public class ForcePanel extends javax.swing.JPanel
-{
+public class ForcePanel extends javax.swing.JPanel {
     private static final long serialVersionUID = 1L;
-    private OptionPanel optionPanel;
-    private final MainFrame frame;
     private final GameController controller;
     private Force player;
 
     /**
      * Creates new form MainPanel
-     * @param frame
-     * @param controller
      */
-    public ForcePanel(MainFrame frame, GameController controller)
-    {
+    public ForcePanel() {
         super();
-        setSize(800, 600);
-        
-        this.frame = frame;
-        this.controller = controller;
-
+        controller = GameController.getInstance();
         initComponents();
-        initList();
+        setSize(800, 600);
     }
     
-    private void createOptionPanel()
-    {
-        // Create OptionPanel
-        optionPanel = new OptionPanel(frame, controller);
-        frame.getContentPane().add(optionPanel);
-        optionPanel.setVisible(true);
-        this.setVisible(false);
-    }
-    
-    private void initList(){
+    public void updateForcePanel(){
         String[] listData = new String[controller.getNumForces() - 1];     // removes neutralForce for selection
         for (int i = 0; i < controller.getNumForces() - 1; i++){
             listData[i] = controller.getForceName(i);
         }
         forceList.setListData(listData);
-        ListSelectionListener listener = new ListSelectionListener(){
-            public void valueChanged(ListSelectionEvent e){
-                selectForce(forceList.getSelectedIndex());
-                changeDescription();
-            }
-        };
-        forceList.addListSelectionListener(listener);
     }
     
-    private void changeDescription(){
+    private void changeDescription() {
         forceName.setText(controller.getPlayerName());
         cityName.setText(controller.getPlayerCityNameOrNumber());
         goldValue.setText(controller.getPlayerGold() + "");
@@ -75,7 +47,7 @@ public class ForcePanel extends javax.swing.JPanel
         populationValue.setText(controller.getPopulation(player) + " 万");
     }
     
-    private void selectForce(int choice){
+    private void selectForce(int choice) {
         // Database db = new Database();
         // player = db.getForceList().get(choice);  Player will be a valid force but contains 0 generals and 0 cities.
         player = controller.getForce(choice);
@@ -124,6 +96,11 @@ public class ForcePanel extends javax.swing.JPanel
         forceList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         forceList.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         forceList.setVisibleRowCount(7);
+        forceList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                forceListMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(forceList);
 
         goldValue.setFont(new java.awt.Font("Microsoft YaHei", 0, 13)); // NOI18N
@@ -282,14 +259,11 @@ public class ForcePanel extends javax.swing.JPanel
 
     private void nextButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_nextButtonActionPerformed
     {//GEN-HEADEREND:event_nextButtonActionPerformed
-        if (player == null)
-        {
-            JOptionPane.showMessageDialog(frame, "请先选择一个势力。", "三国志", JOptionPane.PLAIN_MESSAGE);
-        }
-        else
-        {
+        if (player == null) {
+            JOptionPane.showMessageDialog(MainFrame.getInstance(), "请先选择一个势力。", "三国志", JOptionPane.PLAIN_MESSAGE);
+        } else {
             controller.updatePlayer(player);
-            createOptionPanel();
+            MainFrame.getInstance().showOptionPanel();
             this.setVisible(false);
         }
 
@@ -302,9 +276,14 @@ public class ForcePanel extends javax.swing.JPanel
     }//GEN-LAST:event_mapMouseClicked
 
     private void backButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backButtonActionPerformed
-        frame.getContentPane().getComponent(0).setVisible(true);
+        MainFrame.getInstance().showStartPanel();
         this.setVisible(false);
     }//GEN-LAST:event_backButtonActionPerformed
+
+    private void forceListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_forceListMouseClicked
+        selectForce(forceList.getSelectedIndex());
+        changeDescription();
+    }//GEN-LAST:event_forceListMouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

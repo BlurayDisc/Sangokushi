@@ -47,7 +47,7 @@ public class BattlePanelOld extends javax.swing.JPanel
         this.southLegion = southLegion;
         this.eastLegion = eastLegion;
         this.westLegion = westLegion;
-        this.bs = new BattleScreen();
+        bs = BattleScreen.getInstance();
         
         initComponents();
                

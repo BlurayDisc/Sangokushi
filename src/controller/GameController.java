@@ -18,35 +18,22 @@ import model.buildings.Building;
  */
 public class GameController implements GameParameters {
     
-    private ArrayList<Force> forceList;
-    private ArrayList<City> cityList;
-    private ArrayList<Character> characterList;
+    private static final GameController instance = new GameController();
+    private final Database db;
     
     private Force player;
     private City selectedCity, attackedCity;
     private int month;
     private int year;
-    
-    private static GameController instance = null;
 
     private GameController() {
-        forceList = null;
-        cityList = null;
-        characterList = null;
+        db = Database.getInstance();
+        
+        selectedCity = null; 
+        attackedCity = null;
         player = null;
         month = 1;
         year = 0;
-    }
-    
-    public void loadScenario(Database scenario) {
-        forceList = scenario.getForceList();
-        cityList = scenario.getCityList();
-        characterList = scenario.getCharList();
-        year = scenario.getYear();
-    }
-    
-    public void updatePlayer(Force force) {
-        player = force;
     }
     
     public Force getOwnerOfCity(City city) {
@@ -160,7 +147,7 @@ public class GameController implements GameParameters {
     }
     
     public int getNumForces(){
-        return forceList.size();
+        return db.getForceList().size();
     }
         
     public String getForceName(int forceNumber){
@@ -168,11 +155,11 @@ public class GameController implements GameParameters {
     }
 
     public Force getForce(int forceNumber){
-        return forceList.get(forceNumber);
+        return db.getForceList().get(forceNumber);
     }
     
     public ArrayList<Force> getForceList(){
-        return forceList;
+        return db.getForceList();
     }
     
     public int getNumCharacters(City city){
@@ -229,16 +216,16 @@ public class GameController implements GameParameters {
     }
     
     public City getCity(int cityNumber) {
-        return cityList.get(cityNumber - 1);
+        return db.getCityList().get(cityNumber - 1);
     }
     
     public ArrayList<City> getCityList() {
-        return cityList;
+        return db.getCityList();
     }
     
     public City getCityByName(String inCityName) {
         City tempCity = null;
-        for (City city: cityList){
+        for (City city: db.getCityList()){
             if (city.getCityName().equals(inCityName)){
                 return city;
             }
@@ -263,7 +250,7 @@ public class GameController implements GameParameters {
     }
 
     public ArrayList<Character> getCharacterList() {
-        return characterList;
+        return db.getCharList();
     }
     
     public void setCity(City city) {
@@ -315,11 +302,16 @@ public class GameController implements GameParameters {
         }
         return selectedCity.getSoldiers();
     }
+        
+    public void updateYear() {
+       year = db.getYear();
+    }
     
-    public static synchronized GameController getInstance() {
-        if (instance == null) {
-            instance = new GameController();
-        }
+    public void updatePlayer(Force force) {
+        player = force;
+    }
+    
+    public static GameController getInstance() {
         return instance;
     }
 }

@@ -10,6 +10,7 @@ import controller.GameController;
 import controller.GameMessage;
 import java.awt.Font;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
 
@@ -17,54 +18,40 @@ import javax.swing.plaf.FontUIResource;
  *
  * @author RuN
  */
-public final class OptionPanel extends javax.swing.JPanel
-{
+public final class OptionPanel extends JPanel {
     private static final long serialVersionUID = 1L;
     private GamePanel gamePanel;
-    private final MainFrame frame;
     private final GameController controller;
     private final GameMessage gm;
     /**
      * Creates new form OptionPanel
-     * @param frame
-     * @param controller
      */
-    public OptionPanel(MainFrame frame, GameController controller)
-    {
+    public OptionPanel() {
         super();
-        setSize(800, 600);
-        this.frame = frame;
-        this.controller = controller;
+        controller = GameController.getInstance();
         gm = new GameMessage();
-        
         initComponents();
+        setSize(800, 600);
         
         difficultyGroup.add(easy);
         difficultyGroup.add(medium);
         difficultyGroup.add(hard);
-        
         medium.doClick();
         
-        updateLabels();
-        
-        UIManager.put("OptionPane.messageFont", 
-                new FontUIResource(new Font("Microsoft YaHei", Font.PLAIN, 18)));
+        UIManager.put("OptionPane.messageFont", new FontUIResource(new Font("Microsoft YaHei", Font.PLAIN, 18)));
     }
     
-    private void createGamePanel()
-    {
+    private void createGamePanel() {
         // Create GamePanel
-        gamePanel = new GamePanel(frame, controller);
-        frame.getContentPane().add(gamePanel);
+        gamePanel = new GamePanel();
+        MainFrame.getInstance().getContentPane().add(gamePanel);
         gamePanel.setVisible(true);
     }
     
-    public void updateLabels()
-    {
+    public void updateOptionPanel() {
         playerForceLabel.setText(controller.getPlayerName());
         
-        switch (controller.getPlayerName())
-        {
+        switch (controller.getPlayerName()) {
             case "曹操": forceDescription.setText(gm.getCaocaoDesc());
                        break;
             case "刘备": forceDescription.setText(gm.getLiubeiDesc());
@@ -212,7 +199,7 @@ public final class OptionPanel extends javax.swing.JPanel
 
     private void backButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_backButtonActionPerformed
     {//GEN-HEADEREND:event_backButtonActionPerformed
-        frame.getContentPane().getComponent(1).setVisible(true);
+        MainFrame.getInstance().showForcePanel();
         this.setVisible(false);
     }//GEN-LAST:event_backButtonActionPerformed
 
@@ -222,7 +209,7 @@ public final class OptionPanel extends javax.swing.JPanel
         int i;
         Object[] options = {"确认", "取消"};
         i = JOptionPane.showOptionDialog(
-                                        frame, 
+                                        MainFrame.getInstance(), 
                                         "开始游戏吗？", 
                                         "三国志",
                                         JOptionPane.YES_NO_OPTION,
@@ -231,8 +218,8 @@ public final class OptionPanel extends javax.swing.JPanel
                                         options,
                                         options[1]
                                     );
-        if (i == 0){
-            JOptionPane.showMessageDialog(frame, "    251年 英雄集结 " + controller.getPlayerName(), "开始游戏", JOptionPane.PLAIN_MESSAGE);
+        if (i == 0) {
+            JOptionPane.showMessageDialog(MainFrame.getInstance(), "    251年 英雄集结 " + controller.getPlayerName(), "开始游戏", JOptionPane.PLAIN_MESSAGE);
             createGamePanel();
             this.setVisible(false);
         }

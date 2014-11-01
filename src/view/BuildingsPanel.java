@@ -33,16 +33,14 @@ public class BuildingsPanel extends JPanel
     /**
      * Creates new form NewJPanel
      * @param gp
-     * @param controller
-
      */
-    public BuildingsPanel(GamePanel gp, GameController controller)
+    public BuildingsPanel(GamePanel gp)
     {
         super();
         setSize(800, 600);
         
         this.gp = gp;
-        this.gc = controller;
+        gc = GameController.getInstance();
         
         buttons = new JButton[8];
         structureDataList = new Building[5];

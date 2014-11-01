@@ -54,13 +54,13 @@ import view.units.CavalryUnit;
  * 
  */
 public class BattleScreen {
-    
+    private static final BattleScreen instance = new BattleScreen();
     private final LinkedList<Unit> playerMainArmy, enemyMainArmy;
     private LinkedList<Unit> army;
     private Unit firstUnit;
     public enum Side {PLAYER, ENEMY}
     
-    public BattleScreen() {
+    private BattleScreen() {
         playerMainArmy = new LinkedList<>();
         enemyMainArmy = new LinkedList<>();
     }
@@ -80,7 +80,7 @@ public class BattleScreen {
         }
     }
     
-    public boolean isMovable() {
+    public boolean isArmyMovable() {
         if (playerMainArmy.isEmpty() || enemyMainArmy.isEmpty()) {
             return false;
         } else if (playerMainArmy.getFirst().y >= enemyMainArmy.getFirst().y + 50) {
@@ -89,7 +89,7 @@ public class BattleScreen {
         return false;
     }
     
-    public void move() {
+    public void moveArmy() {
         for (Iterator<Unit> it = enemyMainArmy.iterator(); it.hasNext();) {
             translate(it.next(), Side.ENEMY);
         }
@@ -211,5 +211,9 @@ public class BattleScreen {
     
     public void drawAmbushArmy(Graphics2D g) {
         
+    }
+    
+    public static BattleScreen getInstance() {
+        return instance;
     }
 }

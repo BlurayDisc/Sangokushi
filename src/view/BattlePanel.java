@@ -19,19 +19,16 @@ import model.Army;
  * @author RuN
  */
 public class BattlePanel extends JPanel {
-    /**
-     * Creates new form BattlePanel
-     */
+
     private final BattleScreen battleScreen;
     private final Battle mainBattle;
-    
     
     public BattlePanel() {
         super();
         initComponents();
         setSize(800, 600);
         
-        battleScreen = new BattleScreen();
+        battleScreen = BattleScreen.getInstance();
         mainBattle = new Battle();
     }
     
@@ -113,8 +110,8 @@ public class BattlePanel extends JPanel {
         System.out.println("Player Soldiers: " + mainBattle.getPlayerSoldiers());
         System.out.println("Enemy Soldiers: " + mainBattle.getEnemySoldiers());
         System.out.println();
-        if (battleScreen.isMovable()) { 
-            battleScreen.move();
+        if (battleScreen.isArmyMovable()) { 
+            battleScreen.moveArmy();
         } else {
             mainBattle.start();
             battleScreen.updateSoldiers(ArmyType.PLAYER_MAIN, mainBattle.getPlayerCasualty());
