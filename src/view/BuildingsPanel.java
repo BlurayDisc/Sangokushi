@@ -3,6 +3,7 @@ package view;
 import controller.GameController;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import model.Player;
 import model.buildings.Barracks;
 import model.buildings.Building;
 import model.buildings.Farm;
@@ -19,9 +20,9 @@ import model.buildings.Wall;
  *
  * @author RuN
  */
-public class BuildingsPanel extends JPanel
-{
+public class BuildingsPanel extends JPanel {
     private static final long serialVersionUID = 1L;
+    private final Player player;
     private final GamePanel gp;
     private final GameController gc;
     private final JButton[] buttons;
@@ -34,13 +35,13 @@ public class BuildingsPanel extends JPanel
      * Creates new form NewJPanel
      * @param gp
      */
-    public BuildingsPanel(GamePanel gp)
-    {
+    public BuildingsPanel(GamePanel gp) {
         super();
         setSize(800, 600);
         
         this.gp = gp;
         gc = GameController.getInstance();
+        player = Player.getInstance();
         
         buttons = new JButton[8];
         structureDataList = new Building[5];
@@ -85,7 +86,7 @@ public class BuildingsPanel extends JPanel
         soldierIncomeLabel.setText(gc.getSelectedCity().getSoldierIncome() + "");
         foodIncomeLabel.setText(gc.getSelectedCity().getFoodIncome() + "");
         goldIncomeLabel.setText(gc.getSelectedCity().getGoldIncome() + "");
-        goldLabel.setText("现有白银: " + gc.getPlayerGold() + "两");
+        goldLabel.setText("现有白银: " + player.getGold() + "两");
     }
     
     private void changeSlotDescription() {
@@ -190,8 +191,8 @@ public class BuildingsPanel extends JPanel
     }
     
     private void applyBuildingCost() {
-        gc.reducePlayerGold(structureDataList[selectedBuilding].getCost());
-        goldLabel.setText("现有白银: " + gc.getPlayerGold() + "两");
+        player.increaseGold(-structureDataList[selectedBuilding].getCost());
+        goldLabel.setText("现有白银: " + player.getGold() + "两");
     }
     
     private void applyLvlUpCost() {

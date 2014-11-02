@@ -16,6 +16,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import javax.imageio.ImageIO;
 import model.City;
+import model.Player;
 
 /**
  *
@@ -101,7 +102,8 @@ public class GameScreen {
     }
     
     public void drawPlayerForceColour() {
-        g.setColor(controller.getPlayer().getForceColor());
+        Player player = Player.getInstance();
+        g.setColor(player.getPlayerForce().getForceColor());
         g.fillRect(67, 36, 25, 25);
     }
     

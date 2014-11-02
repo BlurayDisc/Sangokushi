@@ -6,6 +6,7 @@
 
 package model;
 
+import controller.GameController;
 import controller.GameParameters;
 import controller.Neighbour;
 import java.awt.Rectangle;
@@ -82,6 +83,14 @@ public class City
     public void setCityName(String cityName){
         this.cityName = cityName;
     }
+    
+    public void increasePopulationByRate() {
+        population = (int) (population * (1 + GameController.POPULATION_INCREASE_RATE));
+    }
+    
+    public void increasePopulation(int value) {
+        population += value;
+    }
 
     public int getPopulation(){
         return population;
@@ -123,7 +132,7 @@ public class City
         return undiscoveredList;
     }
     
-    public int getCharNumber(){
+    public int getNumCharacters(){
         return characterList.size();
     }
     

@@ -14,8 +14,7 @@ import java.util.List;
  *
  * @author RuN
  */
-public class Force
-{
+public class Force {
     private String forceName;
     private final List<Character> characterList;
     private final List<City> cityList;
@@ -24,182 +23,143 @@ public class Force
     private int food;
     private int goldIncome;
     private int foodIncome;
-    
     private int soldier;
     private int soldierIncome;
     private int population;
     private int populationGrowth;
        
-    public Force(String forceName)
-    {
+    public Force(String forceName) {
         this.forceName = forceName;
         forceColour = new Color(100, 100, 100);
         
         cityList = new ArrayList<>(5);
-        characterList = new ArrayList<>(10);
-        
+        characterList = new ArrayList<>(30);
     }
     
-    private void joinCharList(City city)
-    {
-        for (int i = 0; i < city.getCharNumber(); i++)
-        {
-            characterList.add(city.get(i));
-        }
+    public void updateCharacterList() {
+        characterList.clear();
+        cityList.stream().forEach((city) -> {
+            city.getCharacterList().stream().forEach((character) -> {
+                characterList.add(character);
+            });
+        });
     }
     
-    public City getPrimaryCity(){
+    public City getPrimaryCity() {
         return cityList.get(0);
     }
     
-    public String getPrimaryCityName(){
+    public String getPrimaryCityName() {
         return cityList.get(0).getCityName();
     }
         
-    public void increaseGold(int amount)
-    {
+    public void increaseGold(int amount) {
         gold += amount;
     }
         
-    public void increaseFood(int amount)
-    {
+    public void increaseFood(int amount) {
         food += amount;
     }
     
-    public void calcSoldier()
-    {
-        soldier = 0;
-        int i;
-        
-        for (i = 0; i < cityList.size(); i++)
-        {
-            soldier = soldier+ cityList.get(i).getSoldiers();
+    public void calcSoldier() {
+        soldier = 0;        
+        for (int i = 0; i < cityList.size(); i++) {
+            soldier = soldier + cityList.get(i).getSoldiers();
         }
     }
     
-    public void calcPopulation()
-    {
+    public void calcPopulation() {
         population = 0;
-        int i;
-        
-        for (i = 0; i < cityList.size(); i++)
-        {
+        for (int i = 0; i < cityList.size(); i++) {
             population = population + cityList.get(i).getPopulation();
         }
     }
     
-    public boolean owns(City city){
-        boolean ownsCity = false;
-
-        if (cityList.contains(city)) {
-            ownsCity = true;
-        }
-        return ownsCity;
+    public boolean owns(City city) {
+        return cityList.contains(city);
     }
     
-    public void add(City city)
-    {
+    public void add(City city) {
         cityList.add(city);
-        joinCharList(city);
     }
     
-    public List<Character> getCharacterList()
-    {
+    public List<Character> getCharacterList() {
         return characterList;
     }
     
-    public List<City> getCityList()
-    {
+    public List<City> getCityList() {
         return cityList;
     }
         
-    public String getForceName()
-    {
+    public String getForceName() {
         return forceName;
     }
     
-    public void setForceName(String name)
-    {
+    public void setForceName(String name) {
         forceName = name;
     }
     
-    public int getGold()
-    {
+    public int getGold() {
         return gold;
     }
     
-    public void setGold(int gold)
-    {
+    public void setGold(int gold) {
         this.gold = gold;
     }
     
-    public int getFood()
-    {
+    public int getFood() {
         return food;
     }
     
-    public void setFood(int food)
-    {
+    public void setFood(int food) {
         this.food = food;
     }
     
-    public int getSoldier()
-    {
+    public int getSoldier() {
         return soldier;
     }
     
-    public int getPopulation()
-    {
+    public int getPopulation() {
         return population;
     }
     
-    public int getGoldIncome()
-    {
+    public int getGoldIncome() {
         return goldIncome;
     }
     
-    public void setGoldIncome(int goldIncome)
-    {
+    public void setGoldIncome(int goldIncome) {
         this.goldIncome = goldIncome;
     }
 
-    public int getFoodIncome()
-    {
+    public int getFoodIncome() {
         return foodIncome;
     }
 
-    public void setFoodIncome(int foodIncome)
-    {
+    public void setFoodIncome(int foodIncome) {
         this.foodIncome = foodIncome;
     }
 
-    public int getSoldierIncome()
-    {
+    public int getSoldierIncome() {
         return soldierIncome;
     }
 
-    public void setSoldierIncome(int soldierIncome)
-    {
+    public void setSoldierIncome(int soldierIncome) {
         this.soldierIncome = soldierIncome;
     }
 
-    public int getPopulationGrowth()
-    {
+    public int getPopulationGrowth() {
         return populationGrowth;
     }
 
-    public void setPopulationGrowth(int populationGrowth)
-    {
+    public void setPopulationGrowth(int populationGrowth) {
         this.populationGrowth = populationGrowth;
     }
     
-    public void setForceColor(int r, int g, int b)
-    {
+    public void setForceColor(int r, int g, int b) {
         forceColour = new Color(r, g, b);
     }
     
-    public Color getForceColor()
-    {
+    public Color getForceColor() {
         return forceColour;
     }
     

@@ -10,28 +10,39 @@ import model.City;
 import model.Force;
 import model.Character;
 import model.Database;
+import model.Player;
 import model.buildings.Building;
 
 /**
  *
  * @author RuN
  */
-public class GameController implements GameParameters {
+public class GameController {
     
+    // Singleton declaration
     private static final GameController instance = new GameController();
-    private final Database db;
     
-    private Force player;
+    // Game Constants
+    public static final double POPULATION_INCREASE_RATE = 0.1;
+    public static final int BUTTON_DELAY_TIME = 75;
+    public static final int SOLDIER_NUMBER_PER_UNIT = 100;
+    public static final int NUMBER_OF_DICE = 4;
+    public static final int PENALISED_NUMBER_OF_DICE = 3;
+    
+    
+    // Class members
+    private final Player player;
+    private final Database db;
     private City selectedCity, attackedCity;
     private int month;
     private int year;
-
+    
+    // Constructor
     private GameController() {
         db = Database.getInstance();
-        
+        player = Player.getInstance();
         selectedCity = null; 
         attackedCity = null;
-        player = null;
         month = 1;
         year = 0;
     }
@@ -61,8 +72,7 @@ public class GameController implements GameParameters {
         return name;
     }
     
-    public void increaseResources()
-    {
+    public void increaseResources() {
         // gold is increased every turn
         player.increaseGold(100);
         
@@ -70,27 +80,21 @@ public class GameController implements GameParameters {
         // increase soldiers code goes here
         
         // food is increased every season
-        if (month == 3 || month == 6 || month == 9 || month == 12)
-        {
+        if (month == 3 || month == 6 || month == 9 || month == 12) {
             player.increaseFood(1000);
         }
     }
     
-    public void increasePopulation(){
+    public void increasePopulation() {
         // population is increased every year
-        if (month == 12){
-            player.getCityList().stream().forEach((city) -> {
-                city.setPopulation((int)(city.getPopulation() * 1.1));
-            });
+        if (month == 12) {
+            player.fixedPopulationIncrease();
         }
     }
             
-    public void increaseTime()
-    {
+    public void increaseTime() {
         month++;
-        
-        if (month == 13)
-        {
+        if (month == 13) {
             year++;
             month = 1;
         }
@@ -102,39 +106,6 @@ public class GameController implements GameParameters {
     
     public int getMonth(){
         return month;
-    }
-    
-    public Force getPlayer(){
-        return player;
-    }
-    
-    public int getPlayerGold(){
-        if (player == null){
-            return 0;
-        }
-        return player.getGold();
-    }
-    
-    public void reducePlayerGold(int amount) {
-        player.increaseGold(-amount);
-    }
-    
-    public void setPlayerGold(int gold) {
-        player.setGold(gold);
-    }
-    
-    public int getPlayerFood(){
-        if (player == null){
-            return 0;
-        }
-        return player.getFood();
-    }
-    
-    public String getPlayerName(){
-        if (player == null){
-            return "无";
-        }
-        return player.getForceName();
     }
     
     public int getNumForces(){
@@ -160,18 +131,6 @@ public class GameController implements GameParameters {
         return city.getCharacterList().size();
     }
     
-    public String getPlayerCityNameOrNumber(){
-        String cityNameOrNumber;
-        if (player == null){
-            cityNameOrNumber = "";
-        } else if (player.getCityList().size() == 1) {
-            cityNameOrNumber = player.getCityList().get(0).getCityName();
-        } else {
-            cityNameOrNumber = player.getCityList().size() + "";
-        }
-        return cityNameOrNumber;
-    }
-    
     public int getSoldiers(City city)
     {
         if (city == null){
@@ -180,30 +139,12 @@ public class GameController implements GameParameters {
         return city.getSoldiers();
     }
     
-    public int getSoldiers(Force force)
-    {
-        if (force == null){
-            return 0;
-        }
-        force.calcSoldier();
-        return force.getSoldier();
-    }
-    
     public int getPopulation(City city)
     {
         if (city == null){
             return 0;
         }
         return city.getPopulation();
-    }
-    
-    public int getPopulation(Force force)
-    {
-        if (force == null){
-            return 0;
-        }
-        force.calcPopulation();
-        return force.getPopulation();
     }
     
     public City getCity(int cityNumber) {
@@ -248,10 +189,6 @@ public class GameController implements GameParameters {
         return attackedCity;
     }
     
-    public boolean cityIsPlayerOwned() {
-        return player.owns(selectedCity);
-    }
-    
     public Character getChar(int index) {
         return selectedCity.get(index);
     }
@@ -267,7 +204,7 @@ public class GameController implements GameParameters {
         if (selectedCity == null) {
             return 0;
         }
-        return selectedCity.getCharNumber();
+        return selectedCity.getNumCharacters();
     }
     
     public int getSoldiers() {
@@ -277,12 +214,8 @@ public class GameController implements GameParameters {
         return selectedCity.getSoldiers();
     }
         
-    public void updateYear() {
+    public void update() {
        year = db.getYear();
-    }
-    
-    public void updatePlayer(Force force) {
-        player = force;
     }
     
     public static GameController getInstance() {

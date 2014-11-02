@@ -42,40 +42,41 @@
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                  <Component id="jScrollPane1" alignment="0" pref="0" max="32767" attributes="0"/>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Component id="forceLabel" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="forceName" min="-2" pref="54" max="-2" attributes="0"/>
-                                  </Group>
-                              </Group>
-                              <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
-                              <Component id="cityLabel" min="-2" max="-2" attributes="0"/>
+                              <Component id="forceLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
+                              <Component id="forceName" min="-2" pref="63" max="-2" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
+                              <Component id="cityLabel" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
                               <Component id="cityName" min="-2" pref="50" max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="goldLabel" min="-2" max="-2" attributes="0"/>
-                                  <Component id="grainLabel" min="-2" max="-2" attributes="0"/>
-                                  <Component id="soldierLabel" min="-2" max="-2" attributes="0"/>
-                                  <Component id="populationLabel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jScrollPane1" alignment="0" min="-2" pref="101" max="-2" attributes="0"/>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Component id="goldLabel" min="-2" max="-2" attributes="0"/>
+                                          <Component id="grainLabel" min="-2" max="-2" attributes="0"/>
+                                          <Component id="soldierLabel" min="-2" max="-2" attributes="0"/>
+                                          <Component id="populationLabel" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Component id="goldValue" min="-2" pref="65" max="-2" attributes="0"/>
+                                          <Component id="grainValue" min="-2" pref="65" max="-2" attributes="0"/>
+                                          <Component id="soldierValue" min="-2" pref="65" max="-2" attributes="0"/>
+                                          <Component id="populationValue" min="-2" pref="65" max="-2" attributes="0"/>
+                                          <Component id="nextButton" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                  </Group>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="goldValue" min="-2" pref="65" max="-2" attributes="0"/>
-                                  <Component id="grainValue" min="-2" pref="65" max="-2" attributes="0"/>
-                                  <Component id="soldierValue" min="-2" pref="65" max="-2" attributes="0"/>
-                                  <Component id="populationValue" min="-2" pref="65" max="-2" attributes="0"/>
-                                  <Component id="nextButton" alignment="0" min="-2" max="-2" attributes="0"/>
-                              </Group>
                           </Group>
                       </Group>
                   </Group>
               </Group>
-              <EmptySpace pref="18" max="32767" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>

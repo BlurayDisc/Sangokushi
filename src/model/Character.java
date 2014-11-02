@@ -10,8 +10,8 @@ package model;
  *
  * @author RuN
  */
-public class Character
-{
+public class Character {
+    
     private String name;
     private int leadership, combatPower, intelligence, politics;
     private int damage, defence;

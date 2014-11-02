@@ -15,8 +15,7 @@ import model.AI;
  *
  * @author RuN
  */
-public class AILogicFrame extends javax.swing.JFrame
-{
+public class AILogicFrame extends javax.swing.JFrame {
     private static final long serialVersionUID = 1L;
     // AI ai = new AI();
     private final GamePanel gp;
@@ -26,8 +25,7 @@ public class AILogicFrame extends javax.swing.JFrame
      * Creates new form AILogicFrame
      * @param gp
      */
-    public AILogicFrame(GamePanel gp)
-    {
+    public AILogicFrame(GamePanel gp) {
         super();
         this.gp = gp;
         setUndecorated(true);
@@ -35,52 +33,42 @@ public class AILogicFrame extends javax.swing.JFrame
         initListeners();
     }
     
-    public void calcAI()
-    {
+    public void calcAI() {
         disableProceedButton();
         centerWindowOnScreen();
         startTimers();
     }
     
-    private void disableProceedButton()
-    {
+    private void disableProceedButton() {
         gp.getProceedButton().setEnabled(false);
         MainFrame.getInstance().setEnabled(false);
         requestFocus();
     }
     
-    private void centerWindowOnScreen()
-    {
+    private void centerWindowOnScreen() {
         Point windowLocation = MainFrame.getInstance().getLocation();
         setLocation((int)windowLocation.getX() + 250, (int)windowLocation.getY() + 250);
         this.setVisible(true);
     }
     
-    private void startTimers()
-    {
+    private void startTimers() {
         jLabel1.setText("正在执行AI逻辑, 请等待。。。");
         proceedTimer.start();
     }
     
-    private void initListeners()
-    {
-        proceedListener = new ActionListener()
-        {
-
+    private void initListeners() {
+        proceedListener = new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent event)
-            {
+            public void actionPerformed(ActionEvent event) {
                 jLabel1.setText("                 已完成                        ");
                 closeTimer.start();
             }
         };
         
-        closeListener = new ActionListener()
-        {
+        closeListener = new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent event)
-            {
+            public void actionPerformed(ActionEvent event) {
                 MainFrame.getInstance().setEnabled(true);
                 gp.getProceedButton().setEnabled(true);
                 MainFrame.getInstance().requestFocus();

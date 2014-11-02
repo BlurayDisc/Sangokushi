@@ -6,6 +6,7 @@
 package view;
 
 import controller.ArmyType;
+import controller.GameController;
 import controller.UnitType;
 import view.units.Unit;
 import view.units.FootmanUnit;
@@ -125,7 +126,7 @@ public class BattleScreen {
     }
     
     public void setSoldiers(ArmyType armyType, int numSoldiers, UnitType unitType) {
-        numSoldiers = numSoldiers / 100;
+        numSoldiers = numSoldiers / GameController.SOLDIER_NUMBER_PER_UNIT;
         
         army = getArmyByType(armyType);
         firstUnit = getUnitByType(unitType);

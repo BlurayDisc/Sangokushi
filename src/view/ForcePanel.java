@@ -9,7 +9,9 @@ package view;
 
 import controller.GameController;
 import javax.swing.JOptionPane;
+import model.Database;
 import model.Force;
+import model.Player;
 /**
  *
  * @author RuN
@@ -17,20 +19,24 @@ import model.Force;
 
 public class ForcePanel extends javax.swing.JPanel {
     private static final long serialVersionUID = 1L;
-    private final GameController controller;
-    private Force player;
-
+    private final Player player;
+    private final Database db;
+    private Force playerForce;
     /**
      * Creates new form MainPanel
      */
     public ForcePanel() {
         super();
-        controller = GameController.getInstance();
         initComponents();
         setSize(800, 600);
+
+        player = Player.getInstance();
+        db = Database.getInstance();
+        playerForce = null;
     }
     
     public void updateForcePanel(){
+        GameController controller = GameController.getInstance();
         String[] listData = new String[controller.getNumForces() - 1];     // removes neutralForce for selection
         for (int i = 0; i < controller.getNumForces() - 1; i++){
             listData[i] = controller.getForceName(i);
@@ -39,19 +45,17 @@ public class ForcePanel extends javax.swing.JPanel {
     }
     
     private void changeDescription() {
-        forceName.setText(controller.getPlayerName());
-        cityName.setText(controller.getPlayerCityNameOrNumber());
-        goldValue.setText(controller.getPlayerGold() + "");
-        grainValue.setText(controller.getPlayerFood() + "");
-        soldierValue.setText(controller.getSoldiers(player) + "");
-        populationValue.setText(controller.getPopulation(player) + " 万");
+        forceName.setText(player.getPlayerName());
+        cityName.setText(player.getForcePanelCityName());
+        goldValue.setText(player.getGold() + "");
+        grainValue.setText(player.getFood() + "");
+        soldierValue.setText(player.getSoldiers() + "");
+        populationValue.setText(player.getPopulation() + " 万");
     }
     
     private void selectForce(int choice) {
-        // Database db = new Database();
-        // player = db.getForceList().get(choice);  Player will be a valid force but contains 0 generals and 0 cities.
-        player = controller.getForce(choice);
-        controller.updatePlayer(player);
+        playerForce = db.getForceList().get(choice);
+        player.setPlayerForce(playerForce);
     }
 
     /**
@@ -189,31 +193,32 @@ public class ForcePanel extends javax.swing.JPanel {
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                        .addComponent(forceLabel)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(forceName, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(2, 2, 2)
-                                .addComponent(cityLabel)
+                                .addComponent(forceLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(forceName, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(cityLabel)
+                                .addGap(6, 6, 6)
                                 .addComponent(cityName, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(14, 14, 14)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(goldLabel)
-                                    .addComponent(grainLabel)
-                                    .addComponent(soldierLabel)
-                                    .addComponent(populationLabel))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(goldValue, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(grainValue, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(soldierValue, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(populationValue, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(nextButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))))
-                .addContainerGap(18, Short.MAX_VALUE))
+                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(14, 14, 14)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(goldLabel)
+                                            .addComponent(grainLabel)
+                                            .addComponent(soldierLabel)
+                                            .addComponent(populationLabel))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(goldValue, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(grainValue, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(soldierValue, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(populationValue, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(nextButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -259,10 +264,9 @@ public class ForcePanel extends javax.swing.JPanel {
 
     private void nextButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_nextButtonActionPerformed
     {//GEN-HEADEREND:event_nextButtonActionPerformed
-        if (player == null) {
+        if (playerForce == null) {
             JOptionPane.showMessageDialog(MainFrame.getInstance(), "请先选择一个势力。", "三国志", JOptionPane.PLAIN_MESSAGE);
         } else {
-            controller.updatePlayer(player);
             MainFrame.getInstance().showOptionPanel();
             this.setVisible(false);
         }
@@ -271,7 +275,7 @@ public class ForcePanel extends javax.swing.JPanel {
 
     private void mapMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_mapMouseClicked
     {//GEN-HEADEREND:event_mapMouseClicked
-        player = null;
+        player.setPlayerForce(null);
         changeDescription();
     }//GEN-LAST:event_mapMouseClicked
 

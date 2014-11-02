@@ -99,7 +99,8 @@ public class Database implements GameParameters{
     // Singleton implementation
     private static final Database instance = new Database();
     
-    protected int year;
+    private int year;
+    private String scenarioName;
     private ArrayList<Character> characterList;
     private ArrayList<City> cityList;
     private ArrayList<Force> forceList;
@@ -912,6 +913,7 @@ public class Database implements GameParameters{
     }
         // 载入英雄集结
     public void initScenario1() {
+        scenarioName = "英雄集结";
         // 初始时间
         year = 251;
         
@@ -1113,6 +1115,7 @@ public class Database implements GameParameters{
     
     // 载入群雄割据
     public void initScenario2() {
+        scenarioName = "群雄割据";
         // 初始时间
         year = 200; 
 
@@ -1504,6 +1507,10 @@ public class Database implements GameParameters{
     
     public int getYear() {
         return year;
+    }
+    
+    public String getScenarioName() {
+        return scenarioName;
     }
      
     public static Database getInstance() {

@@ -21,14 +21,13 @@ import model.Army;
  *
  * @author RuN
  */
-public class PrepareBattlePanel extends JPanel implements GameParameters
-{
+public class PrepareBattlePanel extends JPanel implements GameParameters {
     private static final long serialVersionUID = 1L;
     private final GamePanel gp;
     private final BattlePanel bp;
     private final GameController gc;
     private final JButton[] cityButtonList;
-    private final int[] soldiers;
+    private final int[] equipments;
     
     private City currentCity;
     private Character mainGeneral, frontGeneral, leftWingGeneral, rightWingGeneral;
@@ -48,20 +47,38 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
      */
     public PrepareBattlePanel(GamePanel gp) {
         super();
-        this.setSize(800, 600);
-        this.gp = gp;
-        gc = GameController.getInstance();
-        soldiers = new int[4];
-        Arrays.fill(soldiers, 0);
-        cityButtonList = new JButton[8];
+     
+        initComponents();
+        setSize(800, 600);
+        initButtons();
         
+        // Create Battle Panel
+        bp = new BattlePanel();
+        MainFrame.getInstance().getContentPane().add(bp);
+        bp.setVisible(false);
+        
+        // initDropDownLists();
+        selectFormationPanel.setVisible(false);
+        selectCharacterPanel.setVisible(false);
+        selectArmyPanel.setVisible(false);
+        
+        this.gp = gp;
         mainArmy = null;
         frontArmy = null;
         leftWingArmy = null;
         rightWingArmy = null;
+        equipments = new int[4];
+        cityButtonList = new JButton[8];
+        gc = GameController.getInstance();
         
-        initComponents();
-        
+        initArray();
+    }
+    
+    private void initArray() {
+        Arrays.fill(equipments, 0);
+    }
+    
+    private void initButtons() {
         cityButtonList[0] = north;
         cityButtonList[1] = south;
         cityButtonList[2] = west;
@@ -70,20 +87,6 @@ public class PrepareBattlePanel extends JPanel implements GameParameters
         cityButtonList[5] = northEast;
         cityButtonList[6] = southWest;
         cityButtonList[7] = southEast;
-        
-        bp = new BattlePanel();
-        MainFrame.getInstance().getContentPane().add(bp);
-        bp.setVisible(false);
-        
-        // initDropDownLists();
-        
-        selectFormationPanel.setVisible(false);
-        selectCharacterPanel.setVisible(false);
-        selectArmyPanel.setVisible(false);
-    }
-    
-    private void initButtons() {
-        
     }
     
     private void initFormationPanel() {

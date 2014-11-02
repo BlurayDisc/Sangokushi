@@ -15,6 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import model.City;
+import model.Player;
 
 /**
  *
@@ -24,11 +25,11 @@ public class GamePanel extends JPanel {
     
     private static final long serialVersionUID = 1L;
     private final PrepareBattlePanel prepareBattlePanel;
+    private final Player player;
     private final GameController controller;
     private final BuildingsPanel buildPanel;
     private final GameScreen gameScreen;
     private final AILogicFrame aiFrame;
-    private final MainFrame frame;
     private Timer mouseClickTimer;
     private int selectedButton;
     private City selectedCity;
@@ -37,9 +38,9 @@ public class GamePanel extends JPanel {
     public GamePanel() {
         // Inititalise Variables
         super();
-        frame = MainFrame.getInstance();
+        player = Player.getInstance();
         controller = GameController.getInstance();
-        controller.updateYear();
+        controller.update();
         selectedCity = null;
         
         // Graphics Content
@@ -47,7 +48,8 @@ public class GamePanel extends JPanel {
         
         // Swing Content
         initComponents();
-        initDisplayLabels();
+        setSize(800, 600);
+        initLabels();
         initTimer();
         removePanels();
         
@@ -57,12 +59,12 @@ public class GamePanel extends JPanel {
         
         // Create PrepareBattlePanel
         prepareBattlePanel = new PrepareBattlePanel(this);
-        frame.getContentPane().add(prepareBattlePanel);
+        MainFrame.getInstance().getContentPane().add(prepareBattlePanel);
         prepareBattlePanel.setVisible(false);
         
         // Create BuildingsPanel
         buildPanel = new BuildingsPanel(this);
-        frame.getContentPane().add(buildPanel);
+        MainFrame.getInstance().getContentPane().add(buildPanel);
         buildPanel.setVisible(false);
     }
     
@@ -83,46 +85,52 @@ public class GamePanel extends JPanel {
                 isRunning = false;
             }
         };
-        mouseClickTimer = new Timer(150, mouseClickListener);
+        mouseClickTimer = new Timer(GameController.BUTTON_DELAY_TIME, mouseClickListener);
         mouseClickTimer.setRepeats(false);
     }
     
     private void removePanels() {
-        frame.getContentPane().removeAll();
-        frame.getContentPane().add(this);
-        this.setBounds(0, 0, 800, 600);
+        MainFrame.getInstance().getContentPane().removeAll();
     }
     
-    private void initDisplayLabels() {
-        nameLabel.setText(controller.getPlayerName());
+    private void initLabels() {
+        nameLabel.setText(player.getPlayerName());
         yearLabel.setText(controller.getYear() + "年 " + controller.getMonth() + "月");
-        cityLabel.setText("城市: " + controller.getPlayer().getPrimaryCityName());
-        charLabel.setText("武将: " + controller.getPlayer().getPrimaryCity().getCharNumber() + " 名");
-        soldierLabel.setText("兵力: " + controller.getPlayer().getPrimaryCity().getSoldiers());
-        populationLabel.setText("人口: " + controller.getPlayer().getPrimaryCity().getPopulation() + "万");
-        goldLabel.setText("银两: " + controller.getPlayerGold());
-        grainLabel.setText("粮草: " + controller.getPlayerFood());
+        cityLabel.setText("城市: " + player.getPlayerForce().getPrimaryCityName());
+        charLabel.setText("武将: " + player.getPlayerForce().getPrimaryCity().getNumCharacters() + " 名");
+        soldierLabel.setText("兵力: " + player.getPlayerForce().getPrimaryCity().getSoldiers());
+        populationLabel.setText("人口: " + player.getPlayerForce().getPrimaryCity().getPopulation() + "万");
+        goldLabel.setText("银两: " + player.getGold());
+        grainLabel.setText("粮草: " + player.getFood());
     }
 
-    private void updateDisplayLabels() {
+    private void updateLabelsForMousePress() {
         cityLabel.setText("城市: " + controller.getCityName());
         charLabel.setText("武将: " + controller.getCharNumber() + " 名");
+        soldierLabel.setText("兵力: " + controller.getSoldiers(selectedCity));
+        populationLabel.setText("人口: " + controller.getPopulation(selectedCity) + "万");
+    }
+    
+    private void updateLabelsForPanelShown() {
+        yearLabel.setText(controller.getYear() + "年 " + controller.getMonth() + "月");
+        goldLabel.setText("银两: " + player.getGold());
+        grainLabel.setText("粮草: " + player.getFood());
         soldierLabel.setText("兵力: " + controller.getSoldiers(selectedCity));
         populationLabel.setText("人口: " + controller.getPopulation(selectedCity) + "万");
     }
 
     private void mouseReleasedLogics() {
         if (selectedCity != null) {                                         // Clicks a city
-            if (controller.cityIsPlayerOwned()) {gameScreen.setMenuVisible();} 
+            if (player.owns(selectedCity)) {gameScreen.setMenuVisible();} 
             else {gameScreen.setMenuHidden();}      // To show or hide menu
                 gameScreen.restoreCitySquare();     // update graphics
-                updateDisplayLabels();              // change things to according values
+                updateLabelsForMousePress();              // change things to according values
         } else if (selectedButton != GameParameters.MENU_BUTTON_UNSELECTED) {              // Clicks a button
             gameScreen.setMenuHidden();     // hide menu
             showSelectedPanel();            // show next panel
         } else {                                                            // Clicks other location on map
             gameScreen.setMenuHidden();     // hide menu
-            updateDisplayLabels();          // change things to 0
+            updateLabelsForMousePress();          // change things to 0
         }
     }
     
@@ -304,9 +312,7 @@ public class GamePanel extends JPanel {
 
     private void formComponentShown(java.awt.event.ComponentEvent evt)//GEN-FIRST:event_formComponentShown
     {//GEN-HEADEREND:event_formComponentShown
-        soldierLabel.setText("兵力: " + controller.getSoldiers(selectedCity));
-        goldLabel.setText("银两: " + controller.getPlayerGold());
-        grainLabel.setText("粮草: " + controller.getPlayerFood());
+        updateLabelsForPanelShown();
     }//GEN-LAST:event_formComponentShown
 
     private void proceedButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_proceedButtonActionPerformed
@@ -318,11 +324,7 @@ public class GamePanel extends JPanel {
         controller.increasePopulation();
         
         // update labels
-        yearLabel.setText(controller.getYear() + "年 " + controller.getMonth() + "月");
-        goldLabel.setText("银两: " + controller.getPlayerGold());
-        grainLabel.setText("粮草: " + controller.getPlayerFood());
-        soldierLabel.setText("兵力: " + controller.getSoldiers(selectedCity));
-        populationLabel.setText("人口: " + controller.getPopulation(selectedCity) + "万");
+        updateLabelsForPanelShown();
         
         aiFrame.setVisible(true);
         aiFrame.calcAI();
@@ -339,6 +341,7 @@ public class GamePanel extends JPanel {
         
         if (selectedCity != null) {
             controller.setCity(selectedCity);          // if city is valid, then store it in the GameController class.
+            player.setSelectedCity(selectedCity);
             gameScreen.makeCitySquarePressed();
         }
     }//GEN-LAST:event_formMousePressed
@@ -346,7 +349,6 @@ public class GamePanel extends JPanel {
     private void formMouseReleased(java.awt.event.MouseEvent evt)//GEN-FIRST:event_formMouseReleased
     {//GEN-HEADEREND:event_formMouseReleased
         if (isRunning) {return;}
-        
         isRunning = true;
         mouseClickTimer.start();
     }//GEN-LAST:event_formMouseReleased

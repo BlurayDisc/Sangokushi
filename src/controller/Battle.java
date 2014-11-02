@@ -30,8 +30,8 @@ public class Battle {
     public Battle() {
         playerDice = new Dice(1, 6);
         enemyDice = new Dice(1, 6);
-        playerDiceList = new int[4];
-        enemyDiceList = new int[4];
+        playerDiceList = new int[GameController.NUMBER_OF_DICE];
+        enemyDiceList = new int[GameController.NUMBER_OF_DICE];
         Arrays.fill(playerDiceList, 0);
         Arrays.fill(enemyDiceList, 0);
         
@@ -69,8 +69,8 @@ public class Battle {
     
     // Attackers have their number of dice reduced.
     private void rollPlayerDice() {
-        int numDice = 4;
-        if (mode == Mode.PLAYER_SEIGE) { numDice = 3; }
+        int numDice = GameController.NUMBER_OF_DICE;
+        if (mode == Mode.PLAYER_SEIGE) { numDice = GameController.PENALISED_NUMBER_OF_DICE; }
         for (int i = 0; i < numDice; i++) {
             playerDice.rollDice();
             playerDiceList[i] = playerDice.getDice();
@@ -79,8 +79,8 @@ public class Battle {
     }
     
     private void rollEnemyDice() {
-        int numDice = 4;
-        if (mode == Mode.ENEMY_SEIGE) { numDice = 3; }
+        int numDice = GameController.NUMBER_OF_DICE;
+        if (mode == Mode.ENEMY_SEIGE) { numDice = GameController.PENALISED_NUMBER_OF_DICE; }
         for (int i = 0; i < numDice; i++) {
             enemyDice.rollDice();
             enemyDiceList[i] = enemyDice.getDice();
@@ -159,13 +159,13 @@ public class Battle {
     }
     
     public void setSoldiers(Army playerArmy, Army enemyArmy) {
-        playerSoldiers = playerArmy.getSoldiers() / 100;
-        enemySoldiers = enemyArmy.getSoldiers() / 100;
+        playerSoldiers = playerArmy.getSoldiers() / GameController.SOLDIER_NUMBER_PER_UNIT;
+        enemySoldiers = enemyArmy.getSoldiers() / GameController.SOLDIER_NUMBER_PER_UNIT;
     }
     
     public void setSoldiers(int player, int enemy) {
-        playerSoldiers = player / 100;
-        enemySoldiers = enemy / 100;
+        playerSoldiers = player / GameController.SOLDIER_NUMBER_PER_UNIT;
+        enemySoldiers = enemy / GameController.SOLDIER_NUMBER_PER_UNIT;
     }
     
     public int getPlayerSoldiers() {
