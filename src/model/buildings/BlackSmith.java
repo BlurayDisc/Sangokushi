@@ -15,7 +15,6 @@ import model.weapons.Weapon;
  * @author RuN
  */
 public class BlackSmith extends Building{
-    
 
     private Equipment equip;
     

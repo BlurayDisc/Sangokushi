@@ -99,34 +99,19 @@ public class Database implements GameParameters{
     // Singleton implementation
     private static final Database instance = new Database();
     
+    
+    // Class memebers
     private int year;
     private String scenarioName;
-    private ArrayList<Character> characterList;
-    private ArrayList<City> cityList;
-    private ArrayList<Force> forceList;
+    private final ArrayList<Character> characterList;
+    private final ArrayList<City> cityList;
+    private final ArrayList<Force> forceList;
     
     // 武将 按编号
-
-    /**
-     * 阿会喃
-     */
     protected final Character ahuinan; // 1
-
-    /**
-     * 伊籍
-     */
     protected final Character yiji;
-
-    /**
-     * 尹赏
-     */
     protected final Character yinshang;
-
-    /**
-     * 尹默
-     */
     protected final Character yinmo;
-    
     protected final Character yujin;
     protected final Character weiguan;
     protected final Character yuanyin;
@@ -238,7 +223,7 @@ public class Database implements GameParameters{
     protected final Character yanzheng;
     protected final Character yanbaihu;
     protected final Character yanyu;
-    protected final Character yanyi;
+    protected final Character wuyi;
     protected final Character huanggai;
     protected final Character gaogan;
     protected final Character huangquan;
@@ -248,7 +233,7 @@ public class Database implements GameParameters{
     protected final Character gaosheng;
     protected final Character houcheng;
     protected final Character houxuan;
-    protected final Character guangzu;
+    protected final Character huangzu;
     protected final Character gongsunyue;
     protected final Character gongsunyuan;
     protected final Character gongsungong;
@@ -343,44 +328,41 @@ public class Database implements GameParameters{
     protected final Character caohong;
     protected final Character caochun;
     protected final Character caozhang;
-    Character caozhi;
-    Character caozhen;
-    Character caoren;
-    Character caoxing;
-    Character caocao;
-    Character caochong;
-    Character jianba;
-    Character caopei;
-    Character caobao;
-    Character jushou;
-    Character sufei;
-    Character zumao;
-    Character sunhuan;      // 孙桓 huan
-    Character sunjian;
-    Character sunqian;      // 孙乾 qian
-    Character sunquan;
-    Character sunjiao;      // 孙皎 jiao
-    Character sunce;
-    Character sunshao;      // 孙韶 shao
-    Character sunjing;
-    Character sunzhong;
-    Character sundeng;
-    Character sunyu;
-    Character sunyi;     // 孙翊 yi
-    Character sunli;
-    Character taishici;
-    Character dailaidongzhu;
-    Character dailing;
-    Character duosidawang;
-    Character tanxiong;
-    Character zhangyu;      // 250
+    protected final Character caozhi;
+    protected final Character caozhen;
+    protected final Character caoren;
+    protected final Character caoxing;
+    protected final Character caocao;
+    protected final Character caochong;
+    protected final Character cangba;
+    protected final Character caopei;
+    protected final Character caobao;
+    protected final Character jushou;
+    protected final Character sufei;
+    protected final Character zumao;
+    protected final Character sunhuan;      // 孙桓 huan
+    protected final Character sunjian;
+    protected final Character sunqian;      // 孙乾 qian
+    protected final Character sunquan;
+    protected final Character sunjiao;      // 孙皎 jiao
+    protected final Character sunce;
+    protected final Character sunshao;      // 孙韶 shao
+    protected final Character sunjing;
+    protected final Character sunzhong;
+    protected final Character sundeng;
+    protected final Character sunyu;
+    protected final Character sunyi;     // 孙翊 yi
+    protected final Character sunli;
+    protected final Character taishici;
+    protected final Character dailaidongzhu;
+    protected final Character dailing;
+    protected final Character duosidawang;
+    protected final Character tanxiong;
+    protected final Character zhangyu;      // 250
     
     Character caomao;
-    // Character ;
 
-    
     // 曹操武将
-    
     Character caopi;
     Character chenqun;
     Character chentai;
@@ -468,89 +450,92 @@ public class Database implements GameParameters{
     protected final Character lvbu;
     protected final Character dongzhuo;
     protected final Character zhangjiao;
-
-
-    
     
     // 城市
     protected final City xuchang;   // 许昌
-    protected City luoyang;   // 洛阳
-    protected City chenliu;    // 陈留
-    protected City puyang;    // 濮阳
-    protected City xiaopei;    // 小沛
-    protected City xiapi;      // 下邳
-    protected City runan;     // 汝南
-    protected City shouchun;  // 寿春
-    protected City wan;       // 宛
+    protected final City luoyang;   // 洛阳
+    protected final City chenliu;    // 陈留
+    protected final City puyang;    // 濮阳
+    protected final City xiaopei;    // 小沛
+    protected final City xiapi;      // 下邳
+    protected final City runan;     // 汝南
+    protected final City shouchun;  // 寿春
+    protected final City wan;       // 宛
     protected final City yunnan;    // 云南
     protected final City jiangzhou;  // 江州
-    protected City chengdu;   //  成都
-    protected City yongan;    // 永安
-    protected City zitong;    // 梓潼
-    protected City xiliang;     // 西凉
-    protected City tianshui;    // 天水
-    protected City hanzhong;     // 汉中
-    protected City changan;      // 长安
-    protected City xiangyang;     // 襄阳
-    protected City shangyong;    // 上庸
-    protected City jiangxia;       // 江夏
-    protected City xinye;         // 新野
-    protected City jiangling;      // 江陵
-    protected City wuling;        // 武陵
-    protected City changsha;      // 长沙
-    protected City lingling;       // 零陵
-    protected City guiyang;      // 桂阳
-    protected City xiangping;     // 襄平
-    protected City beiping;       // 北平
-    protected City ji;             // 蓟
-    protected City jinyang;       // 晋阳
-    protected City ye;            // 邺
-    protected City nanpi;         // 南皮
-    protected City pingyuan;     // 平原
-    protected City beihai;        //  北海
-    protected City lujiang;       // 庐江
-    protected City jianye;        // 建业
-    protected City wu;          // 吴
-    protected City chaisang;     // 柴桑
-    protected City kuaiji;         // 会稽
+    protected final City chengdu;   //  成都
+    protected final City yongan;    // 永安
+    protected final City zitong;    // 梓潼
+    protected final City xiliang;     // 西凉
+    protected final City tianshui;    // 天水
+    protected final City hanzhong;     // 汉中
+    protected final City changan;      // 长安
+    protected final City xiangyang;     // 襄阳
+    protected final City shangyong;    // 上庸
+    protected final City jiangxia;       // 江夏
+    protected final City xinye;         // 新野
+    protected final City jiangling;      // 江陵
+    protected final City wuling;        // 武陵
+    protected final City changsha;      // 长沙
+    protected final City lingling;       // 零陵
+    protected final City guiyang;      // 桂阳
+    protected final City xiangping;     // 襄平
+    protected final City beiping;       // 北平
+    protected final City ji;             // 蓟
+    protected final City jinyang;       // 晋阳
+    protected final City ye;            // 邺
+    protected final City nanpi;         // 南皮
+    protected final City pingyuan;     // 平原
+    protected final City beihai;        //  北海
+    protected final City lujiang;       // 庐江
+    protected final City jianye;        // 建业
+    protected final City wu;          // 吴
+    protected final City chaisang;     // 柴桑
+    protected final City kuaiji;         // 会稽
+    
+    // 势力
+    protected final Force caocaoForce;
+    protected final Force liubeiForce;
+    protected final Force sunquanForce;
+    protected final Force liubiaoForce;
+    protected final Force yuanshaoForce;
+    protected final Force liuyanForce;
+    protected final Force matengForce;
+    protected final Force gongsunzanForce;
+    protected final Force lvbuForce;
+    protected final Force dongzhuoForce;
+    protected final Force zhangjiaoForce;
+    protected final Force simayiForce;
+    protected final Force hejinForce;
+    protected final Force menghuoForce;
+    protected final Force zhangjiForce;
+    protected final Force yuanshuForce;
+    protected final Force zhangluForce;
+    protected final Force gongsunduForce;
+    protected final Force taoqianForce;
+    protected final Force kongrongForce;
+    protected final Force jinxuanForce;
+    protected final Force hanxuanForce;
+    protected final Force liuduForce;
+    protected final Force zhaofanForce;
+    protected final Force hanfuForce;
+    protected final Force dingyuanForce;
+    protected final Force liuyuForce;
+    protected final Force liuyaoForce;
+    protected final Force yanbaihuForce;
+    protected final Force wanglangForce;
+    protected final Force neutralForce;    
     
     private Ability tiebi;
     private Ability qiangxi;
     
-    // 势力
-    Force caocaoForce;
-    Force liubeiForce;
-    Force sunquanForce;
-    Force liubiaoForce;
-    Force yuanshaoForce;
-    Force liuyanForce;
-    Force matengForce;
-    Force gongsunzanForce;
-    Force lvbuForce;
-    Force dongzhuoForce;
-    Force zhangjiaoForce;
-    Force simayiForce;
-    Force hejinForce;
-    Force menghuoForce;
-    Force zhangjiForce;
-    Force yuanshuForce;
-    Force zhangluForce;
-    Force gongsunduForce;
-    Force taoqianForce;
-    Force kongrongForce;
-    Force jinxuanForce;
-    Force hanxuanForce;
-    Force liuduForce;
-    Force zhaofanForce;
-    Force hanfuForce;
-    Force dingyuanForce;
-    Force liuyuForce;
-    Force liuyaoForce;
-    Force yanbaihuForce;
-    Force wanglangForce;
-    Force neutralForce;    
-    
     private Database() {
+        
+        // initLists
+        characterList = new ArrayList<>(100);
+        cityList = new ArrayList<>(40);
+        forceList = new ArrayList<>(31);
+        
         // initCharacters
         // 名， 统帅， 武力， 治理， 政治
         ahuinan = new Character("阿会喃", 65, 74, 26, 33);      // 1
@@ -668,7 +653,7 @@ public class Database implements GameParameters{
         yanzheng = new Character("严政");
         yanbaihu = new Character("严白虎");
         yanyu = new Character("严舆");
-        yanyi = new Character("严懿");
+        wuyi = new Character("吴懿");
         huanggai = new Character("黄盖");
         gaogan = new Character("高干");
         huangquan = new Character("黄权");
@@ -678,7 +663,7 @@ public class Database implements GameParameters{
         gaosheng = new Character("高昇");
         houcheng = new Character("侯成");
         houxuan = new Character("候选");
-        guangzu = new Character("黄祖");
+        huangzu = new Character("黄祖");
         gongsunyue = new Character("公孙越");
         gongsunyuan = new Character("公孙渊");
         gongsungong = new Character("公孙恭");
@@ -773,13 +758,13 @@ public class Database implements GameParameters{
         caohong = new Character("曹洪", 79, 81, 44, 35);
         caochun = new Character("曹纯", 75, 71, 63, 35);
         caozhang = new Character("曹彰", 82, 90, 40, 35);
-        caozhi = new Character("");
-        caozhen = new Character("");
-        caoren = new Character("");
+        caozhi = new Character("曹植", 33, 22, 81, 70);
+        caozhen = new Character("曹真", 81, 74, 70, 72);
+        caoren = new Character("曹仁", 89, 86, 62, 46);
         caoxing = new Character("");
-        caocao = new Character("");
-        caochong = new Character("");
-        jianba = new Character("");
+        caocao = new Character("曹操", 99, 72, 91, 94);
+        caochong = new Character("曹冲", 31, 21, 85, 79);
+        cangba = new Character("");
         caopei = new Character("");
         caobao = new Character("");
         jushou = new Character("");
@@ -788,7 +773,7 @@ public class Database implements GameParameters{
         sunhuan = new Character("");      // 孙桓 huan
         sunjian = new Character("");
         sunqian = new Character("");      // 孙乾 qian
-        sunquan = new Character("");
+        sunquan = new Character("孙权", 80, 80, 80, 80);
         sunjiao = new Character("");      // 孙皎 jiao
         sunce = new Character("");
         sunshao = new Character("");      // 孙韶 shao
@@ -806,11 +791,6 @@ public class Database implements GameParameters{
         zhangyu = new Character("");      // 250
         
         // 曹操
-        caozhi = new Character("曹植", 33, 22, 81, 70);
-        caozhen = new Character("曹真", 81, 74, 70, 72);
-        caoren = new Character("曹仁", 89, 86, 62, 46);
-        caocao = new Character("曹操", 99, 72, 91, 94);
-        caochong = new Character("曹冲", 31, 21, 85, 79);
         caopi = new Character("曹丕", 70, 71, 83, 86);
         chenqun = new Character("陈群", 32, 14, 75, 96);
         chentai = new Character("陈泰", 84, 77, 86, 78);
@@ -833,7 +813,6 @@ public class Database implements GameParameters{
         
         liubei = new Character("刘备", 81, 77, 78, 80);
         zhangfei = new Character("张飞", 100, 100, 100, 100);
-        sunquan = new Character("孙权", 80, 80, 80, 80);
         liubiao = new Character("刘表", 75, 75, 75, 75);
         liuyan = new Character("刘焉");
         mateng = new Character("马腾");
@@ -845,17 +824,86 @@ public class Database implements GameParameters{
         xuchang = new City("许昌");
         jiangzhou = new City("江州");
         yunnan = new City("云南");
+        chengdu = new City("成都");
+        yongan = new City("永安");
+        zitong = new City("梓潼");
+        wan = new City("宛");
+        luoyang = new City("洛阳");
+        chenliu = new City("陈留");
+        puyang = new City("濮阳");
+        xiaopei = new City("小沛");
+        xiapi = new City("下邳");
+        runan = new City("汝南");
+        shouchun = new City("寿春");
+        xiliang = new City("西凉");
+        tianshui = new City("天水");
+        changan = new City("长安");
+        hanzhong = new City("汉中");
+        xinye = new City("新野");
+        jiangxia = new City("江夏");
+        shangyong = new City("上庸");
+        jiangling = new City("江陵");
+        wuling = new City("武陵");
+        lingling = new City("零陵");
+        guiyang = new City("桂阳");
+        changsha = new City("长沙");
+        xiangyang = new City("襄阳");
+        chaisang = new City("柴桑");
+        lujiang = new City("庐江");
+        jianye = new City("建业");
+        wu = new City("吴");
+        kuaiji = new City("会稽");
+        xiangping = new City("襄平");
+        beiping = new City("北平");
+        ji = new City("蓟");
+        jinyang = new City("晋阳");
+        ye = new City("邺");
+        nanpi = new City("南皮");
+        pingyuan = new City("平原");
+        beihai = new City("北海");
         
+        // initForces
+        caocaoForce = new Force("曹操");
+        liubeiForce = new Force("刘备");
+        sunquanForce = new Force("孙权");
+        liubiaoForce = new Force("刘表");
+        yuanshaoForce = new Force("袁绍");
+        liuyanForce = new Force("刘焉");
+        matengForce = new Force("马腾");
+        gongsunzanForce = new Force("公孙瓒");
+        lvbuForce = new Force("吕布");
+        dongzhuoForce = new Force("董卓");
+        zhangjiaoForce = new Force("张角");
+        simayiForce = new Force("司马懿");
+        hejinForce = new Force("何进");
+        menghuoForce = new Force("孟获");
+        zhangjiForce = new Force("张济");
+        yuanshuForce = new Force("袁术");
+        zhangluForce = new Force("张鲁");
+        gongsunduForce = new Force("公孙度");
+        taoqianForce = new Force("陶谦");
+        kongrongForce = new Force("孔融");
+        jinxuanForce = new Force("金玄");
+        hanxuanForce = new Force("韩玄");
+        liuduForce = new Force("刘度");
+        zhaofanForce = new Force("赵范");
+        hanfuForce = new Force("韩馥");
+        dingyuanForce = new Force("丁原");
+        liuyuForce = new Force("刘虞");
+        liuyaoForce = new Force("刘繇");
+        yanbaihuForce = new Force("严白虎");
+        wanglangForce = new Force("王朗");
+        neutralForce = new Force("中立");        
         
-        initialiseCharacters();
-        initialiseAbilities();
-        initialiseCities();
-        initialiseForces();
+        initAbilities();
+        // initCharacterList();
+        initCityData();
+        initForceData();
+
     }
     
-    private void initialiseCharacters() {
+    private void initCharacterList() {
         // 全武将列表
-        characterList = new ArrayList<>(100);
         characterList.add(guojia);
         characterList.add(lejin);
         characterList.add(guohuai);
@@ -929,7 +977,7 @@ public class Database implements GameParameters{
         // * 城市人口 (万)
         // * 城市武将名单
         
-        // 曹操势力
+        // 1 曹操势力
         caocaoForce.setGold(1000);
         caocaoForce.setFood(20000);
         caocaoForce.add(xuchang);
@@ -989,105 +1037,261 @@ public class Database implements GameParameters{
         
         xuchang.addU(xiahouwei);
         
-        // 刘备势力        
+        // 2 刘备势力        
         liubeiForce.setGold(500);
         liubeiForce.setFood(15000);
         liubeiForce.add(jiangling);
         jiangling.setSoldiers(10000);
         jiangling.setPopulation(30);
+        jiangling.add(guanyu);
+        jiangling.add(jianyong);
+        jiangling.add(zhugeliang);
+        jiangling.add(sunqi);
         jiangling.add(liubei);
         
-        // 孙权势力
+        jiangling.addU(yiji);
+        jiangling.addU(wangping);
+        jiangling.addU(huojun);
+        jiangling.addU(huodai);
+        jiangling.addU(guanxing);
+        jiangling.addU(guansuo);
+        jiangling.addU(guanping);
+        jiangling.addU(jiangwei);
+        jiangling.addU(zhoucang);
+        jiangling.addU(zhugejun);
+        jiangling.addU(xushu);
+        
+        // 3 孙权势力
         sunquanForce.setGold(1000);
         sunquanForce.setFood(20000);
         sunquanForce.add(lujiang);
         lujiang.setSoldiers(15000);
         lujiang.setPopulation(50);
+        lujiang.add(handang);
+        lujiang.add(huanggai);
+        lujiang.add(wujing);
+        lujiang.add(zhouyu);
+        lujiang.add(zhuzhi);
+        lujiang.add(zumao);
+        lujiang.add(sunjian);
         lujiang.add(sunquan);
+        lujiang.add(sunce);
+        lujiang.add(sunjing);
+        lujiang.add(sunyi);
         
-        // 刘表势力
+        // 4 刘表势力
         liubiaoForce.setGold(1500);
         liubiaoForce.setFood(20000);
         liubiaoForce.add(xiangyang);
         xiangyang.setSoldiers(12000);
         xiangyang.setPopulation(100);
+        xiangyang.add(kuaiyue);
+        xiangyang.add(kuailiang);
+        xiangyang.add(huangzu);
+        xiangyang.add(caihe);
+        xiangyang.add(caizhong);
+        xiangyang.add(caimao);
+        xiangyang.add(zhangyu);
         xiangyang.add(liubiao);
         
-        // 袁绍势力
+        // 5 袁绍势力
         yuanshaoForce.add(nanpi);
+        nanpi.add(yuanxi);
+        nanpi.add(yuanshang);
         nanpi.add(yuanshao);
+        nanpi.add(yuantan);
+        nanpi.add(guotu);
+        nanpi.add(yanliang);
+        nanpi.add(gaogan);
+        nanpi.add(gaolan);
+        nanpi.add(shenpei);
         
-        // 刘焉势力
+        // 6 刘焉势力
         liuyanForce.add(chengdu);
+        chengdu.add(wanglei);
+        chengdu.add(yanyan);
+        chengdu.add(wuyi);
+        chengdu.add(huangquan);
+        chengdu.add(wuban);
         chengdu.add(liuyan);
         
-        // 马腾势力
+        // 7 马腾势力
         matengForce.add(xiliang);
+        xiliang.add(yanxing);
+        xiliang.add(hansui);
+        xiliang.add(houxuan);
+        xiliang.add(chengyi);
+        xiliang.add(chenggongying);
         xiliang.add(mateng);
         
-        // 公孙瓒势力
+        // 8 公孙瓒势力
         gongsunzanForce.add(beiping);
+        beiping.add(wangmen);
+        beiping.add(guanjing);
+        beiping.add(yangang);
+        beiping.add(gongsunyue);
         beiping.add(gongsunzan);
+        beiping.add(gongsunxu);
+        beiping.add(gongsunfan);
+        beiping.add(dengdan);
+        beiping.add(danjing);
         
-        // 吕布势力
+        // 9 吕布势力
         lvbuForce.add(puyang);
+        puyang.add(haomeng);
+        puyang.add(weixu);
+        puyang.add(gaoshun);
+        puyang.add(houcheng);
+        puyang.add(songxian);
+        puyang.add(caoxing);
         puyang.add(lvbu);
         
-        // 董卓势力
+        // 10 董卓势力
         dongzhuoForce.add(tianshui);
+        tianshui.add(guosi);
+        tianshui.add(huaxiong);
+        tianshui.add(niufu);
+        tianshui.add(huzhen);
+        tianshui.add(xurong);
         tianshui.add(dongzhuo);
         
-        // 张角势力
+        // 11 张角势力
         zhangjiaoForce.add(pingyuan);
+        pingyuan.add(heyi);
+        pingyuan.add(hanxian);
+        pingyuan.add(characterhanzhong);
+        pingyuan.add(yanzheng);
+        pingyuan.add(gaosheng);
+        pingyuan.add(sunzhong);
         pingyuan.add(zhangjiao);
         
-        // 司马懿势力
-        simayiForce.add(changan);
-        changan.add(simayi);
         
-        // 何进势力
+        // 12 司马懿势力
+        simayiForce.add(changan);
+        changan.add(jiachong);
+        changan.add(simayi);
+        changan.add(simayan);
+        changan.add(simashi);
+        changan.add(simazhao);
+        changan.add(simafu);
+        changan.add(simalang);
+        changan.add(zhouzhi);
+        
+        // 13 何进势力
         hejinForce.add(luoyang);
+        luoyang.add(wangyun);
+        luoyang.add(heyan);
         luoyang.add(hejin);
+        luoyang.add(huangpusong);
+        luoyang.add(zhujun);
         
         // 14 孟获势力
         menghuoForce.add(yunnan);
+        yunnan.add(ahuinan);
+        yunnan.add(jinhuansanjie);
+        yunnan.add(zhurong);
+        yunnan.add(dailaidongzhu);
         
         // 15 张济势力
         zhangjiForce.add(wan);
+        wan.add(jiaxu);
+        wan.add(hucheer);
        
         // 16 袁术势力
         yuanshuForce.add(shouchun);
+        shouchun.add(yuanyin);
+        shouchun.add(yuanshu);
+        shouchun.add(yanxiang);
+        shouchun.add(yuejiu);
+        shouchun.add(hanyin);
+        shouchun.add(qiaorui);
+        shouchun.add(jiling);
         
         // 17 张鲁势力
         zhangluForce.add(hanzhong);
+        hanzhong.add(yanpu);
+        // hanzhong.add(zhangwei);
+        // hanzhong.add(zhanglu);
+        
         // 18 公孙度势力
         gongsunduForce.add(xiangping);
+        xiangping.add(gongsunyuan);
+        xiangping.add(gongsungong);
+        xiangping.add(gongsunkang);
+        xiangping.add(gongsundu);
+        
         // 19 陶谦势力
         taoqianForce.add(xiapi);
+        xiapi.add(cangba);
+        xiapi.add(caobao);
+        
         // 20 孔融势力
         kongrongForce.add(beihai);
+        beihai.add(wangxiu);
+        beihai.add(kongrong);
+        beihai.add(taishici);
+        
         // 21 金旋势力
         jinxuanForce.add(wuling);
+        wuling.add(gongzhi);
+        wuling.add(jinyi);
+        wuling.add(jinxuan);
+        
+        
         // 22 韩玄势力
         hanxuanForce.add(changsha);
+        changsha.add(hanxuan);
+        changsha.add(hanhao);
+        changsha.add(weiyan);
+        changsha.add(huangzhong);
+        
         // 23 刘度势力
         liuduForce.add(lingling);
+        lingling.add(xingdaorong);
+        
         // 24 赵范势力
         zhaofanForce.add(guiyang);
+        
+        
         // 25 韩馥势力
         hanfuForce.add(ye);
+        ye.add(hanfu);
+        ye.add(xunshen);
+        ye.add(xinbi);
+        ye.add(xinping);
+        ye.add(jushou);
+        
         // 26 丁原势力
         dingyuanForce.add(jinyang);
+        jinyang.add(jiagu);
+        
         // 27 刘虞势力
         liuyuForce.add(ji);
+        ji.add(yanrou);
+        ji.add(weiyou);
+        
+                
         // 28 刘繇势力
         liuyaoForce.add(jianye);
+        jianye.add(zerong);
+        
         // 29 严白虎势力
         yanbaihuForce.add(wu);
         wu.setPopulation(30);
+        wu.add(yanbaihu);
+        wu.add(yanyu);
+        
+        
         // 30 王朗势力
         wanglangForce.add(kuaiji);
         kuaiji.setPopulation(30);
+        kuaiji.add(wangsu);
+        kuaiji.add(wanglang);
+        kuaiji.add(huaxin);
+        kuaiji.add(xugong);
+        kuaiji.add(yufan);
+        kuaiji.add(zhouxin);
+        
         
         // 31 中立势力
         neutralForce.add(xinye);
@@ -1155,8 +1359,7 @@ public class Database implements GameParameters{
         forceList.clear();
     }
     
-    private void initialiseCities()
-    {
+    private void initCityData() {
         // city = new City(Name)
         // setNeighbours(北, 南, 西, 东)
         // setNeighbours(北, 南, 西, 东, 西北, 东北, 西南, 东南)
@@ -1164,172 +1367,97 @@ public class Database implements GameParameters{
         // 川蜀
         yunnan.setMapCoordinate(64, 555);
         yunnan.setNeighbours(CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_JIANGZHOU, CITY_EMPTY, CITY_EMPTY);
-        yunnan.setNewNeighbours(Neighbour.EMPTY, Neighbour.EMPTY, Neighbour.EMPTY, Neighbour.EMPTY, Neighbour.EMPTY, Neighbour.JIANGZHOU, Neighbour.EMPTY, Neighbour.EMPTY);
-        
+        // yunnan.setNewNeighbours(Neighbour.EMPTY, Neighbour.EMPTY, Neighbour.EMPTY, Neighbour.EMPTY, Neighbour.EMPTY, Neighbour.JIANGZHOU, Neighbour.EMPTY, Neighbour.EMPTY);
         jiangzhou.setMapCoordinate(166, 450);
         jiangzhou.setNeighbours(CITY_EMPTY, CITY_EMPTY, CITY_CHENGDU, CITY_YONGAN, CITY_ZITONG, CITY_EMPTY, CITY_YUNNAN, CITY_EMPTY);
-        
-        chengdu = new City("成都");
         chengdu.setMapCoordinate(41, 459);
         chengdu.setNeighbours(CITY_ZITONG, CITY_EMPTY, CITY_EMPTY, CITY_JIANGZHOU);
-        
-        yongan = new City("永安");
         yongan.setMapCoordinate(242, 449);
         yongan.setNeighbours(CITY_EMPTY, CITY_EMPTY, CITY_JIANGZHOU, CITY_JIANGLING, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_WULING);
-        
-        zitong = new City("梓潼");
         zitong.setMapCoordinate(47, 402);
         zitong.setNeighbours(CITY_HANZHONG, CITY_CHENGDU, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_JIANGZHOU);
         
         // 中原
         xuchang.setMapCoordinate(429, 355);
         xuchang.setNeighbours(CITY_PUYANG, CITY_EMPTY, CITY_WAN, CITY_EMPTY, CITY_LUOYANG, CITY_EMPTY, CITY_EMPTY, CITY_RUNAN);
-        
-        wan = new City("宛");
         wan.setMapCoordinate(362, 362);
         wan.setNeighbours(CITY_LUOYANG, CITY_EMPTY, CITY_EMPTY, CITY_XUCHANG, CITY_CHANGAN, CITY_EMPTY, CITY_EMPTY, CITY_XINYE);
-        
-        luoyang = new City("洛阳");
         luoyang.setMapCoordinate(345, 321);
         luoyang.setNeighbours(CITY_JINYANG, CITY_WAN, CITY_CHANGAN, CITY_CHENLIU, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_XUCHANG);
-        
-        chenliu = new City("陈留");
         chenliu.setMapCoordinate(456, 316);
         chenliu.setNeighbours(CITY_YE, CITY_XUCHANG, CITY_LUOYANG, CITY_XIAOPEI, CITY_EMPTY, CITY_PUYANG, CITY_EMPTY, CITY_EMPTY);
-        
-        puyang = new City("濮阳");
         puyang.setMapCoordinate(511, 286);
         puyang.setNeighbours(CITY_EMPTY, CITY_XIAOPEI, CITY_CHENLIU, CITY_EMPTY, CITY_YE, CITY_BEIHAI, CITY_EMPTY, CITY_EMPTY);
-        
-        xiaopei = new City("小沛");
         xiaopei.setMapCoordinate(556, 327);
         xiaopei.setNeighbours(CITY_PUYANG, CITY_SHOUCHUN, CITY_EMPTY, CITY_XIAPI, CITY_CHENLIU, CITY_EMPTY, CITY_RUNAN, CITY_EMPTY);
-        
-        xiapi = new City("下邳");
         xiapi.setMapCoordinate(607, 329);
         xiapi.setNeighbours(CITY_BEIHAI, CITY_EMPTY, CITY_XIAOPEI, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_SHOUCHUN, CITY_EMPTY);
-        
-        runan = new City("汝南");
         runan.setMapCoordinate(488, 388);
         runan.setNeighbours(CITY_XUCHANG, CITY_EMPTY, CITY_EMPTY, CITY_SHOUCHUN, CITY_EMPTY, CITY_XIAOPEI, CITY_XINYE, CITY_EMPTY);
-        
-        shouchun = new City("寿春");
         shouchun.setMapCoordinate(551, 397);
         shouchun.setNeighbours(CITY_XIAOPEI, CITY_EMPTY, CITY_RUNAN, CITY_EMPTY, CITY_EMPTY, CITY_XIAPI, CITY_LUJIANG, CITY_JIANYE);
         
-        
         // 西凉
-        xiliang = new City("西凉");
         xiliang.setMapCoordinate(47, 254);
         xiliang.setNeighbours(CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_TIANSHUI);
-        
-        tianshui = new City("天水");
         tianshui.setMapCoordinate(102, 316);
         tianshui.setNeighbours(CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_CHANGAN, CITY_XILIANG, CITY_EMPTY, CITY_EMPTY, CITY_HANZHONG);
-        
-        changan = new City("长安");
         changan.setMapCoordinate(236, 333);
         changan.setNeighbours(CITY_EMPTY, CITY_EMPTY, CITY_TIANSHUI, CITY_LUOYANG, CITY_EMPTY, CITY_EMPTY, CITY_HANZHONG, CITY_WAN);
-        
-        hanzhong = new City("汉中");
         hanzhong.setMapCoordinate(96, 364);
         hanzhong.setNeighbours(CITY_EMPTY, CITY_ZITONG, CITY_EMPTY, CITY_SHANGYONG, CITY_TIANSHUI, CITY_CHANGAN, CITY_EMPTY, CITY_EMPTY);
         
         // 荆州
-        xinye = new City("新野");
         xinye.setMapCoordinate(397, 395);
         xinye.setNeighbours(CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_WAN, CITY_RUNAN, CITY_XIANGYANG, CITY_JIANGXIA);
-        
-        jiangxia = new City("江夏");
         jiangxia.setMapCoordinate(426, 434);
         jiangxia.setNeighbours(CITY_EMPTY, CITY_EMPTY, CITY_XIANGYANG, CITY_LUJIANG, CITY_XINYE, CITY_EMPTY, CITY_JIANGLING, CITY_CHAISANG);
-        
-        shangyong = new City("上庸");
         shangyong.setMapCoordinate(262, 382);
         shangyong.setNeighbours(CITY_EMPTY, CITY_EMPTY, CITY_HANZHONG, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_XIANGYANG);
-        
-        jiangling = new City("江陵");
         jiangling.setMapCoordinate(331, 443);
         jiangling.setNeighbours(CITY_XIANGYANG, CITY_EMPTY, CITY_YONGAN, CITY_CHAISANG, CITY_EMPTY, CITY_JIANGXIA, CITY_WULING, CITY_CHANGSHA);
-        
-        wuling = new City("武陵");
         wuling.setMapCoordinate(257, 527);
         wuling.setNeighbours(CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_CHANGSHA, CITY_YONGAN, CITY_JIANGLING, CITY_EMPTY, CITY_LINGLING);
-        
-        lingling = new City("零陵");
         lingling.setMapCoordinate(336, 563);
         lingling.setNeighbours(CITY_EMPTY, CITY_EMPTY, CITY_WULING, CITY_GUIYANG);
-        
-        guiyang = new City("桂阳");
         guiyang.setMapCoordinate(414, 568);
         guiyang.setNeighbours(CITY_CHANGSHA, CITY_EMPTY, CITY_LINGLING, CITY_EMPTY);
-        
-        changsha = new City("长沙");
         changsha.setMapCoordinate(394, 510);
         changsha.setNeighbours(CITY_EMPTY, CITY_GUIYANG, CITY_WULING, CITY_CHAISANG, CITY_JIANGLING, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY);
-        
-        xiangyang = new City("襄阳");
         xiangyang.setMapCoordinate(335, 405);
         xiangyang.setNeighbours(CITY_EMPTY, CITY_JIANGLING, CITY_EMPTY, CITY_JIANGXIA, CITY_SHANGYONG, CITY_XINYE, CITY_EMPTY, CITY_EMPTY);
-
-
         
         // 吴越
-        chaisang = new City("柴桑");
         chaisang.setMapCoordinate(494, 501);
         chaisang.setNeighbours(CITY_LUJIANG, CITY_EMPTY, CITY_JIANGLING, CITY_KUAIJI, CITY_JIANGXIA, CITY_JIANYE, CITY_CHANGSHA, CITY_EMPTY);
-        
-        lujiang = new City("庐江");
         lujiang.setMapCoordinate(507, 437);
         lujiang.setNeighbours(CITY_EMPTY, CITY_CHAISANG, CITY_JIANGXIA, CITY_JIANYE, CITY_EMPTY, CITY_SHOUCHUN, CITY_EMPTY, CITY_EMPTY);
-        
-        jianye = new City("建业");
         jianye.setMapCoordinate(608, 433);
         jianye.setNeighbours(CITY_EMPTY, CITY_EMPTY, CITY_LUJIANG, CITY_WU, CITY_SHOUCHUN, CITY_EMPTY, CITY_CHAISANG, CITY_EMPTY);
-        
-        wu = new City("吴");
         wu.setMapCoordinate(676, 400);
         wu.setNeighbours(CITY_EMPTY, CITY_KUAIJI, CITY_JIANYE, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY);
-        
-        kuaiji = new City("会稽");
         kuaiji.setMapCoordinate(650, 503);
         kuaiji.setNeighbours(CITY_WU, CITY_EMPTY, CITY_CHAISANG, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY);
         
         // 幽州
-        xiangping = new City("襄平");
         xiangping.setMapCoordinate(758, 87);
         xiangping.setNeighbours(CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_BEIPING, CITY_EMPTY);
-        
-        beiping = new City("北平");
         beiping.setMapCoordinate(552, 152);
         beiping.setNeighbours(CITY_EMPTY, CITY_EMPTY, CITY_JI, CITY_EMPTY, CITY_EMPTY, CITY_XIANGPING, CITY_NANPI, CITY_EMPTY);
-        
-        ji = new City("蓟");
         ji.setMapCoordinate(444, 152);
         ji.setNeighbours(CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_BEIPING, CITY_EMPTY, CITY_EMPTY, CITY_JINYANG, CITY_NANPI);
-        
-        jinyang = new City("晋阳");
         jinyang.setMapCoordinate(358, 238);
         jinyang.setNeighbours(CITY_EMPTY, CITY_LUOYANG, CITY_EMPTY, CITY_YE, CITY_EMPTY, CITY_JI, CITY_EMPTY, CITY_EMPTY);
-        
-        ye = new City("邺");
         ye.setMapCoordinate(440, 261);
         ye.setNeighbours(CITY_EMPTY, CITY_CHENLIU, CITY_JINYANG, CITY_PINGYUAN, CITY_EMPTY, CITY_NANPI, CITY_EMPTY, CITY_PUYANG);
-        
-        nanpi = new City("南皮");
         nanpi.setMapCoordinate(488, 207);
         nanpi.setNeighbours(CITY_EMPTY, CITY_PINGYUAN, CITY_EMPTY, CITY_EMPTY, CITY_JI, CITY_BEIPING, CITY_YE, CITY_BEIHAI);
-        
-        pingyuan = new City("平原");
         pingyuan.setMapCoordinate(500, 246);
         pingyuan.setNeighbours(CITY_NANPI, CITY_EMPTY, CITY_YE, CITY_BEIHAI, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY, CITY_EMPTY);
-        
-        beihai = new City("北海");
         beihai.setMapCoordinate(607, 248);
         beihai.setNeighbours(CITY_EMPTY, CITY_XIAPI, CITY_PINGYUAN, CITY_EMPTY, CITY_NANPI, CITY_EMPTY, CITY_PUYANG, CITY_EMPTY);
          
         // Initialise City List.
-        cityList = new ArrayList<>(40);
         cityList.add(xiangping);
         cityList.add(beiping);
         cityList.add(ji);
@@ -1372,71 +1500,38 @@ public class Database implements GameParameters{
         cityList.add(yunnan);       // 40
      }
     
-    private void initialiseForces() {
-        caocaoForce = new Force("曹操");
+    private void initForceData() {
         caocaoForce.setForceColor(23, 23, 138);
-        liubeiForce = new Force("刘备");
         liubeiForce.setForceColor(34, 76, 0);
-        sunquanForce = new Force("孙权");
         sunquanForce.setForceColor(130, 0, 24);
-        liubiaoForce = new Force("刘表");
         liubiaoForce.setForceColor(19, 134, 134);
-        yuanshaoForce = new Force("袁绍");
         yuanshaoForce.setForceColor(177, 177, 55);
-        liuyanForce = new Force("刘焉");
         liuyanForce.setForceColor(23, 28, 79);
-        matengForce = new Force("马腾");
         matengForce.setForceColor(105, 75, 30);
-        gongsunzanForce = new Force("公孙瓒");
         gongsunzanForce.setForceColor(199, 76, 8);
-        lvbuForce = new Force("吕布");
         lvbuForce.setForceColor(33, 33, 33);
-        dongzhuoForce = new Force("董卓");
         dongzhuoForce.setForceColor(61, 61, 61);
-        zhangjiaoForce = new Force("张角");
         zhangjiaoForce.setForceColor(183, 109, 19);
-        simayiForce = new Force("司马懿");
         simayiForce.setForceColor(96, 139, 33);
-        hejinForce = new Force("何进");
         hejinForce.setForceColor(123, 103, 53);
-        menghuoForce = new Force("孟获");
         menghuoForce.setForceColor(206, 68, 68);
-        zhangjiForce = new Force("张济");
         zhangjiForce.setForceColor(98, 23, 44);
-        yuanshuForce = new Force("袁术");
         yuanshuForce.setForceColor(143, 89, 102);
-        zhangluForce = new Force("张鲁");
         zhangluForce.setForceColor(100, 144, 92);
-        gongsunduForce = new Force("公孙度");
         gongsunduForce.setForceColor(115, 95, 124);
-        taoqianForce = new Force("陶谦");
         taoqianForce.setForceColor(155, 198, 100);
-        kongrongForce = new Force("孔融");
         kongrongForce.setForceColor(139, 46, 86);
-        jinxuanForce = new Force("金玄");
         jinxuanForce.setForceColor(92, 46, 18);
-        hanxuanForce = new Force("韩玄");
         hanxuanForce.setForceColor(76, 0, 97);
-        liuduForce = new Force("刘度");
         liuduForce.setForceColor(193, 121, 79);
-        zhaofanForce = new Force("赵范");
         zhaofanForce.setForceColor(0, 79, 56);
-        hanfuForce = new Force("韩馥");
         hanfuForce.setForceColor(101, 0, 14);
-        dingyuanForce = new Force("丁原");
         dingyuanForce.setForceColor(94, 25, 76);
-        liuyuForce = new Force("刘虞");
         liuyuForce.setForceColor(64, 13, 49);
-        liuyaoForce = new Force("刘繇");
         liuyaoForce.setForceColor(0, 57, 101);
-        yanbaihuForce = new Force("严白虎");
         yanbaihuForce.setForceColor(86, 76, 49);
-        wanglangForce = new Force("王朗");
         wanglangForce.setForceColor(119, 119, 119);
-        neutralForce = new Force("中立");
-        neutralForce.setForceColor(230, 230, 230);
-                
-        forceList = new ArrayList<>(31);
+        neutralForce.setForceColor(230, 230, 230);   
         addAllForcesToList();
     }
     
@@ -1474,8 +1569,7 @@ public class Database implements GameParameters{
         forceList.add(neutralForce);
     }
     
-    private void initialiseAbilities()
-    {
+    private void initAbilities() {
         tiebi = new Ability("铁壁");
         tiebi.setDefenceBonus(250);
         tiebi.setCombatPowerBonus(20);

@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import model.Character;
 import model.City;
 import model.Army;
+import model.Player;
 
 /**
  *
@@ -26,6 +27,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
     private final GamePanel gp;
     private final BattlePanel bp;
     private final GameController gc;
+    private final Player player;
     private final JButton[] cityButtonList;
     private final int[] equipments;
     
@@ -50,7 +52,6 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
      
         initComponents();
         setSize(800, 600);
-        initButtons();
         
         // Create Battle Panel
         bp = new BattlePanel();
@@ -69,8 +70,10 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
         rightWingArmy = null;
         equipments = new int[4];
         cityButtonList = new JButton[8];
+        player = Player.getInstance();
         gc = GameController.getInstance();
         
+        initButtons();
         initArray();
     }
     
@@ -1338,7 +1341,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
 
     private void charTableMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_charTableMouseClicked
     {//GEN-HEADEREND:event_charTableMouseClicked
-        if ((gc.getCharacterList().isEmpty()) || (charTable.getSelectedRow() >= gc.getCharNumber())) {
+        if (charTable.getSelectedRow() >= player.getSelectedCity().getNumCharacters()) {
             JOptionPane.showMessageDialog(MainFrame.getInstance(), "请选择有效武将！", "选择错误", JOptionPane.PLAIN_MESSAGE);
         }
     }//GEN-LAST:event_charTableMouseClicked

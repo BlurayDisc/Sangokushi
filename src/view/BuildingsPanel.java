@@ -3,10 +3,13 @@ package view;
 import controller.GameController;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import model.City;
 import model.Player;
 import model.buildings.Barracks;
+import model.buildings.BlackSmith;
 import model.buildings.Building;
 import model.buildings.Farm;
+import model.buildings.HorseFarm;
 import model.buildings.Market;
 import model.buildings.ResearchCentre;
 import model.buildings.Wall;
@@ -26,8 +29,11 @@ public class BuildingsPanel extends JPanel {
     private final GamePanel gp;
     private final GameController gc;
     private final JButton[] buttons;
-    private final Building[] structureDataList;
-    private final int BARRACKS = 0, FARM = 1, MARKET = 2, WALL = 3, RESEARCH = 4;
+    private final Building[] structureData;
+    private City selectedCity;
+    private final int BARRACKS = 0, FARM = 1, MARKET = 2, WALL = 3, RESEARCH = 4, BLACKSMITH = 5, HORSEFARM = 6;
+    private final int UPGRADE = 0, PAGE1 = 1, PAGE2 = 2;
+    private int page;
     private int selectedSlot;
     private int selectedBuilding;
 
@@ -44,10 +50,9 @@ public class BuildingsPanel extends JPanel {
         player = Player.getInstance();
         
         buttons = new JButton[8];
-        structureDataList = new Building[5];
+        structureData = new Building[10];
                 
         initComponents();
-        
         init();
     }
     
@@ -63,14 +68,17 @@ public class BuildingsPanel extends JPanel {
         buttons[6] = emptySlot7;
         buttons[7] = emptySlot8;
         
-        structureDataList[0] = new Barracks();
-        structureDataList[1] = new Farm();
-        structureDataList[2] = new Market();
-        structureDataList[3] = new Wall();
-        structureDataList[4] = new ResearchCentre();
+        structureData[0] = new Barracks();
+        structureData[1] = new Farm();
+        structureData[2] = new Market();
+        structureData[3] = new Wall();
+        structureData[4] = new ResearchCentre();
+        structureData[5] = new BlackSmith();
+        structureData[6] = new HorseFarm();
     }
     
     public void updateData() {
+        selectedCity = player.getSelectedCity();
         for (int i = 0; i < buttons.length; i++) {
             if (gc.getSlot(i) == null){
                 buttons[i].setText("空地");
@@ -89,7 +97,7 @@ public class BuildingsPanel extends JPanel {
         goldLabel.setText("现有白银: " + player.getGold() + "两");
     }
     
-    private void changeSlotDescription() {
+    private void updateDescriptionText() {
         if (gc.getSlot(selectedSlot) == null) {
             descriptionText.setText("您可以为这块空地建造设施。");
         } else if (gc.getSlot(selectedSlot).getLevel() == 9) {
@@ -125,16 +133,14 @@ public class BuildingsPanel extends JPanel {
     }
     
     private void createBuilding() {
-        if (selectedBuilding == FARM){
-            gc.setSlotData(selectedSlot, new Farm());
-        } else if (selectedBuilding == MARKET) {
-            gc.setSlotData(selectedSlot, new Market());
-        } else if (selectedBuilding == BARRACKS) {
-            gc.setSlotData(selectedSlot, new Barracks());   
-        } else if (selectedBuilding == WALL) {
-            gc.setSlotData(selectedSlot, new Wall());
-        } else if (selectedBuilding == RESEARCH) {
-            gc.setSlotData(selectedSlot, new ResearchCentre());
+        switch(selectedBuilding) {
+            case FARM: gc.setSlotData(selectedSlot, new Farm()); break;
+            case MARKET: gc.setSlotData(selectedSlot, new Market()); break;
+            case BARRACKS: gc.setSlotData(selectedSlot, new Barracks()); break;
+            case WALL: gc.setSlotData(selectedSlot, new Wall()); break;
+            case RESEARCH: gc.setSlotData(selectedSlot, new ResearchCentre()); break;
+            case BLACKSMITH: gc.setSlotData(selectedSlot, new BlackSmith()); break;
+            case HORSEFARM: gc.setSlotData(selectedSlot, new HorseFarm()); break;
         }
     }
     
@@ -155,25 +161,16 @@ public class BuildingsPanel extends JPanel {
     }
     
     private void showBuildLayer() {
-        changeSlotDescription();
-        
-        if (gc.getSlot(selectedSlot) == null) {       // the slot is empty, initliase create menu again.
-            buildLayerTitle.setText("建造");
-            buildBarracksButton.setText("兵营");
-            buildFarmButton.setVisible(true);
-            buildMarketButton.setVisible(true);
-            buildWallButton.setVisible(true);
-            buildResearchButton.setVisible(true);
-        } else {                               // If buildings already exist, change create menu to upgrade meu.
-            buildLayerTitle.setText("升级");
-            buildBarracksButton.setText(getLevelUpText());
-            buildFarmButton.setVisible(false);
-            buildMarketButton.setVisible(false);
-            buildWallButton.setVisible(false);
-            buildResearchButton.setVisible(false);
+        if (isUpgradable()) {
+            showUpgradeMenu();
+        } else {
+            gotoPage1();
         }
-        backButton.setVisible(true);
         buildLayer.setVisible(true);
+    }
+    
+    private boolean isUpgradable() {
+        return gc.getSlot(selectedSlot) != null;
     }
     
     private void upgrade() {
@@ -191,12 +188,49 @@ public class BuildingsPanel extends JPanel {
     }
     
     private void applyBuildingCost() {
-        player.increaseGold(-structureDataList[selectedBuilding].getCost());
+        player.increaseGold(-structureData[selectedBuilding].getCost());
         goldLabel.setText("现有白银: " + player.getGold() + "两");
     }
     
     private void applyLvlUpCost() {
         // apply lvling up cost
+    }
+    
+    private void showUpgradeMenu() {
+        page = UPGRADE;
+        buildLayerTitle.setText("升级");
+        buildButton1.setText(getLevelUpText());
+        buildButton2.setVisible(false);
+        buildButton3.setVisible(false);
+        buildButton4.setVisible(false);
+        buildButton5.setVisible(false);
+        nextButton.setVisible(false);
+        descriptionText.setText("");
+    }
+    
+    private void gotoPage1() {
+        page = PAGE1;
+        buildLayerTitle.setText("建造");
+        buildButton1.setText(structureData[BARRACKS].getName());
+        buildButton2.setText(structureData[FARM].getName());
+        buildButton2.setVisible(true);
+        buildButton3.setVisible(true);
+        buildButton4.setVisible(true);
+        buildButton5.setVisible(true);
+        nextButton.setText("下一页");
+        nextButton.setVisible(true);
+        descriptionText.setText("");
+    }
+    
+    private void gotoPage2() {  
+        page = PAGE2;
+        buildButton1.setText(structureData[BLACKSMITH].getName());
+        buildButton2.setText(structureData[HORSEFARM].getName());
+        buildButton3.setVisible(false);
+        buildButton4.setVisible(false);
+        buildButton5.setVisible(false);
+        nextButton.setText("上一页");
+        descriptionText.setText("");
     }
 
     /**
@@ -227,11 +261,12 @@ public class BuildingsPanel extends JPanel {
         descriptionText = new javax.swing.JTextField();
         buildLayer = new javax.swing.JLayeredPane();
         buildLayerTitle = new javax.swing.JLabel();
-        buildBarracksButton = new javax.swing.JButton();
-        buildFarmButton = new javax.swing.JButton();
-        buildMarketButton = new javax.swing.JButton();
-        buildWallButton = new javax.swing.JButton();
-        buildResearchButton = new javax.swing.JButton();
+        buildButton1 = new javax.swing.JButton();
+        buildButton2 = new javax.swing.JButton();
+        buildButton3 = new javax.swing.JButton();
+        buildButton4 = new javax.swing.JButton();
+        buildButton5 = new javax.swing.JButton();
+        nextButton = new javax.swing.JButton();
         backButton = new javax.swing.JButton();
         summaryDisplayLabel = new javax.swing.JLabel();
         goldDisplayLabel = new javax.swing.JLabel();
@@ -363,78 +398,94 @@ public class BuildingsPanel extends JPanel {
 
         buildLayer.setMaximumSize(new java.awt.Dimension(211, 413));
         buildLayer.setMinimumSize(new java.awt.Dimension(211, 413));
+        buildLayer.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         buildLayerTitle.setFont(new java.awt.Font("Microsoft YaHei", 0, 18)); // NOI18N
         buildLayerTitle.setForeground(new java.awt.Color(153, 102, 0));
         buildLayerTitle.setText("建造");
+        buildLayer.add(buildLayerTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 10, 80, -1));
 
-        buildBarracksButton.setText("兵营");
-        buildBarracksButton.setFocusable(false);
-        buildBarracksButton.setPreferredSize(new java.awt.Dimension(130, 90));
-        buildBarracksButton.addMouseListener(new java.awt.event.MouseAdapter() {
+        buildButton1.setText("兵营");
+        buildButton1.setFocusable(false);
+        buildButton1.setPreferredSize(new java.awt.Dimension(130, 90));
+        buildButton1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                buildBarracksButtonMouseEntered(evt);
+                buildButton1MouseEntered(evt);
             }
         });
-        buildBarracksButton.addActionListener(new java.awt.event.ActionListener() {
+        buildButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buildBarracksButtonActionPerformed(evt);
+                buildButton1ActionPerformed(evt);
             }
         });
+        buildLayer.add(buildButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 44, 120, 50));
 
-        buildFarmButton.setText("农田");
-        buildFarmButton.setFocusable(false);
-        buildFarmButton.setMinimumSize(new java.awt.Dimension(130, 90));
-        buildFarmButton.setPreferredSize(new java.awt.Dimension(130, 90));
-        buildFarmButton.addMouseListener(new java.awt.event.MouseAdapter() {
+        buildButton2.setText("农田");
+        buildButton2.setFocusable(false);
+        buildButton2.setMinimumSize(new java.awt.Dimension(130, 90));
+        buildButton2.setPreferredSize(new java.awt.Dimension(130, 90));
+        buildButton2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                buildFarmButtonMouseEntered(evt);
+                buildButton2MouseEntered(evt);
             }
         });
-        buildFarmButton.addActionListener(new java.awt.event.ActionListener() {
+        buildButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buildFarmButtonActionPerformed(evt);
+                buildButton2ActionPerformed(evt);
             }
         });
+        buildLayer.add(buildButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 101, 120, 50));
 
-        buildMarketButton.setText("市场");
-        buildMarketButton.setFocusable(false);
-        buildMarketButton.addMouseListener(new java.awt.event.MouseAdapter() {
+        buildButton3.setText("市场");
+        buildButton3.setFocusable(false);
+        buildButton3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                buildMarketButtonMouseEntered(evt);
+                buildButton3MouseEntered(evt);
             }
         });
-        buildMarketButton.addActionListener(new java.awt.event.ActionListener() {
+        buildButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buildMarketButtonActionPerformed(evt);
+                buildButton3ActionPerformed(evt);
             }
         });
+        buildLayer.add(buildButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 158, 120, 50));
 
-        buildWallButton.setText("城墙");
-        buildWallButton.setFocusable(false);
-        buildWallButton.addMouseListener(new java.awt.event.MouseAdapter() {
+        buildButton4.setText("城墙");
+        buildButton4.setFocusable(false);
+        buildButton4.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                buildWallButtonMouseEntered(evt);
+                buildButton4MouseEntered(evt);
             }
         });
-        buildWallButton.addActionListener(new java.awt.event.ActionListener() {
+        buildButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buildWallButtonActionPerformed(evt);
+                buildButton4ActionPerformed(evt);
             }
         });
+        buildLayer.add(buildButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 215, 120, 50));
 
-        buildResearchButton.setText("研究所");
-        buildResearchButton.setFocusable(false);
-        buildResearchButton.addMouseListener(new java.awt.event.MouseAdapter() {
+        buildButton5.setText("研究所");
+        buildButton5.setFocusable(false);
+        buildButton5.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                buildResearchButtonMouseEntered(evt);
+                buildButton5MouseEntered(evt);
             }
         });
-        buildResearchButton.addActionListener(new java.awt.event.ActionListener() {
+        buildButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buildResearchButtonActionPerformed(evt);
+                buildButton5ActionPerformed(evt);
             }
         });
+        buildLayer.add(buildButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 272, 120, 50));
+
+        nextButton.setText("下一页");
+        nextButton.setFocusable(false);
+        nextButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nextButtonActionPerformed(evt);
+            }
+        });
+        buildLayer.add(nextButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 329, 120, 50));
 
         backButton.setText("返回");
         backButton.setFocusable(false);
@@ -443,52 +494,7 @@ public class BuildingsPanel extends JPanel {
                 backButtonActionPerformed(evt);
             }
         });
-
-        javax.swing.GroupLayout buildLayerLayout = new javax.swing.GroupLayout(buildLayer);
-        buildLayer.setLayout(buildLayerLayout);
-        buildLayerLayout.setHorizontalGroup(
-            buildLayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(buildLayerLayout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addGroup(buildLayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(buildBarracksButton, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(buildLayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(backButton, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(buildResearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(buildWallButton, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(buildMarketButton, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(buildFarmButton, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(buildLayerLayout.createSequentialGroup()
-                        .addGap(46, 46, 46)
-                        .addComponent(buildLayerTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        buildLayerLayout.setVerticalGroup(
-            buildLayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, buildLayerLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(buildLayerTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(buildBarracksButton, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buildFarmButton, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buildMarketButton, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buildWallButton, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buildResearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(backButton, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(28, 28, 28))
-        );
-        buildLayer.setLayer(buildLayerTitle, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        buildLayer.setLayer(buildBarracksButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        buildLayer.setLayer(buildFarmButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        buildLayer.setLayer(buildMarketButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        buildLayer.setLayer(buildWallButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        buildLayer.setLayer(buildResearchButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        buildLayer.setLayer(backButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        buildLayer.add(backButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 386, 120, 50));
 
         summaryDisplayLabel.setFont(new java.awt.Font("Microsoft YaHei", 0, 18)); // NOI18N
         summaryDisplayLabel.setText("设施总概要");
@@ -508,12 +514,16 @@ public class BuildingsPanel extends JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(58, 58, 58)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(titleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(542, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(descriptionText, javax.swing.GroupLayout.PREFERRED_SIZE, 385, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(finishButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(titleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(emptySlot1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -526,42 +536,60 @@ public class BuildingsPanel extends JPanel {
                                     .addComponent(emptySlot2, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(emptySlot6, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(emptySlot8, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(42, 42, 42)
-                                .addComponent(buildLayer, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(soldierDisplayLabel)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(soldierIncomeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(foodDisplayLabel)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(foodIncomeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(goldDisplayLabel)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(goldIncomeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(summaryDisplayLabel)
-                                    .addComponent(buildingNameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(costLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(goldLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGap(55, 55, 55)
+                        .addComponent(buildLayer, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(53, 53, 53)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(descriptionText, javax.swing.GroupLayout.PREFERRED_SIZE, 385, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(finishButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(48, 48, 48))))
+                                .addComponent(soldierDisplayLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(soldierIncomeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(foodDisplayLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(foodIncomeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(goldDisplayLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(goldIncomeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(summaryDisplayLabel)
+                            .addComponent(buildingNameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(costLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(goldLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGap(30, 30, 30))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(154, 154, 154)
+                        .addComponent(summaryDisplayLabel)
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(goldDisplayLabel)
+                            .addComponent(goldIncomeLabel))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(foodDisplayLabel)
+                            .addComponent(foodIncomeLabel))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(soldierDisplayLabel)
+                            .addComponent(soldierIncomeLabel))
+                        .addGap(48, 48, 48)
+                        .addComponent(buildingNameLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(costLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(goldLabel))
+                    .addGroup(layout.createSequentialGroup()
                         .addGap(29, 29, 29)
                         .addComponent(titleLabel)
-                        .addGap(36, 36, 36)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
+                                .addGap(36, 36, 36)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(emptySlot1, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(emptySlot2, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -577,132 +605,123 @@ public class BuildingsPanel extends JPanel {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(emptySlot7, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(emptySlot8, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addComponent(buildLayer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(25, 25, 25))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(157, 157, 157)
-                        .addComponent(summaryDisplayLabel)
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(goldDisplayLabel)
-                            .addComponent(goldIncomeLabel))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(foodDisplayLabel)
-                            .addComponent(foodIncomeLabel))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(soldierDisplayLabel)
-                            .addComponent(soldierIncomeLabel))
-                        .addGap(67, 67, 67)
-                        .addComponent(buildingNameLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(costLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(goldLabel)
-                        .addGap(119, 119, 119)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(0, 0, 0)
+                                .addComponent(buildLayer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(descriptionText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(finishButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(23, Short.MAX_VALUE))
+                .addContainerGap(29, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void buildBarracksButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_buildBarracksButtonActionPerformed
-    {//GEN-HEADEREND:event_buildBarracksButtonActionPerformed
+    private void buildButton1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_buildButton1ActionPerformed
+    {//GEN-HEADEREND:event_buildButton1ActionPerformed
         if (gc.getSlot(selectedSlot) == null) {
-            selectedBuilding = BARRACKS;
+            if (page == PAGE1) {selectedBuilding = BARRACKS;}
+            else if (page == PAGE2) {selectedBuilding = BLACKSMITH;}
             build();
         } else {
             upgrade();
         }
         hideBuildLayer();
-    }//GEN-LAST:event_buildBarracksButtonActionPerformed
+    }//GEN-LAST:event_buildButton1ActionPerformed
 
     private void emptySlot1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_emptySlot1ActionPerformed
     {//GEN-HEADEREND:event_emptySlot1ActionPerformed
         selectedSlot = 0;
         showBuildLayer();
+        updateDescriptionText();
     }//GEN-LAST:event_emptySlot1ActionPerformed
 
     private void emptySlot5ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_emptySlot5ActionPerformed
     {//GEN-HEADEREND:event_emptySlot5ActionPerformed
         selectedSlot = 4;
         showBuildLayer();
+        updateDescriptionText();
     }//GEN-LAST:event_emptySlot5ActionPerformed
 
     private void emptySlot3ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_emptySlot3ActionPerformed
     {//GEN-HEADEREND:event_emptySlot3ActionPerformed
         selectedSlot = 2;
         showBuildLayer();
+        updateDescriptionText();
     }//GEN-LAST:event_emptySlot3ActionPerformed
 
     private void emptySlot2ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_emptySlot2ActionPerformed
     {//GEN-HEADEREND:event_emptySlot2ActionPerformed
         selectedSlot = 1;
         showBuildLayer();
+        updateDescriptionText();
     }//GEN-LAST:event_emptySlot2ActionPerformed
 
     private void emptySlot4ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_emptySlot4ActionPerformed
     {//GEN-HEADEREND:event_emptySlot4ActionPerformed
         selectedSlot = 3;
         showBuildLayer();
+        updateDescriptionText();
     }//GEN-LAST:event_emptySlot4ActionPerformed
 
     private void emptySlot6ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_emptySlot6ActionPerformed
     {//GEN-HEADEREND:event_emptySlot6ActionPerformed
         selectedSlot = 5;
         showBuildLayer();
+        updateDescriptionText();
     }//GEN-LAST:event_emptySlot6ActionPerformed
 
     private void emptySlot7ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_emptySlot7ActionPerformed
     {//GEN-HEADEREND:event_emptySlot7ActionPerformed
         selectedSlot = 6;
         showBuildLayer();
+        updateDescriptionText();
     }//GEN-LAST:event_emptySlot7ActionPerformed
 
     private void emptySlot8ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_emptySlot8ActionPerformed
     {//GEN-HEADEREND:event_emptySlot8ActionPerformed
         selectedSlot = 7;
         showBuildLayer();
+        updateDescriptionText();
     }//GEN-LAST:event_emptySlot8ActionPerformed
 
-    private void buildFarmButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_buildFarmButtonActionPerformed
-    {//GEN-HEADEREND:event_buildFarmButtonActionPerformed
-        selectedBuilding = FARM;
+    private void buildButton2ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_buildButton2ActionPerformed
+    {//GEN-HEADEREND:event_buildButton2ActionPerformed
+        if (page == PAGE1) {selectedBuilding = FARM;}
+        else if (page == PAGE2) {selectedBuilding = HORSEFARM;}
         build();
         hideBuildLayer();
-    }//GEN-LAST:event_buildFarmButtonActionPerformed
+    }//GEN-LAST:event_buildButton2ActionPerformed
 
-    private void buildMarketButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_buildMarketButtonActionPerformed
-    {//GEN-HEADEREND:event_buildMarketButtonActionPerformed
+    private void buildButton3ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_buildButton3ActionPerformed
+    {//GEN-HEADEREND:event_buildButton3ActionPerformed
         selectedBuilding = MARKET;
         build();
         hideBuildLayer();
-    }//GEN-LAST:event_buildMarketButtonActionPerformed
+    }//GEN-LAST:event_buildButton3ActionPerformed
 
-    private void buildWallButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_buildWallButtonActionPerformed
-    {//GEN-HEADEREND:event_buildWallButtonActionPerformed
+    private void buildButton4ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_buildButton4ActionPerformed
+    {//GEN-HEADEREND:event_buildButton4ActionPerformed
         selectedBuilding = WALL;
         build();
         hideBuildLayer();
-    }//GEN-LAST:event_buildWallButtonActionPerformed
+    }//GEN-LAST:event_buildButton4ActionPerformed
 
-    private void buildResearchButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_buildResearchButtonActionPerformed
-    {//GEN-HEADEREND:event_buildResearchButtonActionPerformed
+    private void buildButton5ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_buildButton5ActionPerformed
+    {//GEN-HEADEREND:event_buildButton5ActionPerformed
         selectedBuilding = RESEARCH;
         build();
         hideBuildLayer();
-    }//GEN-LAST:event_buildResearchButtonActionPerformed
+    }//GEN-LAST:event_buildButton5ActionPerformed
 
     private void backButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_backButtonActionPerformed
     {//GEN-HEADEREND:event_backButtonActionPerformed
-        hideBuildLayer();
-        descriptionText.setText("");
+        hideBuildLayer(); 
+        descriptionText.setText(""); 
     }//GEN-LAST:event_backButtonActionPerformed
 
     private void formMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_formMouseClicked
     {//GEN-HEADEREND:event_formMouseClicked
+        gotoPage1();
         hideBuildLayer();
         descriptionText.setText("");
     }//GEN-LAST:event_formMouseClicked
@@ -713,44 +732,52 @@ public class BuildingsPanel extends JPanel {
         gp.setVisible(true);
     }//GEN-LAST:event_finishButtonActionPerformed
 
-    private void buildBarracksButtonMouseEntered(java.awt.event.MouseEvent evt)//GEN-FIRST:event_buildBarracksButtonMouseEntered
-    {//GEN-HEADEREND:event_buildBarracksButtonMouseEntered
-        buildingNameLabel.setText("建造" +  structureDataList[BARRACKS].getName() + ":");
-        costLabel.setText("所需白银: " + structureDataList[BARRACKS].getCost() + "两");
-    }//GEN-LAST:event_buildBarracksButtonMouseEntered
+    private void buildButton1MouseEntered(java.awt.event.MouseEvent evt)//GEN-FIRST:event_buildButton1MouseEntered
+    {//GEN-HEADEREND:event_buildButton1MouseEntered
+        buildingNameLabel.setText("建造" +  structureData[BARRACKS].getName() + ":");
+        costLabel.setText("所需白银: " + structureData[BARRACKS].getCost() + "两");
+    }//GEN-LAST:event_buildButton1MouseEntered
 
-    private void buildFarmButtonMouseEntered(java.awt.event.MouseEvent evt)//GEN-FIRST:event_buildFarmButtonMouseEntered
-    {//GEN-HEADEREND:event_buildFarmButtonMouseEntered
-        buildingNameLabel.setText("建造" +  structureDataList[FARM].getName() + ":");
-        costLabel.setText("所需白银: " + structureDataList[FARM].getCost() + "两");
-    }//GEN-LAST:event_buildFarmButtonMouseEntered
+    private void buildButton2MouseEntered(java.awt.event.MouseEvent evt)//GEN-FIRST:event_buildButton2MouseEntered
+    {//GEN-HEADEREND:event_buildButton2MouseEntered
+        buildingNameLabel.setText("建造" +  structureData[FARM].getName() + ":");
+        costLabel.setText("所需白银: " + structureData[FARM].getCost() + "两");
+    }//GEN-LAST:event_buildButton2MouseEntered
 
-    private void buildMarketButtonMouseEntered(java.awt.event.MouseEvent evt)//GEN-FIRST:event_buildMarketButtonMouseEntered
-    {//GEN-HEADEREND:event_buildMarketButtonMouseEntered
-        buildingNameLabel.setText("建造" +  structureDataList[MARKET].getName() + ":");
-        costLabel.setText("所需白银: " + structureDataList[MARKET].getCost() + "两");
-    }//GEN-LAST:event_buildMarketButtonMouseEntered
+    private void buildButton3MouseEntered(java.awt.event.MouseEvent evt)//GEN-FIRST:event_buildButton3MouseEntered
+    {//GEN-HEADEREND:event_buildButton3MouseEntered
+        buildingNameLabel.setText("建造" +  structureData[MARKET].getName() + ":");
+        costLabel.setText("所需白银: " + structureData[MARKET].getCost() + "两");
+    }//GEN-LAST:event_buildButton3MouseEntered
 
-    private void buildWallButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buildWallButtonMouseEntered
-        buildingNameLabel.setText("建造" +  structureDataList[WALL].getName() + ":");
-        costLabel.setText("所需白银: " + structureDataList[WALL].getCost() + "两");
-    }//GEN-LAST:event_buildWallButtonMouseEntered
+    private void buildButton4MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buildButton4MouseEntered
+        buildingNameLabel.setText("建造" +  structureData[WALL].getName() + ":");
+        costLabel.setText("所需白银: " + structureData[WALL].getCost() + "两");
+    }//GEN-LAST:event_buildButton4MouseEntered
 
-    private void buildResearchButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buildResearchButtonMouseEntered
-        buildingNameLabel.setText("建造" +  structureDataList[RESEARCH].getName() + ":");
-        costLabel.setText("所需白银: " + structureDataList[RESEARCH].getCost() + "两");
-    }//GEN-LAST:event_buildResearchButtonMouseEntered
+    private void buildButton5MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buildButton5MouseEntered
+        buildingNameLabel.setText("建造" +  structureData[RESEARCH].getName() + ":");
+        costLabel.setText("所需白银: " + structureData[RESEARCH].getCost() + "两");
+    }//GEN-LAST:event_buildButton5MouseEntered
+
+    private void nextButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextButtonActionPerformed
+        switch(page) {
+            case PAGE1: gotoPage2(); break;
+            case PAGE2: gotoPage1(); break;
+            default: gotoPage1(); break;
+        }
+    }//GEN-LAST:event_nextButtonActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton backButton;
-    private javax.swing.JButton buildBarracksButton;
-    private javax.swing.JButton buildFarmButton;
+    private javax.swing.JButton buildButton1;
+    private javax.swing.JButton buildButton2;
+    private javax.swing.JButton buildButton3;
+    private javax.swing.JButton buildButton4;
+    private javax.swing.JButton buildButton5;
     private javax.swing.JLayeredPane buildLayer;
     private javax.swing.JLabel buildLayerTitle;
-    private javax.swing.JButton buildMarketButton;
-    private javax.swing.JButton buildResearchButton;
-    private javax.swing.JButton buildWallButton;
     private javax.swing.JLabel buildingNameLabel;
     private javax.swing.JLabel costLabel;
     private javax.swing.JTextField descriptionText;
@@ -768,6 +795,7 @@ public class BuildingsPanel extends JPanel {
     private javax.swing.JLabel goldDisplayLabel;
     private javax.swing.JLabel goldIncomeLabel;
     private javax.swing.JLabel goldLabel;
+    private javax.swing.JButton nextButton;
     private javax.swing.JLabel soldierDisplayLabel;
     private javax.swing.JLabel soldierIncomeLabel;
     private javax.swing.JLabel summaryDisplayLabel;

@@ -35,45 +35,58 @@ public class City
     private final List<Character> undiscoveredList;     // undiscovered character
     private final Rectangle rectangle;
     private final int[] neighbours;
-    private final Neighbour[] newNeighbours;
+    // private final Neighbour[] newNeighbours;
     private final Building[] slots;
-    private final int[] equipments;                          // refer to game parameters.
     protected int soldierIncome;
     private boolean frontline;
     private int goldIncome;
     private int foodIncome;
     private int population;
     private int soldiers;
+    private int weapon;
+    private int armour;
+    private int horse;
+    private int chariot;
     public int x, y;                                    // city location on GamePanel, x-coordinate and y-coordinate
     
-    public City(String cityName){
-        equipments = new int[4];
-        neighbours = new int[8];
-        newNeighbours = new Neighbour[8];
-        slots = new Building[8];
-        
-        rectangle = new Rectangle(0, 0, 25, 25);
-        characterList = new ArrayList<>(10);
-        undiscoveredList = new ArrayList<>(10);
+    public City(String cityName) {
         
         this.cityName = cityName;
-        soldiers = 15000;
-        population = 10;
-
-        initArrays();
+        
+        // Initialise Arrays and Lists
+        characterList = new ArrayList<>(10);
+        undiscoveredList = new ArrayList<>(10);
+        neighbours = new int[8];
+        // newNeighbours = new Neighbour[8];
+        slots = new Building[8];
+        
+        // Graphics Content
+        rectangle = new Rectangle(0, 0, 25, 25);
+        
+        // Initialise Variables
+        initValues();
     }
     
-    private void initArrays(){
-        Arrays.fill(equipments, 0);
+    private void initValues() {
+        soldiers = 15000;
+        population = 10;
+        
+        goldIncome = 500;
+        foodIncome = 800;
+        soldierIncome = 100;
+        
+        weapon = 0;
+        armour = 0;
+        horse = 0;
+        chariot = 0;
         Arrays.fill(neighbours, 0);
-        Arrays.fill(equipments, 0);
         Arrays.fill(slots, null);
     }
     
     public void updateIncomes(Building building) {
         goldIncome = goldIncome + building.getGoldIncome();
         foodIncome = foodIncome + building.getFoodIncome();
-        setSoldierIncome(getSoldierIncome() + building.getSoldierIncome());
+        soldierIncome = soldierIncome + building.getSoldierIncome();
     }
 
     public String getCityName(){
@@ -153,6 +166,7 @@ public class City
         return neighbours[index - 1];
     }
     
+    /*
     public void setNewNeighbours(Neighbour n, Neighbour s, Neighbour w, Neighbour e, Neighbour nw, Neighbour ne, Neighbour sw, Neighbour se) {
         newNeighbours[0] = n;
         newNeighbours[1] = s;
@@ -163,6 +177,7 @@ public class City
         newNeighbours[6] = sw;
         newNeighbours[7] = se;
     }
+    */
     
     public void setNeighbours(int north, int south, int west, int east, int northWest, int northEast, int southWest, int southEast) {
         setNeighbours(north, south, west, east);
@@ -181,14 +196,6 @@ public class City
         neighbours[5] = GameParameters.CITY_EMPTY;
         neighbours[6] = GameParameters.CITY_EMPTY;
         neighbours[7] = GameParameters.CITY_EMPTY;
-    }
-    
-    public void updateUnits(int unitType, int number){
-        equipments[unitType - 1] = number;     //adjust for array index
-    }
-    
-    public int getUnits(int unitType){
-        return equipments[unitType - 1];         //adjust for array index
     }
 
     public boolean isFrontline(){
@@ -270,5 +277,37 @@ public class City
             }
         }
         return null;
+    }
+
+    public int getWeapon() {
+        return weapon;
+    }
+
+    public void setWeapon(int weapon) {
+        this.weapon = weapon;
+    }
+
+    public int getArmour() {
+        return armour;
+    }
+
+    public void setArmour(int armour) {
+        this.armour = armour;
+    }
+
+    public int getHorse() {
+        return horse;
+    }
+
+    public void setHorse(int horse) {
+        this.horse = horse;
+    }
+
+    public int getChariot() {
+        return chariot;
+    }
+
+    public void setChariot(int chariot) {
+        this.chariot = chariot;
     }
 }
