@@ -28,14 +28,22 @@ public class GameScreen {
     private final Rectangle[] menuButtons;
     private Graphics2D g;
     private Image menuImage;
-    private Image hideMenuImage;
     private Image backgroundImage;
+    private final int MENU_LENGTH, MENU_WIDTH, MENU_X, MENU_Y;
+    private final int BUTTON_LENGTH, BUTTON_WIDTH;
     
     private GameScreen() {
         controller = GameController.getInstance();
         menuButtons = new Rectangle[6];
         initMenuRectangles();
         initBackground();
+        
+        BUTTON_LENGTH = 80;
+        BUTTON_WIDTH = 40;
+        MENU_X = 20;
+        MENU_Y = 90;
+        MENU_LENGTH = 358;
+        MENU_WIDTH = 144;
     }
     
     public void setGraphics(Graphics g) {
@@ -50,17 +58,16 @@ public class GameScreen {
         try{
             backgroundImage = ImageIO.read(getClass().getResourceAsStream("/resources/gameBackground.png"));
             menuImage = ImageIO.read(getClass().getResourceAsStream("/resources/optionPanelBackground.png"));
-            hideMenuImage = ImageIO.read(getClass().getResourceAsStream("/resources/hideOptionPanel.png"));
         } catch (Exception e){}
     }
     
     private void initMenuRectangles() {
-        menuButtons[0] = new Rectangle(19 + 20, 29 + 90, 80, 40);
-        menuButtons[1] = new Rectangle(19 + 20, 76 + 90, 80, 40);
-        menuButtons[2] = new Rectangle(137 + 20, 29 + 90, 80, 40);
-        menuButtons[3] = new Rectangle(137 + 20, 76+ 90, 80, 40);
-        menuButtons[4] = new Rectangle(251 + 20, 28 + 90, 80, 40);
-        menuButtons[5] = new Rectangle(251 + 20, 75 + 90, 80, 40);
+        menuButtons[0] = new Rectangle(19 + MENU_X, 29 + MENU_Y, BUTTON_LENGTH, BUTTON_WIDTH);
+        menuButtons[1] = new Rectangle(19 + MENU_X, 76 + MENU_Y, BUTTON_LENGTH, BUTTON_WIDTH);
+        menuButtons[2] = new Rectangle(137 + MENU_X, 29 + MENU_Y, BUTTON_LENGTH, BUTTON_WIDTH);
+        menuButtons[3] = new Rectangle(137 + MENU_X, 76+ MENU_Y, BUTTON_LENGTH, BUTTON_WIDTH);
+        menuButtons[4] = new Rectangle(251 + MENU_X, 29 + MENU_Y, BUTTON_LENGTH, BUTTON_WIDTH);
+        menuButtons[5] = new Rectangle(251 + MENU_X, 76 + MENU_Y, BUTTON_LENGTH, BUTTON_WIDTH);
     }
     
     public int getSelectedButton(MouseEvent evt) {
@@ -84,14 +91,15 @@ public class GameScreen {
     }
     
     public void setMenuVisible() {        
-        g.drawImage(menuImage, 20, 90, null);
+        g.drawImage(menuImage, MENU_X, MENU_Y, null);
         for (int i = 0; i < menuButtons.length; i++) {
-            menuButtons[i].setSize(80, 40);
+            menuButtons[i].setSize(BUTTON_LENGTH, BUTTON_WIDTH);
         }
     }
     
     public void setMenuHidden() {
-        g.drawImage(hideMenuImage, 20, 90, null);
+        g.drawImage(backgroundImage, MENU_X, MENU_Y, MENU_X + MENU_LENGTH, MENU_Y + MENU_WIDTH, 
+                                     MENU_X, MENU_Y, MENU_X + MENU_LENGTH, MENU_Y + MENU_WIDTH, null);
         for (int i = 0; i < menuButtons.length; i++) {
             menuButtons[i].setSize(0, 0);
         }

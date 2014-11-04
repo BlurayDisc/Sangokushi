@@ -25,33 +25,20 @@ public class GamePanel extends JPanel {
     
     private static final long serialVersionUID = 1L;
     private final PrepareBattlePanel prepareBattlePanel;
-    private final Player player;
     private final GameController controller;
     private final BuildingsPanel buildPanel;
     private final GameScreen gameScreen;
     private final AILogicFrame aiFrame;
+    private final MainFrame frame;
+    private final Player player;
     private Timer mouseClickTimer;
     private int selectedButton;
     private City selectedCity;
-    private boolean isRunning = false;
+    private boolean isRunning;
     
     public GamePanel() {
-        // Inititalise Variables
         super();
-        player = Player.getInstance();
-        controller = GameController.getInstance();
-        controller.update();
-        selectedCity = null;
-        
-        // Graphics Content
-        gameScreen = GameScreen.getInstance();
-        
-        // Swing Content
-        initComponents();
-        setSize(800, 600);
-        initLabels();
-        initTimer();
-        removePanels();
+        frame = MainFrame.getInstance();
         
         // Create AIFrame
         aiFrame = new AILogicFrame(this);
@@ -59,13 +46,31 @@ public class GamePanel extends JPanel {
         
         // Create PrepareBattlePanel
         prepareBattlePanel = new PrepareBattlePanel(this);
-        MainFrame.getInstance().getContentPane().add(prepareBattlePanel);
+        frame.getContentPane().add(prepareBattlePanel);
         prepareBattlePanel.setVisible(false);
         
         // Create BuildingsPanel
         buildPanel = new BuildingsPanel(this);
-        MainFrame.getInstance().getContentPane().add(buildPanel);
+        frame.getContentPane().add(buildPanel);
         buildPanel.setVisible(false);
+                
+        // Graphics Content
+        gameScreen = GameScreen.getInstance();
+        
+        // Inititalise Variables
+        player = Player.getInstance();
+        controller = GameController.getInstance();
+        controller.update();
+        selectedCity = null;
+        isRunning = false;
+        
+        // Swing Content
+        initComponents();
+        setSize(800, 600);
+        frame.requestFocus();
+        initLabels();
+        initTimer();
+        removePanels();
     }
     
     @Override
@@ -90,7 +95,7 @@ public class GamePanel extends JPanel {
     }
     
     private void removePanels() {
-        MainFrame.getInstance().getContentPane().removeAll();
+        frame.getContentPane().removeAll();
     }
     
     private void initLabels() {
