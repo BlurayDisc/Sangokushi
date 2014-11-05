@@ -15,35 +15,37 @@ import javax.swing.JFrame;
  * @author RuN
  */
 public class MainFrame extends JFrame {
+    
     private static final long serialVersionUID = 1L;
     private static final MainFrame instance = new MainFrame();
     private final StartPanel startPanel;
     private final ForcePanel forcePanel;
     private final OptionPanel optionPanel;
     
-    /**
-     * Creates new form NewJFrame
-     */
     private MainFrame() {
-        super();
+        
         setIcon();
         initComponents();
         
         // Create StartPanel
         startPanel = new StartPanel();
         getContentPane().add(startPanel);
+        startPanel.setSize(800, 600);
         
         // Create ForcePanel
         forcePanel = new ForcePanel();
         getContentPane().add(forcePanel);
+        forcePanel.setSize(800, 600);
         forcePanel.setVisible(false);
         
         // Create OptionPanel
         optionPanel = new OptionPanel();
         getContentPane().add(optionPanel);
+        optionPanel.setSize(800, 600);
         optionPanel.setVisible(false);
         
-        setWindowLocation(); 
+        setWindowLocation();
+        pack();
     }
     
     public void showOptionPanel() {
@@ -82,10 +84,6 @@ public class MainFrame extends JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Sangokushi");
-        setBounds(new java.awt.Rectangle(0, 0, 0, 0));
-        setMaximumSize(new java.awt.Dimension(800, 600));
-        setMinimumSize(new java.awt.Dimension(800, 600));
-        setName("MainFrame"); // NOI18N
         setResizable(false);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());

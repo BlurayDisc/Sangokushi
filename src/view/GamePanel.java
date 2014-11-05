@@ -9,11 +9,8 @@ package view;
 import controller.GameController;
 import controller.GameParameters;
 import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.Timer;
 import model.City;
 import model.Player;
 
@@ -31,14 +28,34 @@ public class GamePanel extends JPanel {
     private final AILogicFrame aiFrame;
     private final MainFrame frame;
     private final Player player;
-    private Timer mouseClickTimer;
     private int selectedButton;
     private City selectedCity;
-    private boolean isRunning;
+    private boolean showMenu;
+    private boolean pressed;
+    private boolean released;
     
     public GamePanel() {
-        super();
+
         frame = MainFrame.getInstance();
+                        
+        // Graphics Content
+        gameScreen = new GameScreen();
+        
+        // Inititalise Variables
+        player = Player.getInstance();
+        controller = GameController.getInstance();
+        controller.update();
+        selectedCity = null;
+        showMenu = false;
+        pressed = false;
+        released = false;
+        
+        // Swing Content
+        removePanels();
+        initComponents();
+        setSize(800, 600);
+        frame.requestFocus();
+        initLabels();
         
         // Create AIFrame
         aiFrame = new AILogicFrame(this);
@@ -47,51 +64,35 @@ public class GamePanel extends JPanel {
         // Create PrepareBattlePanel
         prepareBattlePanel = new PrepareBattlePanel(this);
         frame.getContentPane().add(prepareBattlePanel);
+        prepareBattlePanel.setSize(800, 600);
         prepareBattlePanel.setVisible(false);
         
         // Create BuildingsPanel
         buildPanel = new BuildingsPanel(this);
         frame.getContentPane().add(buildPanel);
+        buildPanel.setSize(800, 600);
         buildPanel.setVisible(false);
-                
-        // Graphics Content
-        gameScreen = GameScreen.getInstance();
-        
-        // Inititalise Variables
-        player = Player.getInstance();
-        controller = GameController.getInstance();
-        controller.update();
-        selectedCity = null;
-        isRunning = false;
-        
-        // Swing Content
-        initComponents();
-        setSize(800, 600);
-        frame.requestFocus();
-        initLabels();
-        initTimer();
-        removePanels();
     }
     
     @Override
     public void paintComponent(Graphics g) {   
         super.paintComponent(g);
+        
+        // Sets the Graphics to work with
         gameScreen.setGraphics(g);
+        
+        // Initialisation
         gameScreen.drawBackground();
         gameScreen.drawPlayerForceColour();
         gameScreen.drawCities();
-    }
-    
-    private void initTimer() {
-        ActionListener mouseClickListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                mouseReleasedLogics();
-                isRunning = false;
-            }
-        };
-        mouseClickTimer = new Timer(GameController.BUTTON_DELAY_TIME, mouseClickListener);
-        mouseClickTimer.setRepeats(false);
+        
+        // City Pressed
+        if (pressed) {gameScreen.drawCityPressed(); pressed = false;}
+        if (released) {gameScreen.drawCityReleased(); released = false;}
+        
+        // Show menu
+        if (showMenu) {gameScreen.setMenuVisible();}
+        else {gameScreen.setMenuHidden();};
     }
     
     private void removePanels() {
@@ -110,33 +111,18 @@ public class GamePanel extends JPanel {
     }
 
     private void updateLabelsForMousePress() {
-        cityLabel.setText("城市: " + controller.getCityName());
-        charLabel.setText("武将: " + controller.getCharNumber() + " 名");
-        soldierLabel.setText("兵力: " + controller.getSoldiers(selectedCity));
-        populationLabel.setText("人口: " + controller.getPopulation(selectedCity) + "万");
+        cityLabel.setText("城市: " + player.getSelectedCityName());
+        charLabel.setText("武将: " + player.getSelectedNumCharacters() + " 名");
+        soldierLabel.setText("兵力: " + player.getSelectedSoldiers());
+        populationLabel.setText("人口: " + player.getSelectedPopulation() + "万");
     }
     
     private void updateLabelsForPanelShown() {
         yearLabel.setText(controller.getYear() + "年 " + controller.getMonth() + "月");
         goldLabel.setText("银两: " + player.getGold());
         grainLabel.setText("粮草: " + player.getFood());
-        soldierLabel.setText("兵力: " + controller.getSoldiers(selectedCity));
-        populationLabel.setText("人口: " + controller.getPopulation(selectedCity) + "万");
-    }
-
-    private void mouseReleasedLogics() {
-        if (selectedCity != null) {                                         // Clicks a city
-            if (player.owns(selectedCity)) {gameScreen.setMenuVisible();} 
-            else {gameScreen.setMenuHidden();}      // To show or hide menu
-                gameScreen.restoreCitySquare();     // update graphics
-                updateLabelsForMousePress();              // change things to according values
-        } else if (selectedButton != GameParameters.MENU_BUTTON_UNSELECTED) {              // Clicks a button
-            gameScreen.setMenuHidden();     // hide menu
-            showSelectedPanel();            // show next panel
-        } else {                                                            // Clicks other location on map
-            gameScreen.setMenuHidden();     // hide menu
-            updateLabelsForMousePress();          // change things to 0
-        }
+        soldierLabel.setText("兵力: " + player.getSelectedSoldiers());
+        populationLabel.setText("人口: " + player.getSelectedPopulation() + "万");
     }
     
     private void showSelectedPanel() {
@@ -207,10 +193,7 @@ public class GamePanel extends JPanel {
         charLabel = new javax.swing.JLabel();
         proceedButton = new javax.swing.JButton();
 
-        setMaximumSize(new java.awt.Dimension(800, 600));
-        setMinimumSize(new java.awt.Dimension(800, 600));
-        setOpaque(false);
-        setPreferredSize(new java.awt.Dimension(800, 600));
+        setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 formMousePressed(evt);
@@ -281,10 +264,10 @@ public class GamePanel extends JPanel {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(charLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(soldierLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(soldierLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(populationLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 56, Short.MAX_VALUE)
                         .addComponent(goldLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(6, 6, 6)
                         .addComponent(grainLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -304,7 +287,7 @@ public class GamePanel extends JPanel {
                             .addComponent(soldierLabel)
                             .addComponent(charLabel)
                             .addComponent(nameLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 495, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 481, Short.MAX_VALUE)
                         .addComponent(proceedButton, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
@@ -322,7 +305,7 @@ public class GamePanel extends JPanel {
 
     private void proceedButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_proceedButtonActionPerformed
     {//GEN-HEADEREND:event_proceedButtonActionPerformed
-        gameScreen.setMenuHidden();
+        showMenu = false;
         
         controller.increaseTime();
         controller.increaseResources();
@@ -337,25 +320,48 @@ public class GamePanel extends JPanel {
 
     private void formMousePressed(java.awt.event.MouseEvent evt)//GEN-FIRST:event_formMousePressed
     {//GEN-HEADEREND:event_formMousePressed
-        if (isRunning) {return;}
-        
-        gameScreen.setGraphics(getGraphics());      // sets a graphic to work with.
-        
-        selectedCity = gameScreen.getSelectedCity(evt);
+        // Calculate mouse click
         selectedButton = gameScreen.getSelectedButton(evt);
         
-        if (selectedCity != null) {
-            controller.setCity(selectedCity);          // if city is valid, then store it in the GameController class.
+        // If a menu button was not selected
+        if (selectedButton == GameParameters.MENU_BUTTON_UNSELECTED) {
+            // Calculate mouse click
+            selectedCity = gameScreen.getSelectedCity(evt);
             player.setSelectedCity(selectedCity);
-            gameScreen.makeCitySquarePressed();
+        }
+        
+        if (selectedCity != null) {
+            
+            // Make city visual Pressed.
+            pressed = true;
+            repaint(selectedCity.x, selectedCity.y, selectedCity.length + selectedCity.offset, selectedCity.length + selectedCity.offset);
         }
     }//GEN-LAST:event_formMousePressed
 
     private void formMouseReleased(java.awt.event.MouseEvent evt)//GEN-FIRST:event_formMouseReleased
     {//GEN-HEADEREND:event_formMouseReleased
-        if (isRunning) {return;}
-        isRunning = true;
-        mouseClickTimer.start();
+        // Clicks a city
+        if (selectedCity != null) {
+            
+             // Make city visual Restored.
+            released = true;                                    
+            repaint(selectedCity.x, selectedCity.y, selectedCity.length + selectedCity.offset, selectedCity.length + selectedCity.offset);
+            
+            // To show or hide the menu
+            if (player.owns(selectedCity)) {showMenu = true;}
+            else {showMenu = false;}
+            
+        // Clicks other location on map
+        } else {showMenu = false;}
+
+        // Repaint menu area
+        repaint(gameScreen.menu_xPos, gameScreen.menu_yPos, gameScreen.menu_xPos + gameScreen.menu_height, gameScreen.menu_yPos + gameScreen.menu_width);
+        
+        // Update Labels
+        updateLabelsForMousePress();
+        
+        // Clicks a button  
+        if (selectedButton != GameParameters.MENU_BUTTON_UNSELECTED) {showSelectedPanel();}
     }//GEN-LAST:event_formMouseReleased
 
 

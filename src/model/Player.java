@@ -90,6 +90,46 @@ public class Player {
         return selectedCity;
     }
     
+    public String getSelectedCityName() {
+        String name;
+        if (selectedCity == null) {
+            name = "无";
+        } else {
+            name = selectedCity.getCityName();
+        }
+        return name;
+    }
+    
+    public int getSelectedNumCharacters() {
+        int numCharacters;
+        if (selectedCity == null) {
+            numCharacters = 0;
+        } else {
+            numCharacters = selectedCity.getNumCharacters();
+        }
+        return numCharacters;
+    }
+    
+    public int getSelectedSoldiers() {
+        int soldiers;
+        if (selectedCity == null) {
+            soldiers = 0;
+        } else {
+            soldiers = selectedCity.getSoldiers();
+        }
+        return soldiers;
+    }
+    
+    public int getSelectedPopulation() {
+        int population;
+        if (selectedCity == null) {
+            population = 0;
+        } else {
+            population = selectedCity.getPopulation();
+        }
+        return population;
+    }
+    
     public static Player getInstance() {
         return instance;
     }    

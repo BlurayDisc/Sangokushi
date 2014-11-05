@@ -33,7 +33,7 @@ public class GameController {
     // Class members
     private final Player player;
     private final Database db;
-    private City selectedCity, attackedCity;
+    private City attackedCity;
     private int month;
     private int year;
     
@@ -41,7 +41,6 @@ public class GameController {
     private GameController() {
         db = Database.getInstance();
         player = Player.getInstance();
-        selectedCity = null; 
         attackedCity = null;
         month = 1;
         year = 0;
@@ -49,27 +48,6 @@ public class GameController {
     
     public void increaseIncome(City city) {
         
-    }
-    
-    public Building getSlot(int index) {
-        return selectedCity.getSlot(index);
-    }
-    
-    public void setSlotData(int index, Building data) {
-        selectedCity.setSlotData(index, data);
-    }
-    
-    public String getBuildingName(int slot) {
-        String name;
-        
-        if (selectedCity.getSlots()[slot - 1] == null) {
-            name = "空地";
-            return name;
-        } else {     
-            name = selectedCity.getSlots()[slot - 1].getName();
-        }
-        
-        return name;
     }
     
     public void increaseResources() {
@@ -124,29 +102,6 @@ public class GameController {
         return db.getForceList();
     }
     
-    public int getNumCharacters(City city){
-        if (city == null){
-            return 0;
-        }
-        return city.getCharacterList().size();
-    }
-    
-    public int getSoldiers(City city)
-    {
-        if (city == null){
-            return 0;
-        }
-        return city.getSoldiers();
-    }
-    
-    public int getPopulation(City city)
-    {
-        if (city == null){
-            return 0;
-        }
-        return city.getPopulation();
-    }
-    
     public City getCity(int cityNumber) {
         return db.getCityList().get(cityNumber - 1);
     }
@@ -169,10 +124,6 @@ public class GameController {
         return db.getCharacterList();
     }
     
-    public void setCity(City city) {
-        selectedCity = city;
-    }
-    
     public void setAttackedCity(int num) {
         attackedCity = this.getCity(num);
     }
@@ -181,38 +132,9 @@ public class GameController {
         attackedCity = city;
     }
     
-    public City getSelectedCity() {
-        return selectedCity;
-    }
-    
     public City getAttackedCity() {
         return attackedCity;
-    }
-    
-    public Character getChar(int index) {
-        return selectedCity.get(index);
-    }
-    
-    public String getCityName() {
-        if (selectedCity == null) {
-            return "无";
-        }
-        return selectedCity.getCityName();
-    }
-    
-    public int getCharNumber() {
-        if (selectedCity == null) {
-            return 0;
-        }
-        return selectedCity.getNumCharacters();
-    }
-    
-    public int getSoldiers() {
-        if (selectedCity == null) {
-            return 0;
-        }
-        return selectedCity.getSoldiers();
-    }
+    }    
         
     public void update() {
        year = db.getYear();

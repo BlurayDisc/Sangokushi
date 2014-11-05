@@ -24,9 +24,8 @@ public class BattlePanel extends JPanel {
     private final Battle mainBattle;
     
     public BattlePanel() {
-        super();
+
         initComponents();
-        setSize(800, 600);
         
         battleScreen = BattleScreen.getInstance();
         mainBattle = new Battle();
@@ -42,10 +41,11 @@ public class BattlePanel extends JPanel {
         battleScreen.drawEnemyArmy(g2);
     }
     
+    // setSoldiers() call is required for both BattleScreen AND Battle.
     public void initBattle(Army frontArmy, Army mainArmy, Army leftWingArmy, Army rightWingArmy) {
         battleScreen.setSoldiers(ArmyType.PLAYER_MAIN, mainArmy.getSoldiers(), mainArmy.getUnitTypt());
-        battleScreen.setSoldiers(ArmyType.ENEMY_MAIN, 10000, UnitType.LIGHT_CAVALRY);
-        mainBattle.setSoldiers(mainArmy.getSoldiers(), 10000);
+        battleScreen.setSoldiers(ArmyType.ENEMY_MAIN, mainArmy.getSoldiers() + 2000, UnitType.LIGHT_CAVALRY);
+        mainBattle.setSoldiers(mainArmy.getSoldiers(), mainArmy.getSoldiers() + 2000);
     }
     
     public void runExample() {
@@ -61,8 +61,6 @@ public class BattlePanel extends JPanel {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
-
-        setBackground(new java.awt.Color(204, 204, 204));
 
         jLabel1.setFont(new java.awt.Font("Microsoft YaHei", 0, 18)); // NOI18N
         jLabel1.setText("敌对");

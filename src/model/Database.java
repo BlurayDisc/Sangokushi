@@ -978,9 +978,9 @@ public class Database implements GameParameters{
         // * 城市武将名单
         
         // 1 曹操势力
+        caocaoForce.add(xuchang);
         caocaoForce.setGold(1000);
         caocaoForce.setFood(20000);
-        caocaoForce.add(xuchang);
         xuchang.setSoldiers(20000);
         xuchang.setPopulation(50);
         xuchang.add(guojia);
@@ -1037,10 +1037,10 @@ public class Database implements GameParameters{
         
         xuchang.addU(xiahouwei);
         
-        // 2 刘备势力        
+        // 2 刘备势力
+        liubeiForce.add(jiangling);
         liubeiForce.setGold(500);
         liubeiForce.setFood(15000);
-        liubeiForce.add(jiangling);
         jiangling.setSoldiers(10000);
         jiangling.setPopulation(30);
         jiangling.add(guanyu);
@@ -1062,9 +1062,9 @@ public class Database implements GameParameters{
         jiangling.addU(xushu);
         
         // 3 孙权势力
+        sunquanForce.add(lujiang);
         sunquanForce.setGold(1000);
         sunquanForce.setFood(20000);
-        sunquanForce.add(lujiang);
         lujiang.setSoldiers(15000);
         lujiang.setPopulation(50);
         lujiang.add(handang);
@@ -1080,9 +1080,9 @@ public class Database implements GameParameters{
         lujiang.add(sunyi);
         
         // 4 刘表势力
+        liubiaoForce.add(xiangyang);
         liubiaoForce.setGold(1500);
         liubiaoForce.setFood(20000);
-        liubiaoForce.add(xiangyang);
         xiangyang.setSoldiers(12000);
         xiangyang.setPopulation(100);
         xiangyang.add(kuaiyue);
@@ -1096,6 +1096,10 @@ public class Database implements GameParameters{
         
         // 5 袁绍势力
         yuanshaoForce.add(nanpi);
+        yuanshaoForce.setGold(3000);
+        yuanshaoForce.setFood(20000);
+        nanpi.setSoldiers(20000);
+        nanpi.setPopulation(50);
         nanpi.add(yuanxi);
         nanpi.add(yuanshang);
         nanpi.add(yuanshao);
@@ -1108,6 +1112,10 @@ public class Database implements GameParameters{
         
         // 6 刘焉势力
         liuyanForce.add(chengdu);
+        liuyanForce.setGold(1500);
+        liuyanForce.setFood(15000);
+        chengdu.setSoldiers(15000);
+        chengdu.setPopulation(40);
         chengdu.add(wanglei);
         chengdu.add(yanyan);
         chengdu.add(wuyi);
@@ -1117,6 +1125,10 @@ public class Database implements GameParameters{
         
         // 7 马腾势力
         matengForce.add(xiliang);
+        matengForce.setGold(1000);
+        matengForce.setFood(15000);
+        xiliang.setSoldiers(25000);
+        xiliang.setPopulation(10);
         xiliang.add(yanxing);
         xiliang.add(hansui);
         xiliang.add(houxuan);
@@ -1126,6 +1138,10 @@ public class Database implements GameParameters{
         
         // 8 公孙瓒势力
         gongsunzanForce.add(beiping);
+        gongsunzanForce.setGold(1500);
+        gongsunzanForce.setFood(20000);
+        beiping.setSoldiers(18000);
+        beiping.setPopulation(30);
         beiping.add(wangmen);
         beiping.add(guanjing);
         beiping.add(yangang);
@@ -1138,6 +1154,10 @@ public class Database implements GameParameters{
         
         // 9 吕布势力
         lvbuForce.add(puyang);
+        lvbuForce.setGold(2000);
+        lvbuForce.setFood(20000);
+        puyang.setSoldiers(18000);
+        puyang.setPopulation(35);
         puyang.add(haomeng);
         puyang.add(weixu);
         puyang.add(gaoshun);
@@ -1157,6 +1177,10 @@ public class Database implements GameParameters{
         
         // 11 张角势力
         zhangjiaoForce.add(pingyuan);
+        zhangjiaoForce.setGold(2500);
+        zhangjiaoForce.setFood(18000);
+        pingyuan.setSoldiers(30000);
+        pingyuan.setPopulation(60);
         pingyuan.add(heyi);
         pingyuan.add(hanxian);
         pingyuan.add(characterhanzhong);

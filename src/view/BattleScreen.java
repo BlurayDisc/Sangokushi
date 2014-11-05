@@ -55,6 +55,7 @@ import view.units.CavalryUnit;
  * 
  */
 public class BattleScreen {
+    
     private static final BattleScreen instance = new BattleScreen();
     private final LinkedList<Unit> playerMainArmy, enemyMainArmy;
     private LinkedList<Unit> army;
@@ -62,6 +63,7 @@ public class BattleScreen {
     public enum Side {PLAYER, ENEMY}
     
     private BattleScreen() {
+        
         playerMainArmy = new LinkedList<>();
         enemyMainArmy = new LinkedList<>();
     }

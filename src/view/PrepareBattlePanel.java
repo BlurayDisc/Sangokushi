@@ -11,11 +11,13 @@ import controller.GameController;
 import controller.GameParameters;
 import java.util.Arrays;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import model.Character;
 import model.City;
 import model.Army;
+import model.Formation;
 import model.Player;
 
 /**
@@ -24,6 +26,7 @@ import model.Player;
  */
 public class PrepareBattlePanel extends JPanel implements GameParameters {
     private static final long serialVersionUID = 1L;
+    private final Formation formation;
     private final GamePanel gp;
     private final BattlePanel bp;
     private final GameController gc;
@@ -48,14 +51,13 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
      * @param gp
      */
     public PrepareBattlePanel(GamePanel gp) {
-        super();
      
         initComponents();
-        setSize(800, 600);
         
         // Create Battle Panel
         bp = new BattlePanel();
         MainFrame.getInstance().getContentPane().add(bp);
+        bp.setSize(800, 600);
         bp.setVisible(false);
         
         // initDropDownLists();
@@ -70,6 +72,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
         rightWingArmy = null;
         equipments = new int[4];
         cityButtonList = new JButton[8];
+        formation = new Formation(this);
         player = Player.getInstance();
         gc = GameController.getInstance();
         
@@ -93,6 +96,10 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
     }
     
     private void initFormationPanel() {
+        
+        // Sets the layout to a selected Formation.
+        formation.initDefaultFormation();
+        formationForceLabel.setText(gc.getAttackedCity().getOwner().getForceName() + "势");
         castleLabel.setText(gc.getAttackedCity().getCityName() + "城");
     }
       
@@ -123,22 +130,24 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
     }
 
     public void init() {
-        currentCity = gc.getSelectedCity();
-        remainingSoldiers = gc.getSoldiers();
+        currentCity = player.getSelectedCity();
+        // remainingSoldiers = currentCity.getSoldiers();
         initCity();
         initTable();
     }
     
     private void initTable() {
+        Character character;
         for (int i = 0; i < currentCity.getCharacterList().size(); i++) {
-            charTable.setValueAt(gc.getChar(i).getName(), i, 0);
+            character = player.getSelectedCity().getCharacterList().get(i);
+            charTable.setValueAt(character.getName(), i, 0);
             charTable.setValueAt("无", i, 1);
-            charTable.setValueAt(gc.getChar(i).getCommandPower(), i, 2);
+            charTable.setValueAt(character.getCommandPower(), i, 2);
             charTable.setValueAt("无", i, 3);
-            charTable.setValueAt(gc.getChar(i).getLeadership(), i, 4);
-            charTable.setValueAt(gc.getChar(i).getCombatPower(), i, 5);
-            charTable.setValueAt(gc.getChar(i).getIntelligence(), i, 6);
-            charTable.setValueAt(gc.getChar(i).getPolitics(), i, 7);
+            charTable.setValueAt(character.getLeadership(), i, 4);
+            charTable.setValueAt(character.getCombatPower(), i, 5);
+            charTable.setValueAt(character.getIntelligence(), i, 6);
+            charTable.setValueAt(character.getPolitics(), i, 7);
             charTable.setValueAt(false, i, 8);
         }
     }
@@ -216,7 +225,25 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
     }
     
     private void updateFormationlabels() {
+        
         // enemy soldier, player soldier and remaining soldier code goes here.
+        int front, main, left, right;
+        
+        if (frontArmy == null) {front = 0;}
+        else {front = frontArmy.getSoldiers();}
+        
+        if (mainArmy == null) {main = 0;}
+        else {main = mainArmy.getSoldiers();}
+        
+        if (leftWingArmy == null) {left = 0;}
+        else {left = leftWingArmy.getSoldiers();}
+        
+        if (rightWingArmy == null) {right = 0;}
+        else {right = rightWingArmy.getSoldiers();}
+        
+        totalLabel.setText(front + main + left + right + "");
+        remainingLabel.setText(player.getSelectedCity().getSoldiers() - (front + main + left + right) + "");
+        enemyTotalLabel.setText(front + main + left + right + 2000 + "");
     }
     
     private void updateArmyLabels() {     
@@ -254,16 +281,17 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
     }
     
     private void selectGeneral() {
+        Character character = player.getSelectedCity().getCharacterList().get(charTable.getSelectedRow());
         if (selectedGeneral == General.COMMANDER) {
-            armyCommander = gc.getChar(charTable.getSelectedRow());
+            armyCommander = character;
         } else if (selectedGeneral == General.LIEUTENANT) {
-            armyLieutenant = gc.getChar(charTable.getSelectedRow());
+            armyLieutenant = character;
         }
     }
     
     private void createArmy() {
-        // Legion(Commander, Soldiers, UnitType)
         
+        // Legion(Commander, Soldiers, UnitType)
         if (selectedArmy == ArmyType.PLAYER_FRONT) {
             if (frontArmy == null) {
                 frontGeneral = armyCommander;
@@ -287,6 +315,34 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
             }
         }
     }
+    
+    
+    // Getters for JComponents.
+    public JButton getFrontButton() {
+        return frontArmyButton;
+    }
+    public JButton getMainButton() {
+        return mainArmyButton;
+    }
+    public JButton getLeftButton() {
+        return leftWingArmyButton;
+    }
+    public JButton getRightButton() {
+        return rightWingArmyButton;
+    }
+    public JLabel getFrontLabel() {
+        return frontLabel;
+    }
+    public JLabel getMainLabel() {
+        return mainLabel;
+    }
+    public JLabel getLeftLabel() {
+        return leftWingLabel;
+    }
+    public JLabel getRightLabel() {
+        return rightWingLabel;
+    }
+    
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -324,7 +380,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
         formationForceLabel = new javax.swing.JLabel();
         totalLabel = new javax.swing.JLabel();
         remainingLabel = new javax.swing.JLabel();
-        totalLabel1 = new javax.swing.JLabel();
+        enemyTotalLabel = new javax.swing.JLabel();
         selectArmyPanel = new javax.swing.JLayeredPane();
         armyTitle1 = new javax.swing.JLabel();
         armyTitle2 = new javax.swing.JLabel();
@@ -360,16 +416,14 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
         characterConfirmButton = new javax.swing.JButton();
         characterBackButton = new javax.swing.JButton();
 
-        setMaximumSize(new java.awt.Dimension(800, 600));
-        setMinimumSize(new java.awt.Dimension(800, 600));
-        setPreferredSize(new java.awt.Dimension(800, 600));
         setLayout(new java.awt.GridBagLayout());
 
-        selectCityPanel.setMaximumSize(new java.awt.Dimension(800, 600));
-        selectCityPanel.setMinimumSize(new java.awt.Dimension(800, 600));
+        selectCityPanel.setPreferredSize(new java.awt.Dimension(800, 600));
+        selectCityPanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         characterTitleLabel1.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
         characterTitleLabel1.setText("出兵");
+        selectCityPanel.add(characterTitleLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(382, 24, -1, -1));
 
         northWest.setFont(new java.awt.Font("Microsoft YaHei", 0, 18)); // NOI18N
         northWest.setText("西北");
@@ -380,6 +434,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
                 northWestActionPerformed(evt);
             }
         });
+        selectCityPanel.add(northWest, new org.netbeans.lib.awtextra.AbsoluteConstraints(55, 77, -1, -1));
 
         north.setFont(new java.awt.Font("Microsoft YaHei", 0, 18)); // NOI18N
         north.setText("北");
@@ -390,6 +445,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
                 northActionPerformed(evt);
             }
         });
+        selectCityPanel.add(north, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 77, -1, -1));
 
         northEast.setFont(new java.awt.Font("Microsoft YaHei", 0, 18)); // NOI18N
         northEast.setText("东北");
@@ -400,6 +456,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
                 northEastActionPerformed(evt);
             }
         });
+        selectCityPanel.add(northEast, new org.netbeans.lib.awtextra.AbsoluteConstraints(625, 77, -1, -1));
 
         west.setFont(new java.awt.Font("Microsoft YaHei", 0, 18)); // NOI18N
         west.setText("西");
@@ -410,6 +467,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
                 westActionPerformed(evt);
             }
         });
+        selectCityPanel.add(west, new org.netbeans.lib.awtextra.AbsoluteConstraints(55, 272, -1, -1));
 
         east.setFont(new java.awt.Font("Microsoft YaHei", 0, 18)); // NOI18N
         east.setText("东");
@@ -420,6 +478,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
                 eastActionPerformed(evt);
             }
         });
+        selectCityPanel.add(east, new org.netbeans.lib.awtextra.AbsoluteConstraints(625, 272, -1, -1));
 
         southWest.setFont(new java.awt.Font("Microsoft YaHei", 0, 18)); // NOI18N
         southWest.setText("西南");
@@ -430,6 +489,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
                 southWestActionPerformed(evt);
             }
         });
+        selectCityPanel.add(southWest, new org.netbeans.lib.awtextra.AbsoluteConstraints(55, 467, -1, -1));
 
         south.setFont(new java.awt.Font("Microsoft YaHei", 0, 18)); // NOI18N
         south.setText("南");
@@ -440,6 +500,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
                 southActionPerformed(evt);
             }
         });
+        selectCityPanel.add(south, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 467, -1, -1));
 
         southEast.setFont(new java.awt.Font("Microsoft YaHei", 0, 18)); // NOI18N
         southEast.setText("东南");
@@ -450,6 +511,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
                 southEastActionPerformed(evt);
             }
         });
+        selectCityPanel.add(southEast, new org.netbeans.lib.awtextra.AbsoluteConstraints(625, 467, -1, -1));
 
         middle.setFont(new java.awt.Font("Microsoft YaHei", 0, 18)); // NOI18N
         middle.setText("中");
@@ -460,96 +522,44 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
                 middleActionPerformed(evt);
             }
         });
-
-        javax.swing.GroupLayout selectCityPanelLayout = new javax.swing.GroupLayout(selectCityPanel);
-        selectCityPanel.setLayout(selectCityPanelLayout);
-        selectCityPanelLayout.setHorizontalGroup(
-            selectCityPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(selectCityPanelLayout.createSequentialGroup()
-                .addGap(55, 55, 55)
-                .addGroup(selectCityPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(west, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(southWest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(northWest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(165, 165, 165)
-                .addGroup(selectCityPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(selectCityPanelLayout.createSequentialGroup()
-                        .addGroup(selectCityPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(north, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(south, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(middle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(165, 165, 165)
-                        .addGroup(selectCityPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(northEast, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(southEast, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(east, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(selectCityPanelLayout.createSequentialGroup()
-                        .addGap(42, 42, 42)
-                        .addComponent(characterTitleLabel1)))
-                .addGap(55, 55, 55))
-        );
-        selectCityPanelLayout.setVerticalGroup(
-            selectCityPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(selectCityPanelLayout.createSequentialGroup()
-                .addGap(24, 24, 24)
-                .addComponent(characterTitleLabel1)
-                .addGap(29, 29, 29)
-                .addGroup(selectCityPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(northWest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(north, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(northEast, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(95, 95, 95)
-                .addGroup(selectCityPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(west, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(east, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(middle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(95, 95, 95)
-                .addGroup(selectCityPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(southWest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(south, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(southEast, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(35, 35, 35))
-        );
-        selectCityPanel.setLayer(characterTitleLabel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectCityPanel.setLayer(northWest, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectCityPanel.setLayer(north, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectCityPanel.setLayer(northEast, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectCityPanel.setLayer(west, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectCityPanel.setLayer(east, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectCityPanel.setLayer(southWest, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectCityPanel.setLayer(south, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectCityPanel.setLayer(southEast, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectCityPanel.setLayer(middle, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        selectCityPanel.add(middle, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 272, -1, -1));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(selectCityPanel, gridBagConstraints);
 
-        selectFormationPanel.setMaximumSize(new java.awt.Dimension(800, 600));
-        selectFormationPanel.setMinimumSize(new java.awt.Dimension(800, 600));
+        selectFormationPanel.setPreferredSize(new java.awt.Dimension(800, 600));
+        selectFormationPanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         formationTittle.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
         formationTittle.setText("阵型");
+        selectFormationPanel.add(formationTittle, new org.netbeans.lib.awtextra.AbsoluteConstraints(382, 24, -1, -1));
 
-        formationTotalLabel.setText("总兵力：");
+        formationTotalLabel.setText("己方总兵力：");
+        selectFormationPanel.add(formationTotalLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 520, -1, -1));
 
         formationEnemyTotalLabel.setText("敌方总兵力：");
+        selectFormationPanel.add(formationEnemyTotalLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 90, -1, -1));
 
         formationSoldierRemainLabel.setText("剩余兵力：");
+        selectFormationPanel.add(formationSoldierRemainLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 540, -1, -1));
 
         frontLabel.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
         frontLabel.setText("前军");
+        selectFormationPanel.add(frontLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(382, 206, -1, -1));
 
         mainLabel.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
         mainLabel.setText("中军");
+        selectFormationPanel.add(mainLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(384, 313, -1, -1));
 
         leftWingLabel.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
         leftWingLabel.setText("左军");
+        selectFormationPanel.add(leftWingLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(243, 313, -1, -1));
 
         rightWingLabel.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
         rightWingLabel.setText("右军");
+        selectFormationPanel.add(rightWingLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(522, 313, -1, -1));
 
         formationConfirmButton.setText("确定");
         formationConfirmButton.setFocusable(false);
@@ -561,6 +571,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
                 formationConfirmButtonActionPerformed(evt);
             }
         });
+        selectFormationPanel.add(formationConfirmButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(275, 529, -1, -1));
 
         formationBackButton.setText("取消");
         formationBackButton.setFocusable(false);
@@ -572,6 +583,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
                 formationBackButtonActionPerformed(evt);
             }
         });
+        selectFormationPanel.add(formationBackButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(425, 529, -1, -1));
 
         leftWingArmyButton.setFont(new java.awt.Font("Microsoft YaHei", 0, 15)); // NOI18N
         leftWingArmyButton.setFocusable(false);
@@ -583,6 +595,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
                 leftWingArmyButtonActionPerformed(evt);
             }
         });
+        selectFormationPanel.add(leftWingArmyButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(229, 355, -1, -1));
 
         rightWingArmyButton.setFont(new java.awt.Font("Microsoft YaHei", 0, 15)); // NOI18N
         rightWingArmyButton.setFocusable(false);
@@ -594,6 +607,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
                 rightWingArmyButtonActionPerformed(evt);
             }
         });
+        selectFormationPanel.add(rightWingArmyButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(504, 355, -1, -1));
 
         mainArmyButton.setFont(new java.awt.Font("Microsoft YaHei", 0, 15)); // NOI18N
         mainArmyButton.setFocusable(false);
@@ -605,6 +619,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
                 mainArmyButtonActionPerformed(evt);
             }
         });
+        selectFormationPanel.add(mainArmyButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(354, 355, -1, -1));
 
         frontArmyButton.setFont(new java.awt.Font("Microsoft YaHei", 0, 15)); // NOI18N
         frontArmyButton.setFocusable(false);
@@ -616,152 +631,29 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
                 frontArmyButtonActionPerformed(evt);
             }
         });
+        selectFormationPanel.add(frontArmyButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(354, 243, -1, -1));
 
         castleLabel.setFont(new java.awt.Font("Microsoft YaHei", 1, 16)); // NOI18N
         castleLabel.setText("北平城");
+        selectFormationPanel.add(castleLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(416, 90, 75, -1));
 
         formationForceLabel.setFont(new java.awt.Font("Microsoft YaHei", 1, 16)); // NOI18N
         formationForceLabel.setText("公孙瓒势");
+        selectFormationPanel.add(formationForceLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 90, 80, -1));
 
         totalLabel.setText("0");
+        selectFormationPanel.add(totalLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 520, 80, -1));
 
         remainingLabel.setText("0");
+        selectFormationPanel.add(remainingLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 540, 80, -1));
 
-        totalLabel1.setText("0");
-
-        javax.swing.GroupLayout selectFormationPanelLayout = new javax.swing.GroupLayout(selectFormationPanel);
-        selectFormationPanel.setLayout(selectFormationPanelLayout);
-        selectFormationPanelLayout.setHorizontalGroup(
-            selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectFormationPanelLayout.createSequentialGroup()
-                .addGap(275, 275, 275)
-                .addComponent(formationConfirmButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(50, 50, 50)
-                .addComponent(formationBackButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(275, 275, 275))
-            .addGroup(selectFormationPanelLayout.createSequentialGroup()
-                .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectFormationPanelLayout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(formationForceLabel)
-                        .addGap(18, 18, 18)
-                        .addComponent(castleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(121, 121, 121))
-                    .addGroup(selectFormationPanelLayout.createSequentialGroup()
-                        .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(selectFormationPanelLayout.createSequentialGroup()
-                                .addGap(504, 504, 504)
-                                .addComponent(rightWingArmyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(selectFormationPanelLayout.createSequentialGroup()
-                                .addGap(229, 229, 229)
-                                .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(selectFormationPanelLayout.createSequentialGroup()
-                                        .addComponent(leftWingArmyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(50, 50, 50))
-                                    .addGroup(selectFormationPanelLayout.createSequentialGroup()
-                                        .addComponent(leftWingLabel)
-                                        .addGap(75, 75, 75)))
-                                .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(mainArmyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(frontArmyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(selectFormationPanelLayout.createSequentialGroup()
-                                        .addGap(30, 30, 30)
-                                        .addComponent(mainLabel)))
-                                .addGap(68, 68, 68)
-                                .addComponent(rightWingLabel))
-                            .addGroup(selectFormationPanelLayout.createSequentialGroup()
-                                .addGap(382, 382, 382)
-                                .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(frontLabel)
-                                    .addComponent(formationTittle))))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(selectFormationPanelLayout.createSequentialGroup()
-                        .addComponent(formationEnemyTotalLabel)
-                        .addGap(18, 18, 18)
-                        .addComponent(totalLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(selectFormationPanelLayout.createSequentialGroup()
-                            .addComponent(formationSoldierRemainLabel)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(remainingLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(selectFormationPanelLayout.createSequentialGroup()
-                            .addComponent(formationTotalLabel)
-                            .addGap(18, 18, 18)
-                            .addComponent(totalLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap())
-        );
-        selectFormationPanelLayout.setVerticalGroup(
-            selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(selectFormationPanelLayout.createSequentialGroup()
-                .addGap(24, 24, 24)
-                .addComponent(formationTittle)
-                .addGap(41, 41, 41)
-                .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(castleLabel)
-                    .addComponent(formationEnemyTotalLabel)
-                    .addComponent(totalLabel1)
-                    .addComponent(formationForceLabel))
-                .addGap(95, 95, 95)
-                .addComponent(frontLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(frontArmyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(30, 30, 30)
-                .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(selectFormationPanelLayout.createSequentialGroup()
-                        .addComponent(rightWingLabel)
-                        .addGap(18, 18, 18)
-                        .addComponent(rightWingArmyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(selectFormationPanelLayout.createSequentialGroup()
-                        .addComponent(leftWingLabel)
-                        .addGap(18, 18, 18)
-                        .addComponent(leftWingArmyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(selectFormationPanelLayout.createSequentialGroup()
-                        .addComponent(mainLabel)
-                        .addGap(18, 18, 18)
-                        .addComponent(mainArmyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(selectFormationPanelLayout.createSequentialGroup()
-                        .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(formationTotalLabel)
-                            .addComponent(totalLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(formationSoldierRemainLabel)
-                            .addComponent(remainingLabel))))
-                .addGap(74, 74, 74)
-                .addGroup(selectFormationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(formationBackButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(formationConfirmButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(21, 21, 21))
-        );
-        selectFormationPanel.setLayer(formationTittle, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormationPanel.setLayer(formationTotalLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormationPanel.setLayer(formationEnemyTotalLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormationPanel.setLayer(formationSoldierRemainLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormationPanel.setLayer(frontLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormationPanel.setLayer(mainLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormationPanel.setLayer(leftWingLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormationPanel.setLayer(rightWingLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormationPanel.setLayer(formationConfirmButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormationPanel.setLayer(formationBackButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormationPanel.setLayer(leftWingArmyButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormationPanel.setLayer(rightWingArmyButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormationPanel.setLayer(mainArmyButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormationPanel.setLayer(frontArmyButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormationPanel.setLayer(castleLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormationPanel.setLayer(formationForceLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormationPanel.setLayer(totalLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormationPanel.setLayer(remainingLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        selectFormationPanel.setLayer(totalLabel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        enemyTotalLabel.setText("0");
+        selectFormationPanel.add(enemyTotalLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 90, 80, -1));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(selectFormationPanel, gridBagConstraints);
-
-        selectArmyPanel.setMaximumSize(new java.awt.Dimension(800, 600));
-        selectArmyPanel.setMinimumSize(new java.awt.Dimension(800, 600));
 
         armyTitle1.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
         armyTitle1.setText("编辑军队");
@@ -1040,11 +932,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(selectArmyPanel, gridBagConstraints);
-
-        selectCharacterPanel.setMaximumSize(new java.awt.Dimension(800, 600));
-        selectCharacterPanel.setMinimumSize(new java.awt.Dimension(800, 600));
 
         charTable.setFont(new java.awt.Font("Microsoft YaHei", 0, 14)); // NOI18N
         charTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -1261,7 +1149,6 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(selectCharacterPanel, gridBagConstraints);
 
         bindingGroup.bind();
@@ -1444,6 +1331,7 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
     private javax.swing.JLabel characterTitleLabel1;
     private javax.swing.JLabel chariotValue;
     private javax.swing.JButton east;
+    private javax.swing.JLabel enemyTotalLabel;
     private javax.swing.JButton formationBackButton;
     private javax.swing.JButton formationConfirmButton;
     private javax.swing.JLabel formationEnemyTotalLabel;
@@ -1479,7 +1367,6 @@ public class PrepareBattlePanel extends JPanel implements GameParameters {
     private javax.swing.JLabel spearValue;
     private javax.swing.JLabel swordValue;
     private javax.swing.JLabel totalLabel;
-    private javax.swing.JLabel totalLabel1;
     private javax.swing.JButton west;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables

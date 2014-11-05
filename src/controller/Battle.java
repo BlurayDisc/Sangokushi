@@ -35,7 +35,7 @@ public class Battle {
         Arrays.fill(playerDiceList, 0);
         Arrays.fill(enemyDiceList, 0);
         
-        mode = Mode.ENEMY_SEIGE;
+        mode = Mode.FIELD_BATTLE;
         
         playerSoldiers = 0;
         enemySoldiers = 0;

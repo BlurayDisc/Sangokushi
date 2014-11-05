@@ -26,9 +26,8 @@ public final class OptionPanel extends JPanel {
     private String year, scenarioName, playerName;
     
     public OptionPanel() {
-        super();
+        
         initComponents();
-        setSize(800, 600);
         
         UIManager.put("OptionPane.messageFont", new FontUIResource(new Font("Microsoft YaHei", Font.PLAIN, 18)));
         difficultyGroup.add(easy);
@@ -146,7 +145,7 @@ public final class OptionPanel extends JPanel {
                 .addComponent(backButton, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(startButton, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(57, 57, 57))
+                .addGap(54, 54, 54))
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()

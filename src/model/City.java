@@ -9,6 +9,10 @@ package model;
 import controller.GameController;
 import controller.GameParameters;
 import controller.Neighbour;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,8 +31,7 @@ import model.buildings.Building;
  *                       - A number of Soldiers
  *                       - It's own food and gold income.
  */
-public class City
-{
+public class City {
     private String cityName;
     
     private final List<Character> characterList;        // belongs to play and city
@@ -47,7 +50,11 @@ public class City
     private int armour;
     private int horse;
     private int chariot;
-    public int x, y;                                    // city location on GamePanel, x-coordinate and y-coordinate
+    
+    public final int length;
+    public final int offset;
+    public int x, y;                                // city location on GamePanel, x-coordinate and y-coordinate
+
     
     public City(String cityName) {
         
@@ -61,7 +68,11 @@ public class City
         slots = new Building[8];
         
         // Graphics Content
-        rectangle = new Rectangle(0, 0, 25, 25);
+        length = 25;
+        offset = 1;
+        x = 0;
+        y = 0;
+        rectangle = new Rectangle(x, y, length, length);
         
         // Initialise Variables
         initValues();
@@ -309,5 +320,70 @@ public class City
 
     public void setChariot(int chariot) {
         this.chariot = chariot;
+    }
+    
+    public void draw(Graphics g, Color forceColour) {
+        
+        // convert to Graphics2D
+        Graphics2D g2 = (Graphics2D)g;
+        
+        // set border size
+        g2.setStroke(new BasicStroke(2));
+
+        // fill the square
+        g2.setPaint(forceColour);
+        g2.fill(rectangle);
+        
+        // upper line
+        g2.setPaint(forceColour.brighter());
+        g2.drawLine(x + offset, y + offset, x + length, y + offset);
+        
+        // bottom line
+        g2.setPaint(forceColour.darker());
+        g2.drawLine(x + offset, y + length, x + length - offset, y + length);
+        
+        // left line
+        g2.setPaint(forceColour.darker());
+        g2.drawLine(x + offset, y + offset, x + offset, y + length);
+        
+        // right line
+        g2.setPaint(forceColour.brighter());
+        g2.drawLine(x + length, y + offset, x + length, y + length);
+        
+        // making the button more 3D.
+        g2.setStroke(new BasicStroke(1));
+        g2.setPaint(forceColour.brighter());
+        g2.drawLine(x + offset, y, x + offset + offset, y);
+        g2.setPaint(forceColour.darker());
+        g2.drawLine(x + length - offset - offset, y + length, x + length - offset, y + length);
+    }
+    
+    public void drawPressed(Graphics g, Color forceColour) {
+        
+        // convert to Graphics2D
+        Graphics2D g2 = (Graphics2D)g;
+        
+        // set border size
+        g2.setStroke(new BasicStroke(2));
+
+        // fill the square
+        g2.setPaint(forceColour);
+        g2.fill(rectangle);
+        
+        // upper line
+        g2.setPaint(forceColour.darker().darker());
+        g2.drawLine(x + offset, y + offset, x + length, y + offset);
+        
+        // bottom line
+        g2.setPaint(forceColour.darker().darker());
+        g2.drawLine(x + offset, y + length, x + length - offset, y + length);
+        
+        // left line
+        g2.setPaint(forceColour.darker().darker());
+        g2.drawLine(x + offset, y + offset, x + offset, y + length);
+        
+        // right line
+        g2.setPaint(forceColour.darker().darker());
+        g2.drawLine(x + length, y + offset, x + length, y + length);
     }
 }

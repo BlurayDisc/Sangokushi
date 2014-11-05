@@ -1,6 +1,5 @@
 package view;
 
-import controller.GameController;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import model.City;
@@ -14,20 +13,16 @@ import model.buildings.Market;
 import model.buildings.ResearchCentre;
 import model.buildings.Wall;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 /**
  *
  * @author RuN
+ * This class will enable to user to build strucutres and the data will be saved and stored.
  */
 public class BuildingsPanel extends JPanel {
+    
     private static final long serialVersionUID = 1L;
     private final Player player;
     private final GamePanel gp;
-    private final GameController gc;
     private final JButton[] buttons;
     private final Building[] structureData;
     private City selectedCity;
@@ -42,11 +37,8 @@ public class BuildingsPanel extends JPanel {
      * @param gp
      */
     public BuildingsPanel(GamePanel gp) {
-        super();
-        setSize(800, 600);
-        
+
         this.gp = gp;
-        gc = GameController.getInstance();
         player = Player.getInstance();
         
         buttons = new JButton[8];
@@ -80,39 +72,39 @@ public class BuildingsPanel extends JPanel {
     public void updateData() {
         selectedCity = player.getSelectedCity();
         for (int i = 0; i < buttons.length; i++) {
-            if (gc.getSlot(i) == null){
+            if (selectedCity.getSlot(i) == null){
                 buttons[i].setText("空地");
             } else {
-                buttons[i].setText(gc.getSlot(i).getName() + gc.getSlot(i).getLevelText());
+                buttons[i].setText(selectedCity.getSlot(i).getName() + selectedCity.getSlot(i).getLevelText());
             }
         }
         
-        titleLabel.setText(gc.getSelectedCity().getCityName() + "城建筑物");
+        titleLabel.setText(selectedCity.getCityName() + "城建筑物");
         descriptionText.setText("");
         buildLayer.setVisible(false);
         
-        soldierIncomeLabel.setText(gc.getSelectedCity().getSoldierIncome() + "");
-        foodIncomeLabel.setText(gc.getSelectedCity().getFoodIncome() + "");
-        goldIncomeLabel.setText(gc.getSelectedCity().getGoldIncome() + "");
+        soldierIncomeLabel.setText(selectedCity.getSoldierIncome() + "");
+        foodIncomeLabel.setText(selectedCity.getFoodIncome() + "");
+        goldIncomeLabel.setText(selectedCity.getGoldIncome() + "");
         goldLabel.setText("现有白银: " + player.getGold() + "两");
     }
     
     private void updateDescriptionText() {
-        if (gc.getSlot(selectedSlot) == null) {
+        if (selectedCity.getSlot(selectedSlot) == null) {
             descriptionText.setText("您可以为这块空地建造设施。");
-        } else if (gc.getSlot(selectedSlot).getLevel() == 9) {
+        } else if (selectedCity.getSlot(selectedSlot).getLevel() == 9) {
             descriptionText.setText("该建筑以达到最高等级。");
         } else {
-            descriptionText.setText("可以提升" + gc.getSlot(selectedSlot).getName() + "的等级从而增加其" + "金收入。");
+            descriptionText.setText("可以提升" + selectedCity.getSlot(selectedSlot).getName() + "的等级从而增加其" + "金收入。");
         }
     }
     
     private void changeBuildDescription() {
-        if (gc.getSlot(selectedSlot).getLevel() == 1) {                                                         // Construction
-            descriptionText.setText(gc.getSlot(selectedSlot).getName() + " 建造完毕。");
+        if (selectedCity.getSlot(selectedSlot).getLevel() == 1) {                                                         // Construction
+            descriptionText.setText(selectedCity.getSlot(selectedSlot).getName() + " 建造完毕。");
         } else {
             // Level Up
-            descriptionText.setText(gc.getSlot(selectedSlot).getName() + gc.getSlot(selectedSlot).getLevelText() + " 升级完毕。");
+            descriptionText.setText(selectedCity.getSlot(selectedSlot).getName() + selectedCity.getSlot(selectedSlot).getLevelText() + " 升级完毕。");
         }
     }
     
@@ -121,26 +113,26 @@ public class BuildingsPanel extends JPanel {
         // goldIncome = goldIncome + buildings[selectedSlot - 1].getGoldIncome();
         // foodIncome = foodIncome + buildings[selectedSlot - 1].getFoodIncome();
         
-        gc.getSelectedCity().updateIncomes(gc.getSlot(selectedSlot));
+        selectedCity.updateIncomes(selectedCity.getSlot(selectedSlot));
         
-        soldierIncomeLabel.setText(gc.getSelectedCity().getSoldierIncome() + "");
-        foodIncomeLabel.setText(gc.getSelectedCity().getFoodIncome() + "");
-        goldIncomeLabel.setText(gc.getSelectedCity().getGoldIncome() + "");
+        soldierIncomeLabel.setText(selectedCity.getSoldierIncome() + "");
+        foodIncomeLabel.setText(selectedCity.getFoodIncome() + "");
+        goldIncomeLabel.setText(selectedCity.getGoldIncome() + "");
     }
     
     private void changeSlotButtonText() {
-        buttons[selectedSlot].setText(gc.getSlot(selectedSlot).getName());
+        buttons[selectedSlot].setText(selectedCity.getSlot(selectedSlot).getName());
     }
     
     private void createBuilding() {
         switch(selectedBuilding) {
-            case FARM: gc.setSlotData(selectedSlot, new Farm()); break;
-            case MARKET: gc.setSlotData(selectedSlot, new Market()); break;
-            case BARRACKS: gc.setSlotData(selectedSlot, new Barracks()); break;
-            case WALL: gc.setSlotData(selectedSlot, new Wall()); break;
-            case RESEARCH: gc.setSlotData(selectedSlot, new ResearchCentre()); break;
-            case BLACKSMITH: gc.setSlotData(selectedSlot, new BlackSmith()); break;
-            case HORSEFARM: gc.setSlotData(selectedSlot, new HorseFarm()); break;
+            case FARM: selectedCity.setSlotData(selectedSlot, new Farm()); break;
+            case MARKET: selectedCity.setSlotData(selectedSlot, new Market()); break;
+            case BARRACKS: selectedCity.setSlotData(selectedSlot, new Barracks()); break;
+            case WALL: selectedCity.setSlotData(selectedSlot, new Wall()); break;
+            case RESEARCH: selectedCity.setSlotData(selectedSlot, new ResearchCentre()); break;
+            case BLACKSMITH: selectedCity.setSlotData(selectedSlot, new BlackSmith()); break;
+            case HORSEFARM: selectedCity.setSlotData(selectedSlot, new HorseFarm()); break;
         }
     }
     
@@ -153,7 +145,7 @@ public class BuildingsPanel extends JPanel {
     }
     
     private String getLevelUpText() {
-        return gc.getSlot(selectedSlot).getName() + "可升级为" + gc.getSlot(selectedSlot).getLevel() + "级";
+        return selectedCity.getSlot(selectedSlot).getName() + "可升级为" + selectedCity.getSlot(selectedSlot).getLevel() + "级";
     }
     
     private void hideBuildLayer() {
@@ -170,19 +162,19 @@ public class BuildingsPanel extends JPanel {
     }
     
     private boolean isUpgradable() {
-        return gc.getSlot(selectedSlot) != null;
+        return selectedCity.getSlot(selectedSlot) != null;
     }
     
     private void upgrade() {
         // Order is important！ do not mess up.
-        String name = gc.getSlot(selectedSlot).getName();
+        String name = selectedCity.getSlot(selectedSlot).getName();
         
-        if (gc.getSlot(selectedSlot).getLevel() == 9) {             // Reach Max Lvl.
+        if (selectedCity.getSlot(selectedSlot).getLevel() == 9) {             // Reach Max Lvl.
             descriptionText.setText(name + " 已达到最高等级！");
         } else {
             applyLvlUpCost(); 
-            gc.getSlot(selectedSlot).increaseLevel();
-            buttons[selectedSlot].setText(name + gc.getSlot(selectedSlot).getLevelText());
+            selectedCity.getSlot(selectedSlot).increaseLevel();
+            buttons[selectedSlot].setText(name + selectedCity.getSlot(selectedSlot).getLevelText());
             changeBuildDescription();
         }
     }
@@ -273,32 +265,39 @@ public class BuildingsPanel extends JPanel {
         foodDisplayLabel = new javax.swing.JLabel();
         soldierDisplayLabel = new javax.swing.JLabel();
 
-        setMaximumSize(new java.awt.Dimension(800, 600));
-        setMinimumSize(new java.awt.Dimension(800, 600));
+        setPreferredSize(new java.awt.Dimension(800, 600));
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 formMouseClicked(evt);
             }
         });
+        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         titleLabel.setFont(new java.awt.Font("Microsoft YaHei", 0, 24)); // NOI18N
         titleLabel.setForeground(new java.awt.Color(153, 102, 0));
         titleLabel.setText("许昌城建筑物");
+        add(titleLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(58, 29, 200, -1));
 
         goldIncomeLabel.setFont(new java.awt.Font("Microsoft YaHei", 0, 13)); // NOI18N
         goldIncomeLabel.setText("100");
+        add(goldIncomeLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(695, 196, 75, -1));
 
         foodIncomeLabel.setFont(new java.awt.Font("Microsoft YaHei", 0, 13)); // NOI18N
         foodIncomeLabel.setText("200");
+        add(foodIncomeLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(695, 232, 75, -1));
 
         soldierIncomeLabel.setFont(new java.awt.Font("Microsoft YaHei", 0, 13)); // NOI18N
         soldierIncomeLabel.setText("300");
+        add(soldierIncomeLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(695, 268, 75, -1));
 
         buildingNameLabel.setText("建造市场:");
+        add(buildingNameLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(636, 334, 95, -1));
 
         costLabel.setText("所需白银: 0");
+        add(costLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(636, 357, 134, -1));
 
         goldLabel.setText("现有白银: 2000两");
+        add(goldLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(636, 380, 134, -1));
 
         emptySlot1.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
         emptySlot1.setText("空地");
@@ -309,6 +308,7 @@ public class BuildingsPanel extends JPanel {
                 emptySlot1ActionPerformed(evt);
             }
         });
+        add(emptySlot1, new org.netbeans.lib.awtextra.AbsoluteConstraints(58, 98, -1, -1));
 
         emptySlot2.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
         emptySlot2.setText("空地");
@@ -319,6 +319,7 @@ public class BuildingsPanel extends JPanel {
                 emptySlot2ActionPerformed(evt);
             }
         });
+        add(emptySlot2, new org.netbeans.lib.awtextra.AbsoluteConstraints(243, 98, -1, -1));
 
         emptySlot3.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
         emptySlot3.setText("空地");
@@ -329,6 +330,7 @@ public class BuildingsPanel extends JPanel {
                 emptySlot3ActionPerformed(evt);
             }
         });
+        add(emptySlot3, new org.netbeans.lib.awtextra.AbsoluteConstraints(58, 206, -1, -1));
 
         emptySlot4.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
         emptySlot4.setText("空地");
@@ -339,6 +341,7 @@ public class BuildingsPanel extends JPanel {
                 emptySlot4ActionPerformed(evt);
             }
         });
+        add(emptySlot4, new org.netbeans.lib.awtextra.AbsoluteConstraints(243, 206, -1, -1));
 
         emptySlot5.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
         emptySlot5.setText("空地");
@@ -349,6 +352,7 @@ public class BuildingsPanel extends JPanel {
                 emptySlot5ActionPerformed(evt);
             }
         });
+        add(emptySlot5, new org.netbeans.lib.awtextra.AbsoluteConstraints(58, 314, -1, -1));
 
         emptySlot6.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
         emptySlot6.setText("空地");
@@ -359,6 +363,7 @@ public class BuildingsPanel extends JPanel {
                 emptySlot6ActionPerformed(evt);
             }
         });
+        add(emptySlot6, new org.netbeans.lib.awtextra.AbsoluteConstraints(243, 314, -1, -1));
 
         emptySlot7.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
         emptySlot7.setText("空地");
@@ -369,6 +374,7 @@ public class BuildingsPanel extends JPanel {
                 emptySlot7ActionPerformed(evt);
             }
         });
+        add(emptySlot7, new org.netbeans.lib.awtextra.AbsoluteConstraints(58, 422, -1, -1));
 
         emptySlot8.setFont(new java.awt.Font("Microsoft YaHei", 1, 18)); // NOI18N
         emptySlot8.setText("空地");
@@ -379,6 +385,7 @@ public class BuildingsPanel extends JPanel {
                 emptySlot8ActionPerformed(evt);
             }
         });
+        add(emptySlot8, new org.netbeans.lib.awtextra.AbsoluteConstraints(243, 422, -1, -1));
 
         finishButton.setText("完成");
         finishButton.setFocusable(false);
@@ -390,11 +397,13 @@ public class BuildingsPanel extends JPanel {
                 finishButtonActionPerformed(evt);
             }
         });
+        add(finishButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 531, -1, -1));
 
         descriptionText.setEditable(false);
         descriptionText.setFont(new java.awt.Font("Microsoft YaHei", 0, 14)); // NOI18N
         descriptionText.setForeground(new java.awt.Color(153, 102, 0));
         descriptionText.setText("您好");
+        add(descriptionText, new org.netbeans.lib.awtextra.AbsoluteConstraints(58, 538, 385, -1));
 
         buildLayer.setMaximumSize(new java.awt.Dimension(211, 413));
         buildLayer.setMinimumSize(new java.awt.Dimension(211, 413));
@@ -496,129 +505,28 @@ public class BuildingsPanel extends JPanel {
         });
         buildLayer.add(backButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 386, 120, 50));
 
+        add(buildLayer, new org.netbeans.lib.awtextra.AbsoluteConstraints(428, 76, 155, -1));
+
         summaryDisplayLabel.setFont(new java.awt.Font("Microsoft YaHei", 0, 18)); // NOI18N
         summaryDisplayLabel.setText("设施总概要");
+        add(summaryDisplayLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(636, 154, -1, -1));
 
         goldDisplayLabel.setFont(new java.awt.Font("Microsoft YaHei", 0, 13)); // NOI18N
         goldDisplayLabel.setText("金收入：");
+        add(goldDisplayLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(636, 196, -1, -1));
 
         foodDisplayLabel.setFont(new java.awt.Font("Microsoft YaHei", 0, 13)); // NOI18N
         foodDisplayLabel.setText("粮收入：");
+        add(foodDisplayLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(636, 232, -1, -1));
 
         soldierDisplayLabel.setFont(new java.awt.Font("Microsoft YaHei", 0, 13)); // NOI18N
         soldierDisplayLabel.setText("征兵量：");
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(58, 58, 58)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(descriptionText, javax.swing.GroupLayout.PREFERRED_SIZE, 385, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(finishButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(titleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(emptySlot1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(emptySlot5, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(emptySlot3, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(emptySlot7, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(55, 55, 55)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(emptySlot4, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(emptySlot2, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(emptySlot6, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(emptySlot8, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                        .addGap(55, 55, 55)
-                        .addComponent(buildLayer, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(53, 53, 53)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(soldierDisplayLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(soldierIncomeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(foodDisplayLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(foodIncomeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(goldDisplayLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(goldIncomeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(summaryDisplayLabel)
-                            .addComponent(buildingNameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(costLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(goldLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(30, 30, 30))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(154, 154, 154)
-                        .addComponent(summaryDisplayLabel)
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(goldDisplayLabel)
-                            .addComponent(goldIncomeLabel))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(foodDisplayLabel)
-                            .addComponent(foodIncomeLabel))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(soldierDisplayLabel)
-                            .addComponent(soldierIncomeLabel))
-                        .addGap(48, 48, 48)
-                        .addComponent(buildingNameLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(costLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(goldLabel))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(29, 29, 29)
-                        .addComponent(titleLabel)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(36, 36, 36)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(emptySlot1, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(emptySlot2, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(emptySlot4, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(emptySlot3, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(emptySlot6, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(emptySlot5, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(emptySlot7, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(emptySlot8, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGap(0, 0, 0)
-                                .addComponent(buildLayer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(descriptionText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(finishButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(29, Short.MAX_VALUE))
-        );
+        add(soldierDisplayLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(636, 268, -1, -1));
     }// </editor-fold>//GEN-END:initComponents
 
     private void buildButton1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_buildButton1ActionPerformed
     {//GEN-HEADEREND:event_buildButton1ActionPerformed
-        if (gc.getSlot(selectedSlot) == null) {
+        if (selectedCity.getSlot(selectedSlot) == null) {
             if (page == PAGE1) {selectedBuilding = BARRACKS;}
             else if (page == PAGE2) {selectedBuilding = BLACKSMITH;}
             build();

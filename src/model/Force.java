@@ -7,6 +7,7 @@
 package model;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -163,4 +164,10 @@ public class Force {
         return forceColour;
     }
     
+    // Draw every city owned by this force
+    public void drawCities(Graphics g) {
+        for (int i = 0; i < cityList.size(); i++) {
+            getCityList().get(i).draw(g, forceColour);
+        }
+    }
 }
