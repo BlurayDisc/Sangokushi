@@ -39,7 +39,7 @@ public class GamePanel extends JPanel {
         frame = MainFrame.getInstance();
                         
         // Graphics Content
-        gameScreen = new GameScreen();
+        gameScreen = GameScreen.getInstance();
         
         // Inititalise Variables
         player = Player.getInstance();

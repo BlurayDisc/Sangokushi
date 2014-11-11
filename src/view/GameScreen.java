@@ -13,7 +13,9 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
+import javax.swing.SwingWorker;
 import model.City;
 import model.Player;
 
@@ -23,6 +25,7 @@ import model.Player;
  */
 public class GameScreen {
     
+    private static final GameScreen instance = new GameScreen();
     private final GameController controller;
     private final Player player;
     private final Rectangle[] menuButtons;
@@ -33,8 +36,10 @@ public class GameScreen {
     public final int menu_height, menu_width, menu_xPos, menu_yPos;
     public final int button_xPos, button_yPos;
     
-    public GameScreen() {
-        
+    private SwingWorker<Image, Void> worker;
+    
+    private GameScreen() {
+
         // Constants
         button_xPos = 80;
         button_yPos = 40;
@@ -50,20 +55,46 @@ public class GameScreen {
         
         // Button Array
         menuButtons = new Rectangle[6];
-
+        
+        // initSwingWorker();
         initMenuRectangles();
-        initBackground();
+        initImages();
     }
     
     public void setGraphics(Graphics g) {
         this.g = (Graphics2D) g;
     }
     
-    public Graphics getGraphics() {
-        return g;
+    private void initSwingWorker() {
+        worker = new SwingWorker<Image, Void>() {
+            @Override
+            public Image doInBackground() {
+                Image image = loadImage();
+                return image;
+            }
+        };
+        
+        storeImage();
+    }
+    
+    private void storeImage() {
+        try {
+            backgroundImage = worker.get(3000, TimeUnit.MICROSECONDS);
+        } catch (Exception e){}
+    }
+    
+    private Image loadImage() {
+
+        Image tempImage = null;
+
+        try{
+            tempImage = ImageIO.read(getClass().getResourceAsStream("/resources/gameBackground.png"));
+        } catch (Exception e){}
+        
+        return tempImage;
     }
 
-    private void initBackground() {
+    private void initImages() {
         try{
             backgroundImage = ImageIO.read(getClass().getResourceAsStream("/resources/gameBackground.png"));
             menuImage = ImageIO.read(getClass().getResourceAsStream("/resources/optionPanelBackground.png"));
@@ -143,5 +174,9 @@ public class GameScreen {
     // Sets the force color to work with
     private void setForceColor() {
         forceColor = player.getSelectedCity().getOwner().getForceColor();
+    }
+    
+    public static GameScreen getInstance() {
+        return instance;
     }
 }

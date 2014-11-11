@@ -12,19 +12,19 @@ package model;
  */
 public class Character {
     
-    private String name;
-    private int leadership, combatPower, intelligence, politics;
+    private final String name;
+    private byte leadership, combatPower, intelligence, politics;
     private int damage, defence;
     private int commandPower;
-    private Ability ability;
+    // private Ability ability;
     private boolean isInjured = false; 
         
     public Character(String name, int leadership, int combatPower, int intelligence, int politics) {
         this.name = name;
-        this.leadership = leadership;
-        this.combatPower = combatPower;
-        this.intelligence = intelligence;
-        this.politics = politics;
+        this.leadership = (byte)leadership;
+        this.combatPower = (byte)combatPower;
+        this.intelligence = (byte)intelligence;
+        this.politics = (byte)politics;
         
         commandPower = calcCommandPower();
         damage = calcDmg();
@@ -32,35 +32,35 @@ public class Character {
     }
     
     public Character(String name) {
-        this(name, 50, 50, 50, 50);
+        this(name, (byte)50, (byte)50, (byte)50, (byte)50);
     }
     
     public void addLeadership(int increment)
     {
-        leadership = increment + leadership;
+        leadership = (byte) (increment + leadership);
     }
     
     public void addCombatPower(int increment)
     {
-        combatPower = increment + combatPower;
+        combatPower = (byte) (increment + combatPower);
     }
     
     public void addIntelligence(int increment)
     {
-        intelligence = increment + intelligence;
+        intelligence = (byte) (increment + intelligence);
     }
     
     public void addPolitics(int increment)
     {
-        politics = increment + politics;
+        politics = (byte) (increment + politics);
     }
     
     public void applyInjury()
     {
-        leadership = leadership * 7 / 10;
-        combatPower = combatPower * 5 / 10;
-        intelligence = intelligence * 7 / 10;
-        politics = politics * 8 / 10;
+        leadership = (byte) (leadership * 7 / 10);
+        combatPower = (byte) (combatPower * 5 / 10);
+        intelligence = (byte) (intelligence * 7 / 10);
+        politics = (byte) (politics * 8 / 10);
     }
     
     public void setInjuried(boolean isInjured)
@@ -198,13 +198,6 @@ public class Character {
     }
 
     /**
-     * @param name the name to set
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
      * @return the leadership
      */
     public int getLeadership() {
@@ -243,14 +236,6 @@ public class Character {
 
     public void increasePolitics() {
         politics++;
-    }
-    
-    public Ability getAbility() {
-        return ability;
-    }
-    
-    public void setAbility(Ability ability) {
-        this.ability = ability;
     }
     
     public int getCommandPower() {

@@ -8,6 +8,8 @@ package view;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.Timer;
 import model.AI;
 
@@ -15,7 +17,7 @@ import model.AI;
  *
  * @author RuN
  */
-public class AILogicFrame extends javax.swing.JFrame {
+public class AILogicFrame extends JFrame {
     private static final long serialVersionUID = 1L;
     // AI ai = new AI();
     private final GamePanel gp;

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<player>
+    <scenario>1</scenario>
+    <force id = "1" silver = "1000" grain = "1000">
+        <cities>
+            <city id = "1" soldiers = "20000">
+                <characters>
+                    <character id = "1"></character>
+                </characters>
+                <structures>
+                    <house>0</house>
+                    <farm>0</farm>
+                    <blacksmith>0</blacksmith>
+                    <barracks>0</barracks>
+                </structures>
+            </city>
+        </cities>
+        <technology>
+            <farming>0</farming>
+            <smithing>0</smithing>
+            <horseRiding>0</horseRiding>
+            <archery>0</archery>
+            <swordsmanship>0</swordsmanship>
+        </technology>
+    </force>
+</player>
+
+<force id = "2" silver = "1000" grain = "1000">
+    <city id = "2" soldiers = "10000">
+        <character id = "2"></character>
+        <character id = "3"></character>
+        <structures>
+            <house>0</house>
+            <farm>0</farm>
+            <blacksmith>0</blacksmith>
+            <barracks>0</barracks>
+        </structures>
+    </city>
+    <technology>
+        <farming>0</farming>
+        <smithing>0</smithing>
+        <horseRiding>0</horseRiding>
+        <archery>0</archery>
+        <swordsmanship>0</swordsmanship>
+    </technology>
+</force>

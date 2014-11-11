@@ -37,7 +37,7 @@ public class City {
     private final List<Character> characterList;        // belongs to play and city
     private final List<Character> undiscoveredList;     // undiscovered character
     private final Rectangle rectangle;
-    private final int[] neighbours;
+    private final byte[] neighbours;
     // private final Neighbour[] newNeighbours;
     private final Building[] slots;
     protected int soldierIncome;
@@ -63,7 +63,7 @@ public class City {
         // Initialise Arrays and Lists
         characterList = new ArrayList<>(10);
         undiscoveredList = new ArrayList<>(10);
-        neighbours = new int[8];
+        neighbours = new byte[8];
         // newNeighbours = new Neighbour[8];
         slots = new Building[8];
         
@@ -90,7 +90,7 @@ public class City {
         armour = 0;
         horse = 0;
         chariot = 0;
-        Arrays.fill(neighbours, 0);
+        Arrays.fill(neighbours, (byte) 0);
         Arrays.fill(slots, null);
     }
     
@@ -192,21 +192,21 @@ public class City {
     
     public void setNeighbours(int north, int south, int west, int east, int northWest, int northEast, int southWest, int southEast) {
         setNeighbours(north, south, west, east);
-        neighbours[4] = northWest;
-        neighbours[5] = northEast;
-        neighbours[6] = southWest;
-        neighbours[7] = southEast;
+        neighbours[4] = (byte)northWest;
+        neighbours[5] = (byte)northEast;
+        neighbours[6] = (byte)southWest;
+        neighbours[7] = (byte)southEast;
     }
     
     public void setNeighbours(int north, int south, int west, int east) {
-        neighbours[0] = north;
-        neighbours[1] = south;
-        neighbours[2] = west;
-        neighbours[3] = east;
-        neighbours[4] = GameParameters.CITY_EMPTY;
-        neighbours[5] = GameParameters.CITY_EMPTY;
-        neighbours[6] = GameParameters.CITY_EMPTY;
-        neighbours[7] = GameParameters.CITY_EMPTY;
+        neighbours[0] = (byte)north;
+        neighbours[1] = (byte)south;
+        neighbours[2] = (byte)west;
+        neighbours[3] = (byte)east;
+        neighbours[4] = (byte)GameParameters.CITY_EMPTY;
+        neighbours[5] = (byte)GameParameters.CITY_EMPTY;
+        neighbours[6] = (byte)GameParameters.CITY_EMPTY;
+        neighbours[7] = (byte)GameParameters.CITY_EMPTY;
     }
 
     public boolean isFrontline(){

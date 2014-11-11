@@ -27,7 +27,6 @@ public class Force {
     private int soldier;
     private int soldierIncome;
     private int population;
-    private int populationGrowth;
        
     public Force(String forceName) {
         this.forceName = forceName;
@@ -146,14 +145,6 @@ public class Force {
 
     public void setSoldierIncome(int soldierIncome) {
         this.soldierIncome = soldierIncome;
-    }
-
-    public int getPopulationGrowth() {
-        return populationGrowth;
-    }
-
-    public void setPopulationGrowth(int populationGrowth) {
-        this.populationGrowth = populationGrowth;
     }
     
     public void setForceColor(int r, int g, int b) {
