@@ -6,31 +6,36 @@
 
 package sangokushi;
 
-import view.MainFrame;
+import sangokushi.view.MainFrame;
 
 /**
  *
  * @author RuN
  */
 public class Sangokushi {
+    
     public static void main(String args[]) {
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code ">
-        try
-        {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels())
-            {
-                if ("Nimbus".equals(info.getName()))        // Windows
-                {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
+        setLookAndFeel();
+        run();
+    }
+    
+    private static void setLookAndFeel() {
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {          // Windows
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName()); break;
                 }
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex){}
-        //</editor-fold>
+    }
+    
+    private static void run() {
+        
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                MainFrame.getInstance().setVisible(true);
+                MainFrame frame = MainFrame.getInstance();
+                frame.setVisible(true);
             }
         });
     }
